@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="توانبخشی و ارتوپدی">
+  <defs>
+    <linearGradient id="bgR1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FBEEE8"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bgR1)"/>
+  <circle cx="200" cy="200" r="120" fill="#FFFFFF" stroke="#F5DCCF" stroke-width="2"/>
+  <path d="M150 140v90M250 140v90M150 155h100" fill="none" stroke="#E8613C" stroke-width="10" stroke-linecap="round"/>
+  <path d="M150 230l-15 30M250 230l15 30" stroke="#0E6BA8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M70 90l16 0M78 82l0 16" stroke="#E8613C" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+  <path d="M330 310l14 0M337 303l0 14" stroke="#14A38B" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+</svg>

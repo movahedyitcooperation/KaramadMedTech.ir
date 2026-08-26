@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="مصرفی و بهداشتی">
+  <defs>
+    <linearGradient id="bgC2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8FBF6"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bgC2)"/>
+  <circle cx="200" cy="200" r="120" fill="#FFFFFF" stroke="#CFEFE7" stroke-width="2"/>
+  <rect x="140" y="175" width="120" height="60" rx="30" fill="#14A38B"/>
+  <path d="M160 175v-15a10 10 0 0 1 20 0v15M220 175v-15a10 10 0 0 1 20 0v15" fill="none" stroke="#0F8672" stroke-width="6"/>
+  <circle cx="330" cy="90" r="9" fill="#E8613C" opacity="0.6"/>
+  <path d="M70 300l16 0M78 292l0 16" stroke="#0E6BA8" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+</svg>

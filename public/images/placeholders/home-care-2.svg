@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="مراقبت در منزل">
+  <defs>
+    <linearGradient id="bgH2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EAF4FB"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bgH2)"/>
+  <circle cx="200" cy="200" r="120" fill="#FFFFFF" stroke="#D2E7F6" stroke-width="2"/>
+  <path d="M150 210l50-40 50 40" fill="none" stroke="#0E6BA8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="165" y="210" width="70" height="50" rx="6" fill="#14A38B"/>
+  <path d="M330 90l14 0M337 83l0 14" stroke="#E8613C" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+  <path d="M70 310l16 0M78 302l0 16" stroke="#0E6BA8" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+</svg>

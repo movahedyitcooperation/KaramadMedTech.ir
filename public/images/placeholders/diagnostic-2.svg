@@ -1,0 +1,15 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="تجهیزات تشخیصی">
+  <defs>
+    <linearGradient id="bgD2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EAF4FB"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bgD2)"/>
+  <circle cx="200" cy="200" r="120" fill="#FFFFFF" stroke="#D2E7F6" stroke-width="2"/>
+  <rect x="150" y="160" width="100" height="70" rx="10" fill="#EAF4FB" stroke="#0E6BA8" stroke-width="6"/>
+  <path d="M170 195h60M200 165v60" stroke="#14A38B" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="150" cy="150" r="8" fill="#E8613C" opacity="0.7"/>
+  <path d="M70 320l16 0M78 312l0 16" stroke="#0E6BA8" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+  <path d="M330 80l14 0M337 73l0 14" stroke="#14A38B" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+</svg>
