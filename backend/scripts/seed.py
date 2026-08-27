@@ -9,8 +9,16 @@ Not run automatically by anything — invoke explicitly with:
 """
 
 import asyncio
+import sys
 import uuid
+from pathlib import Path
 from typing import Any
+
+# Make `app` importable when this file is run directly (`uv run python
+# scripts/seed.py`) — Python puts the *script's* directory (scripts/) on
+# sys.path in that mode, not the backend/ root, so `app` wouldn't otherwise
+# be found. Same fix as alembic/env.py.
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from sqlalchemy import delete
 from sqlalchemy.dialects.postgresql import insert as pg_insert

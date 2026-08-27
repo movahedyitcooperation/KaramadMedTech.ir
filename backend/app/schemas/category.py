@@ -23,14 +23,18 @@ class CategoryRead(CategoryBase):
 class CategoryTree(CategoryBase):
     """Category with one level of (active) children eager-loaded.
 
-    The real data is a 2-level tree (6 top-level categories, each with a few
-    direct children — see lib/mock/categories.ts in the Next.js repo), so
-    this does not recurse deeper. If a 3rd level is ever introduced, this
-    needs a recursive shape (and the query behind it needs a recursive CTE
-    instead of a single selectinload — see app/api/v1/categories.py).
+    `children` is deliberately typed as `list[CategoryBase]`, not a
+    recursive `list["CategoryTree"]`: the real data is a 2-level tree
+    (6 top-level categories, each with a few direct children — see
+    lib/mock/categories.ts in the Next.js repo), and the query behind this
+    (app/api/v1/categories.py) only eager-loads that one level via
+    selectinload. A recursive schema would make Pydantic try to read a
+    `.children` attribute on the grandchild level too — which was never
+    loaded and isn't reachable from outside the request's async session,
+    raising a MissingGreenlet error at serialization time (confirmed by
+    hitting this exact bug against a live DB). If a 3rd category level is
+    ever introduced, this needs to become properly recursive AND the query
+    needs a recursive CTE instead of a single selectinload.
     """
 
-    children: list["CategoryTree"] = []
-
-
-CategoryTree.model_rebuild()
+    children: list[CategoryBase] = []

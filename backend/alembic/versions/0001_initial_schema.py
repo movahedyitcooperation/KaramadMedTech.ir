@@ -66,9 +66,14 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.ForeignKeyConstraint(["category_id"], ["categories.id"], ondelete="RESTRICT"),
+        # sku is a plain UniqueConstraint, not a unique index like slug: it's
+        # never looked up in a WHERE clause (unlike slug, used in URL lookups),
+        # so it only needs uniqueness enforced, matching what the model's bare
+        # `unique=True` (no `index=True`) generates. Confirmed via an
+        # autogenerate drift check against this migration once applied.
+        sa.UniqueConstraint("sku", name="uq_products_sku"),
     )
     op.create_index("ix_products_slug", "products", ["slug"], unique=True)
-    op.create_index("ix_products_sku", "products", ["sku"], unique=True)
 
     # --- product_images ------------------------------------------------------
     op.create_table(
@@ -112,7 +117,6 @@ def downgrade() -> None:
     op.drop_table("product_specs")
     op.drop_index("ix_product_images_product_id", table_name="product_images")
     op.drop_table("product_images")
-    op.drop_index("ix_products_sku", table_name="products")
     op.drop_index("ix_products_slug", table_name="products")
     op.drop_table("products")
     op.drop_index("ix_categories_slug", table_name="categories")
