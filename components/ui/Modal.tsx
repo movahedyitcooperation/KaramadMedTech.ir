@@ -76,7 +76,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-label={title}
         tabIndex={-1}
         className={cn(
-          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-card bg-surface p-6 shadow-soft-lg focus:outline-none",
+          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-card bg-surface p-6 shadow-lg focus:outline-none",
           className
         )}
       >

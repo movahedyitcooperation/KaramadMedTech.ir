@@ -13,7 +13,7 @@ export function SpecTable({ specs }: { specs: ProductSpec[] }) {
       {Array.from(groups.entries()).map(([group, items]) => (
         <div key={group}>
           <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-ink-900">
-            <span className="h-4 w-1 rounded-full bg-coral-500" aria-hidden="true" />
+            <span className="h-4 w-1 rounded-full bg-accent-500" aria-hidden="true" />
             {group}
           </h3>
           <table className="w-full overflow-hidden rounded-card border border-line text-sm">

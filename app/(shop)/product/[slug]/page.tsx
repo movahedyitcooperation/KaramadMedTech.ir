@@ -7,7 +7,6 @@ import { ProductPurchaseCard } from "@/components/shop/ProductPurchaseCard";
 import { ProductTabs } from "@/components/shop/ProductTabs";
 import { RelatedProducts } from "@/components/shop/RelatedProducts";
 import { ShareButton } from "@/components/shop/ShareButton";
-import { Badge } from "@/components/ui/Badge";
 import { getCategoryBreadcrumb, getCategoryById } from "@/lib/db/categories";
 import { getProductBySlug } from "@/lib/db/products";
 import { getContactSetting } from "@/lib/db/settings";
@@ -69,12 +68,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ProductPurchaseCard product={product} />
         <ProductHighlightsCard product={product} phone={contact.phone} />
       </div>
-
-      {product.compareAtPrice && (
-        <div className="mt-4">
-          <Badge variant="coral">تخفیف ویژه</Badge>
-        </div>
-      )}
 
       <div className="mt-10">
         <ProductTabs product={product} />

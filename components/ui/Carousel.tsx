@@ -177,7 +177,7 @@ export function Carousel({
             type="button"
             onClick={goNext}
             aria-label={fa.common.next}
-            className="absolute end-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-surface/90 text-ink-900 shadow-soft hover:bg-surface"
+            className="absolute end-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-surface/85 text-ink-900 shadow-md backdrop-blur-sm hover:bg-surface"
           >
             <DirIcon icon={CaretRight} size={20} />
           </button>
@@ -185,7 +185,7 @@ export function Carousel({
             type="button"
             onClick={goPrev}
             aria-label={fa.common.prev}
-            className="absolute start-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-surface/90 text-ink-900 shadow-soft hover:bg-surface"
+            className="absolute start-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-surface/85 text-ink-900 shadow-md backdrop-blur-sm hover:bg-surface"
           >
             <DirIcon icon={CaretLeft} size={20} />
           </button>
@@ -197,7 +197,7 @@ export function Carousel({
           type="button"
           onClick={() => setIsPlaying((p) => !p)}
           aria-label={isPlaying ? fa.home.pauseAutoplay : fa.home.playAutoplay}
-          className="absolute bottom-4 start-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-surface/90 text-ink-900 shadow-soft hover:bg-surface"
+          className="absolute bottom-4 start-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-surface/85 text-ink-900 shadow-md backdrop-blur-sm hover:bg-surface"
         >
           {isPlaying ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
         </button>

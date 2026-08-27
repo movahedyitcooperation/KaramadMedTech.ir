@@ -93,7 +93,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
           {items.map((item) => (
             <li
               key={item.productId}
-              className="flex gap-4 rounded-card border border-line bg-surface p-4 shadow-soft"
+              className="flex gap-4 rounded-card border border-line bg-surface p-4 shadow-sm"
             >
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-input bg-brand-50">
                 <Image
@@ -136,7 +136,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
           ))}
         </ul>
 
-        <div className="h-fit rounded-card border border-line bg-surface p-5 shadow-soft lg:sticky lg:top-24">
+        <div className="h-fit rounded-card border border-line bg-surface p-5 shadow-sm lg:sticky lg:top-24">
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-ink-500">{fa.cart.subtotal}</span>
@@ -161,7 +161,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
             </div>
           </div>
           <Button
-            variant="teal"
+            variant="success"
             size="lg"
             className="mt-4 w-full"
             disabled

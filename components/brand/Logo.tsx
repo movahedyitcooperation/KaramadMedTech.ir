@@ -9,9 +9,9 @@ interface LogoProps {
 function LogoIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" className="shrink-0">
-      <rect width="40" height="40" rx="12" fill="#0E6BA8" />
+      <rect width="40" height="40" rx="12" fill="#0E7C86" />
       <path d="M20 10v20M10 20h20" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="20" cy="20" r="16.5" fill="none" stroke="#14A38B" strokeWidth="2" opacity="0.5" />
+      <circle cx="20" cy="20" r="16.5" fill="none" stroke="#0F9D6B" strokeWidth="2" opacity="0.6" />
     </svg>
   );
 }

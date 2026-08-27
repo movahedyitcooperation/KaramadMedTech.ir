@@ -27,33 +27,55 @@
 @theme {
   --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-50: #eaf4fb;
-  --color-brand-100: #d2e7f6;
-  --color-brand-500: #1780c9;
-  --color-brand-600: #0e6ba8;
-  --color-brand-700: #0a5382;
+  /* ---- Palette: cyan-teal medical + health green + warm accent ------------ */
+  /* Primary — cyan-teal. brand-600 is the workhorse (links, headers, buttons) */
+  --color-brand-50: #ecfaf9;
+  --color-brand-100: #cff2ef;
+  --color-brand-200: #a3e5df;
+  --color-brand-500: #0fa3a3; /* interactive lighten / hover */
+  --color-brand-600: #0e7c86; /* primary */
+  --color-brand-700: #0b5d66; /* pressed / deep */
+  --color-brand-900: #06373d; /* hero mesh anchor */
 
-  --color-teal-500: #14a38b;
-  --color-teal-600: #0f8672;
+  /* Health green — success, in-stock, cart CTA */
+  --color-green-500: #0f9d6b;
+  --color-green-600: #0b7e58;
 
-  --color-coral-500: #e8613c;
-  --color-coral-600: #cf4f2c;
+  /* Warm accent — secondary CTA (login, مشاوره), discount flags */
+  --color-accent-500: #e85d3d;
+  --color-accent-600: #cb4a2e;
 
-  --color-ink-900: #0f1b2a;
-  --color-ink-500: #64748b;
-  --color-line: #e4ebf2;
-  --color-bg: #f6f9fc;
-  --color-surface: #ffffff;
-  --color-danger: #dc2626;
+  /* Neutral ramp */
+  --color-ink-900: #0c1a24; /* headings */
+  --color-ink-700: #2b3e4a; /* body text */
+  --color-ink-500: #5c7079; /* muted text */
+  --color-ink-400: #8a9ba3; /* captions / meta */
+  --color-line: #dce7ea; /* hairline borders */
+  --color-line-strong: #c2d3d7; /* dividers */
+  --color-bg: #f3f8f8; /* page background */
+  --color-surface: #ffffff; /* cards */
+  --color-danger: #dc2626; /* destructive only — never decorative */
 
-  --radius-card: 12px;
+  /* ---- Radius ----------------------------------------------------------- */
+  --radius-card: 16px;
+  --radius-tile: 10px; /* chips, inner tiles, licence slots */
   --radius-pill: 999px;
   --radius-input: 8px;
 
-  --shadow-soft: 0 2px 12px rgb(15 27 42 / 0.06);
-  --shadow-soft-lg: 0 8px 28px rgb(15 27 42 / 0.1);
+  /* ---- Elevation scale ------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgb(12 26 36 / 0.04);
+  --shadow-sm: 0 2px 8px rgb(12 26 36 / 0.06);
+  --shadow-md: 0 6px 20px rgb(12 26 36 / 0.08);
+  --shadow-lg: 0 16px 40px rgb(12 26 36 / 0.12);
 
+  /* ---- Motion -------------------------------------------------------- */
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* ---- Type scale (reference) ---------------------------------------- */
+  /* 13 · 14 · 16 (base) · 18 · 22 · 28 · 36 — headings 1.35, body 1.7    */
 }
 
 @layer base {
@@ -71,8 +93,16 @@
     background: var(--color-bg);
     color: var(--color-ink-900);
     font-family: var(--font-sans);
+    line-height: 1.7;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.35;
   }
 
   a,
@@ -84,7 +114,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -108,6 +138,11 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Stable-width digits for prices, quantities, timers */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
   .skip-link {

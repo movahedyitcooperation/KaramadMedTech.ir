@@ -30,8 +30,8 @@ export function HeaderAuthStatus() {
     <Link
       href="/login"
       className={cn(
-        buttonVariants({ variant: "coral", size: "md" }),
-        "px-3 text-sm shadow-soft sm:px-5 sm:text-base"
+        buttonVariants({ variant: "accent", size: "md" }),
+        "px-3 text-sm shadow-sm sm:px-5 sm:text-base"
       )}
     >
       {fa.header.loginRegister}

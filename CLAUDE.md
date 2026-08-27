@@ -41,35 +41,57 @@ users cannot reach Google Fonts. Self-host everything in `/public`.
 
 ## 3. Design system
 
-Same structure as the reference, medical palette.
+Same information architecture as the reference. **"Clinical Calm"** palette —
+cyan-teal primary + health green + a warm accent, on a full neutral ramp. The
+authoritative source is `app/globals.css` `@theme`; `/dev/tokens` renders every
+token. Revised 2026-08-27 from the original flat-blue palette (visual redesign
+approved by the repo owner).
 
 ```css
 /* app/globals.css — @theme */
---color-brand-50:  #EAF4FB;
---color-brand-100: #D2E7F6;
---color-brand-500: #1780C9;
---color-brand-600: #0E6BA8;   /* primary — headers, links, primary buttons */
---color-brand-700: #0A5382;
---color-teal-500:  #14A38B;   /* success, in-stock, cart button */
---color-teal-600:  #0F8672;
---color-coral-500: #E8613C;   /* secondary CTA — login/register, مشاوره */
---color-coral-600: #CF4F2C;
---color-ink-900:   #0F1B2A;   /* body text */
---color-ink-500:   #64748B;   /* muted text */
---color-line:      #E4EBF2;   /* borders */
---color-bg:        #F6F9FC;   /* page background */
+/* Primary — cyan-teal; brand-600 is the workhorse (links, headers, buttons) */
+--color-brand-50:  #ECFAF9;
+--color-brand-100: #CFF2EF;
+--color-brand-200: #A3E5DF;   /* subtle borders / hover outlines */
+--color-brand-500: #0FA3A3;   /* interactive lighten */
+--color-brand-600: #0E7C86;   /* primary */
+--color-brand-700: #0B5D66;   /* pressed / deep */
+--color-brand-900: #06373D;   /* hero mesh anchor */
+--color-green-500: #0F9D6B;   /* success, in-stock, cart CTA (Button variant="success") */
+--color-green-600: #0B7E58;
+--color-accent-500: #E85D3D;  /* secondary CTA (login/register, مشاوره), discount flags */
+--color-accent-600: #CB4A2E;
+--color-ink-900:   #0C1A24;   /* headings */
+--color-ink-700:   #2B3E4A;   /* body text */
+--color-ink-500:   #5C7079;   /* muted text */
+--color-ink-400:   #8A9BA3;   /* captions / meta / struck prices */
+--color-line:      #DCE7EA;   /* hairline borders */
+--color-line-strong: #C2D3D7; /* dividers, input borders */
+--color-bg:        #F3F8F8;   /* page background */
 --color-surface:   #FFFFFF;   /* cards */
 --color-danger:    #DC2626;   /* destructive only — never decorative */
 ```
 
 Rules:
-- Radius: `12px` cards, `999px` pills (header buttons), `8px` inputs.
-- Shadows: soft and low-contrast — `0 2px 12px rgb(15 27 42 / 0.06)`.
-- The reference's neon/hexagon hero decorations become **soft blue gradient
-  meshes with subtle cross/plus medical motifs**. No neon glow.
-- Font: **Vazirmatn**, self-hosted woff2 in `/public/fonts`, weights 400/500/700.
-- Section headings use a small colored tick on the **right** side (RTL), as in
-  reference screenshots 1 and 3.
+- Radius tokens: `--radius-card` 16px, `--radius-tile` 10px (chips, icon tiles,
+  licence slots), `--radius-pill` 999px, `--radius-input` 8px.
+- Elevation scale (not ad-hoc shadows): `--shadow-xs`/`-sm`/`-md`/`-lg`. Cards
+  rest at `shadow-sm` and lift to `shadow-md` on hover; floating controls
+  `shadow-md`; overlays `shadow-lg`.
+- Motion tokens: `--duration-fast` 120ms, `--duration-base` 200ms,
+  `--duration-slow` 320ms, with `--ease-out-soft`. Hover lifts are
+  `transform`-only and must be gated by `prefers-reduced-motion` (handled
+  globally in `globals.css`).
+- Type: **Vazirmatn**, self-hosted woff2 in `/public/fonts`, weights 400/500/700
+  only. Scale 13 · 14 · 16 (base) · 18 · 22 · 28 · 36; body `line-height` 1.7,
+  headings 1.35. Prices/quantities use the `.tabular` utility for stable digits.
+- The reference's neon/hexagon hero decoration is `components/shop/BrandMesh.tsx`
+  — a soft cyan→teal→green gradient mesh with a faint plus/cross motif. No neon
+  glow. `strength="hero"` (behind the hero) or `"subtle"` (behind the footer).
+- Signature section marker: `components/ui/SectionHeader.tsx` — a 32px
+  `accent-500` rule on the logical-**start** side, an optional `brand-600`
+  kicker label, then the heading. Use it for every section heading rather than
+  re-implementing the tick.
 
 ## 4. RTL / localization rules (non-negotiable)
 
@@ -78,7 +100,8 @@ Rules:
   `start-`/`end-`, `text-start`/`text-end`. Never `pl-`/`pr-`/`left-`/`right-`.
 - Directional icons (chevrons, arrows) must flip. Wrap in a `<DirIcon>` helper.
 - All prices render through `formatToman(n)` → `۱٬۲۵۰٬۰۰۰ تومان` (Persian
-  digits, thousands separator `٬`).
+  digits, thousands separator `٬`), on an element carrying the `.tabular`
+  utility so digits don't reflow.
 - All dates render through `formatJalali(d)` → `چهارشنبه ۲۴ تیر ۱۴۰۵ - ۱۹:۱۸`.
 - Numbers stored in DB are always plain integers in **Toman** (not Rial).
 - All user-facing strings live in `lib/i18n/fa.ts`. Never hardcode Persian in a

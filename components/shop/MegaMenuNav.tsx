@@ -55,7 +55,7 @@ export function MegaMenuNav({ categories }: { categories: CategoryWithChildren[]
             </Link>
 
             {cat.children.length > 0 && open && (
-              <div className="absolute start-0 top-full z-50 w-64 rounded-card border border-line bg-surface p-4 shadow-soft-lg">
+              <div className="absolute start-0 top-full z-50 w-64 rounded-card border border-line bg-surface p-4 shadow-lg">
                 <ul className="space-y-1">
                   {cat.children.map((child) => (
                     <li key={child.id}>

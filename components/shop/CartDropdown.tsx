@@ -39,7 +39,7 @@ export function CartDropdown() {
         aria-expanded={open}
         aria-haspopup="true"
         aria-label={fa.header.cartButton}
-        className="relative inline-flex h-11 cursor-pointer items-center gap-2 rounded-pill bg-teal-500 px-4 text-sm font-medium text-white transition-colors duration-200 hover:bg-teal-600"
+        className="relative inline-flex h-11 cursor-pointer items-center gap-2 rounded-pill bg-green-500 px-4 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-600"
       >
         <ShoppingCart size={20} aria-hidden="true" />
         <span className="hidden sm:inline" aria-hidden="true">
@@ -48,7 +48,7 @@ export function CartDropdown() {
         {count > 0 && (
           <span
             aria-hidden="true"
-            className="absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-500 px-1 text-[11px] font-bold text-white"
+            className="absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1 text-[11px] font-bold text-white"
           >
             {toPersianDigits(count)}
           </span>
@@ -62,7 +62,7 @@ export function CartDropdown() {
         <div
           role="dialog"
           aria-label={fa.cart.dropdownTitle}
-          className="absolute start-0 top-full z-50 mt-2 w-[min(90vw,380px)] rounded-card border border-line bg-surface p-4 shadow-soft-lg"
+          className="absolute start-0 top-full z-50 mt-2 w-[min(90vw,380px)] rounded-card border border-line bg-surface p-4 shadow-lg"
         >
           {items.length === 0 ? (
             <p className="py-6 text-center text-sm text-ink-500">{fa.header.cartEmpty}</p>
@@ -91,7 +91,7 @@ export function CartDropdown() {
               <Link
                 href="/cart"
                 onClick={() => setOpen(false)}
-                className={cn(buttonVariants({ variant: "teal" }), "mt-4 w-full")}
+                className={cn(buttonVariants({ variant: "success" }), "mt-4 w-full")}
               >
                 {fa.cart.viewCart}
               </Link>

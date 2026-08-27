@@ -8,7 +8,7 @@ export function ProductHighlightsCard({ product, phone }: { product: Product; ph
   const topSpecs = product.specs.slice(0, 4);
 
   return (
-    <div className="rounded-card border border-line bg-surface p-5 shadow-soft">
+    <div className="rounded-card border border-line bg-surface p-5 shadow-sm">
       <div className="flex items-center gap-2">
         <Rating value={product.ratingAvg} />
         <span className="text-sm text-ink-500">
@@ -48,7 +48,7 @@ export function ProductHighlightsCard({ product, phone }: { product: Product; ph
       <div className="mt-4 flex gap-2 border-t border-line pt-4">
         <a
           href={`tel:${phone}`}
-          className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-pill bg-coral-500 text-sm font-medium text-white transition-colors duration-200 hover:bg-coral-600"
+          className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-pill bg-accent-500 text-sm font-medium text-white transition-colors duration-200 hover:bg-accent-600"
         >
           <Phone size={18} aria-hidden="true" />
           {fa.product.consult}

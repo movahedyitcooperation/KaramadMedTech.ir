@@ -23,7 +23,7 @@ export async function Header() {
   const [categoryTree, contact] = await Promise.all([getCategoryTree(), getContactSetting()]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface/90 shadow-xs backdrop-blur-md">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           <CartDropdown />

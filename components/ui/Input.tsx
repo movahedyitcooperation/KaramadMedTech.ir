@@ -29,8 +29,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
           aria-invalid={!!error || undefined}
           className={cn(
-            "h-11 w-full rounded-input border bg-surface px-4 text-base text-ink-900 placeholder:text-ink-500 transition-colors duration-200 focus:border-brand-500",
-            error ? "border-danger" : "border-line",
+            "h-11 w-full rounded-input border bg-surface px-4 text-base text-ink-900 outline-none transition-[border-color,box-shadow] duration-(--duration-base) placeholder:text-ink-400 focus:ring-2",
+            error
+              ? "border-danger bg-danger/5 focus:border-danger focus:ring-danger/20"
+              : "border-line-strong focus:border-brand-600 focus:ring-brand-600/20",
             className
           )}
           {...props}

@@ -18,17 +18,21 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       >
         <HeroBackground />
         <div className="relative max-w-xl px-6 py-12 sm:px-12">
-          <h1 className="text-balance text-2xl leading-relaxed font-bold text-white sm:text-3xl">
+          <h1 className="text-balance text-2xl font-bold leading-[1.5] text-white drop-shadow-sm sm:text-3xl lg:text-[2.5rem]">
             {parts.map((part, i) => (
               <span key={i}>
                 {part}
-                {i < parts.length - 1 && <span className="text-teal-500">{slide.highlight}</span>}
+                {i < parts.length - 1 && (
+                  <span className="text-brand-100 underline decoration-accent-500 decoration-2 underline-offset-8">
+                    {slide.highlight}
+                  </span>
+                )}
               </span>
             ))}
           </h1>
           <Link
             href={slide.ctaHref}
-            className={cn(buttonVariants({ variant: "teal", size: "lg" }), "mt-6")}
+            className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-7")}
           >
             {slide.ctaLabel}
           </Link>

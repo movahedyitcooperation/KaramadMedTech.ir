@@ -37,7 +37,7 @@ export function Rating({
             key={i}
             size={size}
             weight={i < Math.round(value) ? "fill" : "regular"}
-            className={i < Math.round(value) ? "text-coral-500" : "text-line"}
+            className={i < Math.round(value) ? "text-accent-500" : "text-line-strong"}
             aria-hidden="true"
           />
         ))}
@@ -67,7 +67,7 @@ export function Rating({
             <Star
               size={size}
               weight={starValue <= display ? "fill" : "regular"}
-              className={starValue <= display ? "text-coral-500" : "text-line"}
+              className={starValue <= display ? "text-accent-500" : "text-line-strong"}
               aria-hidden="true"
             />
           </button>

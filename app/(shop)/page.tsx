@@ -24,12 +24,14 @@ export default async function HomePage() {
       <FloatingSearchBar />
       <CategoryIconCards categories={categories} />
       <ProductCarousel
+        kicker={fa.home.newestKicker}
         title={fa.home.newestProductsTitle}
         products={newestProducts}
         viewAllHref="/search?q="
       />
       <ServiceCards />
       <ProductCarousel
+        kicker={fa.home.bestsellersKicker}
         title={fa.home.bestsellersTitle}
         products={bestsellerProducts}
         viewAllHref="/search?q="

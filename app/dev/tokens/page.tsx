@@ -10,6 +10,7 @@ import { Pill } from "@/components/ui/Pill";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { Rating } from "@/components/ui/Rating";
 import { Select } from "@/components/ui/Select";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Tabs } from "@/components/ui/Tabs";
 import { Textarea } from "@/components/ui/Textarea";
@@ -18,19 +19,31 @@ import { formatJalali, formatToman } from "@/lib/format";
 const colorTokens = [
   ["brand-50", "bg-brand-50"],
   ["brand-100", "bg-brand-100"],
+  ["brand-200", "bg-brand-200"],
   ["brand-500", "bg-brand-500"],
   ["brand-600", "bg-brand-600"],
   ["brand-700", "bg-brand-700"],
-  ["teal-500", "bg-teal-500"],
-  ["teal-600", "bg-teal-600"],
-  ["coral-500", "bg-coral-500"],
-  ["coral-600", "bg-coral-600"],
+  ["brand-900", "bg-brand-900"],
+  ["green-500", "bg-green-500"],
+  ["green-600", "bg-green-600"],
+  ["accent-500", "bg-accent-500"],
+  ["accent-600", "bg-accent-600"],
   ["ink-900", "bg-ink-900"],
+  ["ink-700", "bg-ink-700"],
   ["ink-500", "bg-ink-500"],
+  ["ink-400", "bg-ink-400"],
   ["line", "bg-line"],
+  ["line-strong", "bg-line-strong"],
   ["bg", "bg-bg"],
   ["surface", "bg-surface"],
   ["danger", "bg-danger"],
+] as const;
+
+const elevations = [
+  ["shadow-xs", "shadow-xs"],
+  ["shadow-sm", "shadow-sm"],
+  ["shadow-md", "shadow-md"],
+  ["shadow-lg", "shadow-lg"],
 ] as const;
 
 export default function TokensPage() {
@@ -40,6 +53,10 @@ export default function TokensPage() {
         <h1 className="mb-6 text-2xl font-bold">تجهیزات پزشکی کارآمد — نمایش دیزاین سیستم</h1>
         <Logo />
         <Logo variant="icon" className="mt-4" />
+      </section>
+
+      <section>
+        <SectionHeader kicker="نمونه" title="سربرگ بخش" viewAllHref="/" />
       </section>
 
       <section>
@@ -55,11 +72,37 @@ export default function TokensPage() {
       </section>
 
       <section>
+        <h2 className="mb-4 text-lg font-bold">سایه‌ها و شعاع</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {elevations.map(([name, cls]) => (
+            <div key={name} className="space-y-2">
+              <div className={`h-16 rounded-card bg-surface ${cls}`} />
+              <p className="text-xs text-ink-500">{name}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-end gap-4">
+          <div className="h-16 w-16 rounded-input bg-brand-50 text-center text-[10px] leading-[4rem] text-ink-500">
+            input
+          </div>
+          <div className="h-16 w-16 rounded-tile bg-brand-50 text-center text-[10px] leading-[4rem] text-ink-500">
+            tile
+          </div>
+          <div className="h-16 w-16 rounded-card bg-brand-50 text-center text-[10px] leading-[4rem] text-ink-500">
+            card
+          </div>
+          <div className="h-12 rounded-pill bg-brand-50 px-4 text-center text-[10px] leading-[3rem] text-ink-500">
+            pill
+          </div>
+        </div>
+      </section>
+
+      <section>
         <h2 className="mb-4 text-lg font-bold">دکمه‌ها</h2>
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="primary">اصلی</Button>
-          <Button variant="teal">تیل</Button>
-          <Button variant="coral">مرجانی</Button>
+          <Button variant="success">موفقیت</Button>
+          <Button variant="accent">تأکید</Button>
           <Button variant="outline">خط دور</Button>
           <Button variant="ghost">شبح</Button>
           <Button variant="primary" loading>
@@ -96,7 +139,8 @@ export default function TokensPage() {
           <Badge variant="brand">برند</Badge>
           <Badge variant="success">موجود</Badge>
           <Badge variant="danger">ناموجود</Badge>
-          <Badge variant="coral">ویژه</Badge>
+          <Badge variant="accent">ویژه</Badge>
+          <Badge variant="discount">۱۵٪ تخفیف</Badge>
           <Pill>
             <ShoppingCart size={16} aria-hidden="true" /> سبد خرید
           </Pill>
@@ -116,7 +160,7 @@ export default function TokensPage() {
         <h2 className="mb-4 text-lg font-bold">کارت‌ها و اسکلتون</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card className="p-4">
-            <Heart size={20} className="text-coral-500" aria-hidden="true" />
+            <Heart size={20} className="text-accent-500" aria-hidden="true" />
             <p className="mt-2 text-sm">کارت نمونه</p>
           </Card>
           <Card className="space-y-2 p-4">
@@ -128,7 +172,7 @@ export default function TokensPage() {
             <Bell size={20} className="text-brand-600" aria-hidden="true" />
           </Card>
           <Card className="p-4">
-            <MagnifyingGlass size={20} className="text-teal-600" aria-hidden="true" />
+            <MagnifyingGlass size={20} className="text-green-600" aria-hidden="true" />
           </Card>
         </div>
       </section>

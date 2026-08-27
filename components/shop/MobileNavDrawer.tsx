@@ -91,7 +91,7 @@ export function MobileNavDrawer({
             aria-modal="true"
             aria-label={fa.header.openMenu}
             tabIndex={-1}
-            className="absolute inset-y-0 start-0 flex w-[85vw] max-w-sm flex-col overscroll-contain bg-surface shadow-soft-lg focus:outline-none"
+            className="absolute inset-y-0 start-0 flex w-[85vw] max-w-sm flex-col overscroll-contain bg-surface shadow-lg focus:outline-none"
           >
             <div className="flex items-center justify-between border-b border-line p-4">
               <Logo />

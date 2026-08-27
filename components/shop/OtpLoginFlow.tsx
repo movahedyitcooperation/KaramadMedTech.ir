@@ -101,7 +101,7 @@ export function OtpLoginFlow() {
             spellCheck={false}
             required
           />
-          <Button type="submit" variant="coral" size="lg" className="w-full" loading={loading}>
+          <Button type="submit" variant="accent" size="lg" className="w-full" loading={loading}>
             {fa.auth.continueButton}
           </Button>
         </form>
@@ -124,7 +124,7 @@ export function OtpLoginFlow() {
             required
             className="text-center tracking-[0.5em]"
           />
-          <Button type="submit" variant="coral" size="lg" className="w-full" loading={loading}>
+          <Button type="submit" variant="accent" size="lg" className="w-full" loading={loading}>
             {fa.auth.verifyButton}
           </Button>
           <div className="flex items-center justify-between text-sm">

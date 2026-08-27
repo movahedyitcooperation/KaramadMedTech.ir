@@ -30,7 +30,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
           aria-invalid={!!error || undefined}
           className={cn(
-            "w-full resize-y rounded-input border bg-surface px-4 py-3 text-base text-ink-900 placeholder:text-ink-500 transition-colors duration-200 focus:border-brand-500",
+            "w-full resize-y rounded-input border bg-surface px-4 py-3 text-base text-ink-900 outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-ink-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20",
             error ? "border-danger" : "border-line",
             className
           )}

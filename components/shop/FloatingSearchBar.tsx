@@ -20,7 +20,7 @@ export function FloatingSearchBar() {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative mx-4 -mt-8 flex items-center gap-2 rounded-card border border-line bg-surface p-3 shadow-soft-lg sm:mx-auto sm:max-w-2xl"
+      className="relative mx-4 -mt-8 flex items-center gap-2 rounded-card border border-line bg-surface p-3 shadow-lg sm:mx-auto sm:max-w-2xl"
     >
       <MagnifyingGlass size={20} className="shrink-0 text-ink-500" aria-hidden="true" />
       <input

@@ -1,5 +1,6 @@
 import { InstagramLogo, MapPin, Phone, TelegramLogo, YoutubeLogo } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { BrandMesh } from "@/components/shop/BrandMesh";
 import { Logo } from "@/components/brand/Logo";
 import { jalaliYear, toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
@@ -24,8 +25,9 @@ export async function Footer() {
   const settings = await getSiteSettings();
 
   return (
-    <footer className="border-t border-line bg-surface">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <footer className="relative isolate overflow-hidden border-t border-line bg-surface">
+      <BrandMesh strength="subtle" className="h-40" />
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Logo />
@@ -37,7 +39,7 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="تلگرام"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-200 hover:text-brand-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-(--duration-base) hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
                 >
                   <TelegramLogo size={18} aria-hidden="true" />
                 </a>
@@ -48,7 +50,7 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="اینستاگرام"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-200 hover:text-brand-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-(--duration-base) hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
                 >
                   <InstagramLogo size={18} aria-hidden="true" />
                 </a>
@@ -59,7 +61,7 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="آپارات"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-200 hover:text-brand-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-500 transition-colors duration-(--duration-base) hover:border-brand-200 hover:bg-brand-50 hover:text-brand-600"
                 >
                   <YoutubeLogo size={18} aria-hidden="true" />
                 </a>
