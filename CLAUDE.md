@@ -21,20 +21,31 @@ We reuse that site's **layout and information architecture**, not its colors.
 
 ## 2. Stack (fixed — do not substitute)
 
+**Split-service architecture as of the `backend/` scaffold:** the storefront
+is a Next.js frontend that talks to a **separate Python/FastAPI backend**
+(this repo's `backend/` directory) over a JSON REST API at `/api/v1/*`,
+rather than Next.js owning the database directly via Prisma/Server Actions.
+Data access lives exclusively in the Python backend now (SQLAlchemy 2.0
+async + Alembic + PostgreSQL) — Prisma is not part of this project.
+`lib/db/*.ts` on the frontend still reads mock data for now; it will
+eventually be replaced by calls to this API, but that swap has not happened
+yet.
+
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 15+, App Router, TypeScript (strict) |
+| Frontend framework | Next.js 15+, App Router, TypeScript (strict) |
 | Styling | Tailwind CSS v4, CSS variables for tokens |
+| Backend | Python 3.12, FastAPI, served from `backend/` — see `backend/README.md` |
 | DB | PostgreSQL |
-| ORM | Prisma |
+| ORM | SQLAlchemy 2.0 (async) + Alembic, in the Python backend — **not** Prisma |
 | Auth | Custom SMS-OTP, JWT in httpOnly cookie (no NextAuth) |
 | Payments | ZarinPal, behind a `PaymentProvider` interface |
 | SMS | Kavenegar or SMS.ir, behind an `SmsProvider` interface |
-| Validation | Zod on every server action / route handler |
+| Validation | Zod on every server action / route handler (frontend); Pydantic schemas on every backend route |
 | Forms | react-hook-form + zod resolver |
 | State | Server components by default; Zustand only for cart |
 | Images | next/image, local uploads to `/public/uploads` |
-| Deploy | Self-hosted Ubuntu VPS — Node + PM2 + Nginx + Certbot |
+| Deploy | Self-hosted Ubuntu VPS — Node + PM2 + Nginx + Certbot (frontend); uv-managed Python service (backend) |
 
 **No** Vercel-only APIs. **No** external CDN for fonts or scripts — many Iranian
 users cannot reach Google Fonts. Self-host everything in `/public`.

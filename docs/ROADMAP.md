@@ -61,12 +61,18 @@ UI primitives (Button, Input, Card, Badge, Pill, Modal, Tabs, Rating, DirIcon).
 **Done when:** a tokens demo page renders every primitive correctly in RTL.
 
 ### Phase 1 — Data layer
-Prisma schema + migration + seed: `Category` (self-referencing, 2 levels),
-`Product`, `ProductImage`, `ProductSpec`, `User`, `OtpCode`, `Address`, `Cart`,
-`CartItem`, `Order`, `OrderItem`, `Payment`, `Review`, `ReviewVote`, `Setting`.
-Seed 6 categories with sub-categories and ~40 realistic Persian products
-(فشارسنج، پالس اکسیمتر، دستکش معاینه، ماسک، واکر، نبولایزر، تخت معاینه…).
-**Done when:** `npx prisma studio` shows a coherent catalog.
+**Superseded by the `backend/` scaffold** (see `CLAUDE.md` §2): the data
+layer is now a separate Python/FastAPI + SQLAlchemy 2.0 (async) + Alembic
+service in `backend/`, not a Prisma schema inside this Next.js app. Models
+so far: `Category` (self-referencing, 2 levels), `Product`, `ProductImage`,
+`ProductSpec`, `Setting` (key-value). `User`, `Address`/`OtpCode`, `Cart`/
+`CartItem`, `Order`/`OrderItem`/`Payment`, `Review`/`ReviewVote` remain to be
+designed in their own phases (5/6/7). Seed script (`backend/scripts/seed.py`)
+transcribes the 6 categories + sub-categories and 15 seeded Persian products
+already present in this repo's `lib/mock/*.ts` files (فشارسنج، پالس اکسیمتر،
+دستکش معاینه، ماسک، واکر، نبولایزر، تخت معاینه…).
+**Done when:** the initial migration is reviewed and applied, and the seed
+script populates a coherent catalog — see `backend/README.md`.
 
 ### Phase 2 — Layout shell
 Sticky header: centered logo, cart pill (top-start) with dropdown preview
