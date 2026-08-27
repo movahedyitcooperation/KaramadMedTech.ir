@@ -94,7 +94,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       />
 
       <div className="mb-4 flex items-center justify-between gap-4">
-        <h1 className="text-xl font-bold text-ink-900">{category.name}</h1>
+        <h1 className="text-balance text-xl font-bold text-ink-900">{category.name}</h1>
         <div className="flex items-center gap-2">
           <FiltersBottomSheet
             subcategories={subcategories.map((s) => ({ slug: s.slug, name: s.name }))}

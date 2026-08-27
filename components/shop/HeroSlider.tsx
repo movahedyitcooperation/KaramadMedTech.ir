@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { HeroBackground } from "@/components/shop/HeroBackground";
-import { Button } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/Button";
 import { Carousel } from "@/components/ui/Carousel";
 import { fa } from "@/lib/i18n/fa";
 import type { HeroSlide } from "@/lib/types/settings";
+import { cn } from "@/lib/utils/cn";
 
 export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const slideNodes = slides.map((slide) => {
@@ -17,7 +18,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       >
         <HeroBackground />
         <div className="relative max-w-xl px-6 py-12 sm:px-12">
-          <h1 className="text-2xl leading-relaxed font-bold text-white sm:text-3xl">
+          <h1 className="text-balance text-2xl leading-relaxed font-bold text-white sm:text-3xl">
             {parts.map((part, i) => (
               <span key={i}>
                 {part}
@@ -25,10 +26,11 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               </span>
             ))}
           </h1>
-          <Link href={slide.ctaHref} className="mt-6 inline-block">
-            <Button variant="teal" size="lg">
-              {slide.ctaLabel}
-            </Button>
+          <Link
+            href={slide.ctaHref}
+            className={cn(buttonVariants({ variant: "teal", size: "lg" }), "mt-6")}
+          >
+            {slide.ctaLabel}
           </Link>
         </div>
       </div>

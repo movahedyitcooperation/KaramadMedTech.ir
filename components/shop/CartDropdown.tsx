@@ -3,10 +3,11 @@
 import { ShoppingCart } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/Button";
 import { formatToman, toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { cn } from "@/lib/utils/cn";
 
 export function CartDropdown() {
   const [open, setOpen] = useState(false);
@@ -37,16 +38,25 @@ export function CartDropdown() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="true"
+        aria-label={fa.header.cartButton}
         className="relative inline-flex h-11 cursor-pointer items-center gap-2 rounded-pill bg-teal-500 px-4 text-sm font-medium text-white transition-colors duration-200 hover:bg-teal-600"
       >
         <ShoppingCart size={20} aria-hidden="true" />
-        <span className="hidden sm:inline">{fa.header.cartButton}</span>
+        <span className="hidden sm:inline" aria-hidden="true">
+          {fa.header.cartButton}
+        </span>
         {count > 0 && (
-          <span className="absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-500 px-1 text-[11px] font-bold text-white">
+          <span
+            aria-hidden="true"
+            className="absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-500 px-1 text-[11px] font-bold text-white"
+          >
             {toPersianDigits(count)}
           </span>
         )}
       </button>
+      <span className="sr-only" aria-live="polite">
+        {count > 0 ? fa.header.cartItemCount(toPersianDigits(count)) : fa.header.cartEmpty}
+      </span>
 
       {open && (
         <div
@@ -78,10 +88,12 @@ export function CartDropdown() {
                   ))}
                 </tbody>
               </table>
-              <Link href="/cart" onClick={() => setOpen(false)}>
-                <Button variant="teal" className="mt-4 w-full">
-                  {fa.cart.viewCart}
-                </Button>
+              <Link
+                href="/cart"
+                onClick={() => setOpen(false)}
+                className={cn(buttonVariants({ variant: "teal" }), "mt-4 w-full")}
+              >
+                {fa.cart.viewCart}
               </Link>
             </>
           )}

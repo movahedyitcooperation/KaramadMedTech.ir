@@ -2,7 +2,7 @@
 
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -12,6 +12,16 @@ export function HeaderSearchModal() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    // Autofocus the primary input on desktop only — on touch devices it
+    // would pop the keyboard open immediately, which reads as jarring.
+    if (window.matchMedia("(pointer: fine)").matches) {
+      inputRef.current?.focus();
+    }
+  }, [open]);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -34,7 +44,8 @@ export function HeaderSearchModal() {
       <Modal open={open} onClose={() => setOpen(false)} title={fa.header.searchOpen}>
         <form onSubmit={onSubmit} className="flex gap-2">
           <Input
-            autoFocus
+            ref={inputRef}
+            name="q"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={fa.header.searchPlaceholder}

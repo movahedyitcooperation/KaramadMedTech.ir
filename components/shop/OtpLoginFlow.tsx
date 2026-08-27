@@ -22,6 +22,8 @@ export function OtpLoginFlow() {
   const loginSuccess = useAuthStore((s) => s.loginSuccess);
   const router = useRouter();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const contactInputRef = useRef<HTMLInputElement>(null);
+  const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (step !== "otp") return;
@@ -47,6 +49,7 @@ export function OtpLoginFlow() {
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
+      contactInputRef.current?.focus();
       return;
     }
     setCode("");
@@ -62,6 +65,7 @@ export function OtpLoginFlow() {
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
+      codeInputRef.current?.focus();
       return;
     }
     loginSuccess(result.data.contact);
@@ -86,12 +90,15 @@ export function OtpLoginFlow() {
       {step === "contact" ? (
         <form onSubmit={onSubmitContact} className="mt-6 space-y-4">
           <Input
+            ref={contactInputRef}
+            name="contact"
             label={fa.auth.phoneOrEmailLabel}
             placeholder={fa.auth.phoneOrEmailPlaceholder}
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             error={error ?? undefined}
             autoComplete="tel"
+            spellCheck={false}
             required
           />
           <Button type="submit" variant="coral" size="lg" className="w-full" loading={loading}>
@@ -101,6 +108,10 @@ export function OtpLoginFlow() {
       ) : (
         <form onSubmit={onSubmitCode} className="mt-6 space-y-4">
           <Input
+            ref={codeInputRef}
+            name="otp"
+            type="tel"
+            pattern="[0-9]*"
             label={fa.auth.otpTitle}
             placeholder={fa.auth.otpPlaceholder}
             value={code}
@@ -108,6 +119,7 @@ export function OtpLoginFlow() {
             error={error ?? undefined}
             inputMode="numeric"
             autoComplete="one-time-code"
+            spellCheck={false}
             maxLength={6}
             required
             className="text-center tracking-[0.5em]"

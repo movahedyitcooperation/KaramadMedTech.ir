@@ -63,12 +63,24 @@
 
   html {
     scroll-behavior: smooth;
+    /* keeps focused/anchored content clear of the sticky header */
+    scroll-padding-top: 5rem;
   }
 
   body {
     background: var(--color-bg);
     color: var(--color-ink-900);
     font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
   }
 
   :focus-visible {
@@ -96,5 +108,20 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    inset-inline-start: 1rem;
+    z-index: 200;
+    background: var(--color-brand-600);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-input);
+    transition: top 0.2s var(--ease-out-soft);
+  }
+  .skip-link:focus {
+    top: 1rem;
   }
 }

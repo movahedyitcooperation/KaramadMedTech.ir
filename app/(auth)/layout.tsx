@@ -6,7 +6,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       <Header />
-      <main className="flex flex-1 items-center justify-center bg-bg px-4 py-12">{children}</main>
+      <main
+        id="main-content"
+        className="flex flex-1 items-center justify-center bg-bg px-4 py-12"
+      >
+        {children}
+      </main>
       <Footer />
       <WhatsAppFab />
     </>

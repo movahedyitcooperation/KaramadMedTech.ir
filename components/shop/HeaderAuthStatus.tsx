@@ -2,9 +2,10 @@
 
 import { User } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { fa } from "@/lib/i18n/fa";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { cn } from "@/lib/utils/cn";
 
 export function HeaderAuthStatus() {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -26,10 +27,14 @@ export function HeaderAuthStatus() {
   }
 
   return (
-    <Link href="/login">
-      <Button variant="coral" size="md" className="shadow-soft">
-        {fa.header.loginRegister}
-      </Button>
+    <Link
+      href="/login"
+      className={cn(
+        buttonVariants({ variant: "coral", size: "md" }),
+        "px-3 text-sm shadow-soft sm:px-5 sm:text-base"
+      )}
+    >
+      {fa.header.loginRegister}
     </Link>
   );
 }

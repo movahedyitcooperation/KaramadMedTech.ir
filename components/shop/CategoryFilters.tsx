@@ -20,19 +20,27 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
         <div className="flex items-center gap-2">
           <input
             type="number"
+            inputMode="numeric"
             name="priceMin"
+            aria-label={fa.category.priceMin}
             defaultValue={values.priceMin}
             placeholder={fa.category.priceMin}
             min={0}
+            autoComplete="off"
             className="h-10 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
           />
-          <span className="text-ink-500">—</span>
+          <span className="text-ink-500" aria-hidden="true">
+            —
+          </span>
           <input
             type="number"
+            inputMode="numeric"
             name="priceMax"
+            aria-label={fa.category.priceMax}
             defaultValue={values.priceMax}
             placeholder={fa.category.priceMax}
             min={0}
+            autoComplete="off"
             className="h-10 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
           />
         </div>
@@ -58,16 +66,15 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
           <h3 className="mb-3 text-sm font-bold text-ink-900">{fa.category.brandTitle}</h3>
           <ul className="space-y-2">
             {brands.map((brand) => (
-              <li key={brand} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id={`brand-${brand}`}
-                  name="brand"
-                  value={brand}
-                  defaultChecked={values.brands.includes(brand)}
-                  className="h-4 w-4 rounded border-line accent-brand-600"
-                />
-                <label htmlFor={`brand-${brand}`} className="text-sm text-ink-900">
+              <li key={brand}>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-900">
+                  <input
+                    type="checkbox"
+                    name="brand"
+                    value={brand}
+                    defaultChecked={values.brands.includes(brand)}
+                    className="h-4 w-4 rounded border-line accent-brand-600"
+                  />
                   {brand}
                 </label>
               </li>
@@ -76,19 +83,16 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-900">
         <input
           type="checkbox"
-          id="inStockOnly"
           name="inStockOnly"
           value="1"
           defaultChecked={values.inStockOnly}
           className="h-4 w-4 rounded border-line accent-brand-600"
         />
-        <label htmlFor="inStockOnly" className="text-sm text-ink-900">
-          {fa.category.inStockOnly}
-        </label>
-      </div>
+        {fa.category.inStockOnly}
+      </label>
 
       <div className="flex gap-2">
         <button

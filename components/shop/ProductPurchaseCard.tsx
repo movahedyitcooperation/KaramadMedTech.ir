@@ -32,7 +32,10 @@ export function ProductPurchaseCard({ product }: { product: Product }) {
 
   return (
     <div className="rounded-card border border-line bg-surface p-5 shadow-soft">
-      <p className="text-sm text-ink-500">{product.name}</p>
+      <h1 className="text-balance text-sm text-ink-500">{product.name}</h1>
+      <span className="sr-only" aria-live="polite">
+        {added ? fa.product.addedToCart : ""}
+      </span>
       <div className="mt-2 flex items-baseline gap-2">
         <span className="text-xl font-bold text-ink-900">{formatToman(product.price)}</span>
         {product.compareAtPrice && (

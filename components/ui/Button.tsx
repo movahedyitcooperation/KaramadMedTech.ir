@@ -3,8 +3,8 @@ import { CircleNotch } from "@phosphor-icons/react/dist/ssr";
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors duration-200 ease-out-soft cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 whitespace-nowrap",
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors duration-200 ease-out-soft cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 whitespace-nowrap",
   {
     variants: {
       variant: {

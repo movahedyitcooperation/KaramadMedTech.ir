@@ -1,10 +1,13 @@
 "use client";
 
 import { X } from "@phosphor-icons/react/dist/ssr";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export interface ModalProps {
   open: boolean;
@@ -15,11 +18,36 @@ export interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children, className }: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open || !dialogRef.current) return;
+
+    const focusable = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    (focusable[0] ?? dialogRef.current).focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+
+      const items = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      );
+      if (items.length === 0) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
 
@@ -42,11 +70,13 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-hidden="true"
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        tabIndex={-1}
         className={cn(
-          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-card bg-surface p-6 shadow-soft-lg",
+          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-card bg-surface p-6 shadow-soft-lg focus:outline-none",
           className
         )}
       >

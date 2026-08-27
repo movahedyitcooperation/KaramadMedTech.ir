@@ -42,3 +42,6 @@ next-env.d.ts
 
 # secrets — never commit
 GitHub repo PAT and URL.txt
+
+# personal/local Claude Code settings — not shared with the team
+.claude/settings.local.json

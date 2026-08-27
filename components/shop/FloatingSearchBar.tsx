@@ -29,7 +29,8 @@ export function FloatingSearchBar() {
         onChange={(e) => setQuery(e.target.value)}
         placeholder={fa.home.heroSearchPlaceholder}
         aria-label={fa.home.heroSearchPlaceholder}
-        className="h-11 flex-1 bg-transparent text-base text-ink-900 placeholder:text-ink-500 focus:outline-none"
+        name="q"
+        className="h-11 flex-1 rounded-input bg-transparent text-base text-ink-900 placeholder:text-ink-500"
       />
       <Button type="submit" variant="primary">
         {fa.home.heroSearchButton}

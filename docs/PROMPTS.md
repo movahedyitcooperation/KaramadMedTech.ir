@@ -10,9 +10,17 @@
    $50 alive.
 4. For phases 4, 6 and 8, start with `/plan` and approve the plan before coding.
 
+> **Status update (2026-08-26):** Phase 0 shipped further than its prompt
+> below asked for — it's a full mocked demo (home, category, product, cart,
+> login pages all working against `lib/mock/*.ts`), not just a tokens page.
+> See `README.md` for exactly what's real vs. mocked. **Before pasting
+> Prompts 2–5**, read the note at the top of each — the UI they describe may
+> already exist; the job is to audit and wire it to the real backend, not
+> rebuild it from scratch.
+
 ---
 
-## Prompt 0 — Scaffold & design system
+## Prompt 0 — Scaffold & design system ✅ done (delivered as a full demo — see README.md)
 
 ```
 Read CLAUDE.md and docs/ROADMAP.md first, then look at the screenshots in
@@ -54,10 +62,15 @@ summary. Do not start Phase 1.
 
 ---
 
-## Prompt 1 — Data layer
+## Prompt 1 — Data layer ⬅ next up
 
 ```
-Read CLAUDE.md. Implement Phase 1 from docs/ROADMAP.md only.
+Read CLAUDE.md and README.md. Phase 0 already delivered a full mocked demo:
+app/(shop) and app/(auth) have working home, category, product, cart and login
+pages, all reading through lib/db/*.ts against mock data in lib/mock/*.ts
+(currently 15 products, not yet the full ~40). Implement Phase 1 from
+docs/ROADMAP.md, wiring a real backend UNDER that existing UI — do not touch
+the components or pages themselves.
 
 Add Prisma with PostgreSQL. Design the schema for:
 
@@ -78,24 +91,51 @@ authorName, phone nullable, body, rating, status PENDING|APPROVED|REJECTED,
 parentId for replies), ReviewVote (reviewId, voterKey, value +1/-1),
 Setting (key unique, value json).
 
+Reuse the shapes already defined in lib/types/*.ts (Product, Category,
+SiteSettings, ShippingSetting, ContactSetting) — extend them if the schema
+needs a field they don't have yet, but don't rename what's already there.
+
 Then write prisma/seed.ts creating:
 - 6 top-level categories with sub-categories: تجهیزات تشخیصی، مصرفی و بهداشتی،
   توانبخشی و ارتوپدی، مراقبت در منزل، تجهیزات مطب و کلینیک، لوازم جانبی
 - ~40 realistic Persian medical products spread across them, with believable
-  Toman prices, stock levels, 3-5 specs each, and placeholder images
+  Toman prices, stock levels, 3-5 specs each, and placeholder images — grow
+  from the 15 already in lib/mock/products.ts (keep their slugs/ids/content
+  where reasonable) up to the full ~40, rather than replacing them, so the
+  demo content already shown to the owner doesn't visibly change
 - Setting rows: shipping { mode: "flat", cost: 50000, freeOver: 1000000 },
   contact info, and social links
 - One admin user
 
-Also write lib/db/ query modules (products.ts, categories.ts) with typed
-functions — no Prisma calls will ever live in a component.
+Rewrite lib/db/products.ts, categories.ts and settings.ts against Prisma,
+preserving every exported function's name and signature exactly — the demo
+pages and components import these directly and will break if a signature
+changes: getAllProducts, getFeaturedProducts, getNewestProducts,
+getBestsellerProducts, getProductBySlug, getProductsByCategory,
+getBrandsInCategory, searchProducts, getRelatedProducts, getAllCategories,
+getTopLevelCategories, getCategoryBySlug, getCategoryById, getSubcategories,
+getCategoryTree, getCategoryBreadcrumb, getCategoryIdsInSubtree,
+getSiteSettings, getShippingSetting, getContactSetting.
 
-Run the migration and seed, verify with prisma studio, then stop.
+Also replace lib/mock/auth.ts's simulated OTP with a real OtpCode-backed
+implementation behind the same shape components/shop/OtpLoginFlow.tsx already
+calls (console SMS provider for now — real providers come in Phase 5).
+
+Run the migration and seed, verify with prisma studio, then run `npm run
+build` and click through the existing demo pages (home, a category, a
+product, cart, login) to confirm they still render correctly on real data,
+then stop.
 ```
 
 ---
 
 ## Prompt 2 — Layout shell
+
+> **Before running this:** components/shop/Header.tsx, MegaMenuNav.tsx,
+> MobileNavDrawer.tsx, TrustBadges.tsx, Footer.tsx and WhatsAppFab.tsx already
+> exist from the phase-0 demo, wired into app/(shop)/layout.tsx. Read them
+> first. Audit each against the checklist below and against the reference
+> screenshots — fix or extend what's missing, don't recreate working files.
 
 ```
 Read CLAUDE.md, then invoke my UI/UX design skill and follow it. Implement Phase 2 only. Study docs/references/reference design.png,
@@ -130,6 +170,11 @@ you finish. Run the build, then stop.
 
 ## Prompt 3 — Home page
 
+> **Before running this:** app/(shop)/page.tsx already exists from the
+> phase-0 demo with HeroSlider, FloatingSearchBar, CategoryIconCards,
+> ProductCarousel and ServiceCards wired to mock data. Read it first. Audit
+> against the checklist below, don't recreate working sections.
+
 ```
 Read CLAUDE.md, then invoke my UI/UX design skill and follow it. Implement Phase 3 only. References: reference design.png,
 reference design3.png, reference design10.png.
@@ -160,6 +205,14 @@ responsiveness, then stop.
 ---
 
 ## Prompt 4 — Catalog *(start with /plan)*
+
+> **Before running this:** app/(shop)/category/[slug]/page.tsx,
+> app/(shop)/product/[slug]/page.tsx and app/(shop)/search/page.tsx already
+> exist from the phase-0 demo, with CategoryFilters, SortDropdown,
+> ProductGallery, ProductPurchaseCard, ProductHighlightsCard, ProductTabs,
+> SpecTable and RelatedProducts components in place against mock data.
+> Read them first — the plan you show me should list gaps against the
+> checklist below, not a rebuild.
 
 ```
 Read CLAUDE.md, then invoke my UI/UX design skill and follow it. Implement Phase 4 only. References: reference design4.png,
@@ -197,6 +250,15 @@ Build, test with the seeded data at 375px and 1440px, then stop.
 ---
 
 ## Prompt 5 — Cart & OTP auth
+
+> **Before running this:** app/(shop)/cart/page.tsx (via CartView.tsx,
+> CartDropdown.tsx) and app/(auth)/login/page.tsx (via OtpLoginFlow.tsx)
+> already exist from the phase-0 demo, backed by a Zustand store persisted to
+> localStorage and a simulated OTP (lib/mock/auth.ts — any 6-digit code
+> succeeds). Phase 1 should already have replaced the OTP simulation with a
+> real one. Read the existing files first — this phase is about server-backed
+> cart persistence, guest-cart merge, real sessions and the account area, not
+> rebuilding the cart/login UI.
 
 ```
 Read CLAUDE.md. Implement Phase 5 only. Reference: reference design9.png.

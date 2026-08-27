@@ -213,7 +213,7 @@ export function Carousel({
               aria-label={fa.home.slideLabel(toPersianDigits(i + 1), toPersianDigits(maxIndex + 1))}
               aria-current={i === clampedIndex}
               className={cn(
-                "h-2.5 cursor-pointer rounded-full transition-all duration-200",
+                "h-2.5 cursor-pointer rounded-full transition-[width,background-color] duration-200",
                 i === clampedIndex ? "w-6 bg-white" : "w-2.5 bg-white/50 hover:bg-white/80"
               )}
             />

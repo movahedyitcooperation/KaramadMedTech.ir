@@ -25,17 +25,17 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur-sm">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-2 justify-self-start">
+        <div className="flex min-w-0 items-center gap-2 justify-self-start">
           <CartDropdown />
           <PhoneWidget phone={contact.phone} />
           <MobileNavDrawer categories={categoryTree} contact={contact} />
         </div>
 
-        <Link href="/" className="justify-self-center">
+        <Link href="/" className="min-w-0 max-w-[150px] justify-self-center sm:max-w-none">
           <Logo />
         </Link>
 
-        <div className="flex items-center gap-2 justify-self-end">
+        <div className="flex min-w-0 items-center gap-2 justify-self-end">
           <HeaderSearchModal />
           <HeaderAuthStatus />
         </div>

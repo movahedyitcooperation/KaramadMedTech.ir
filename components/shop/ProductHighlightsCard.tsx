@@ -21,6 +21,19 @@ export function ProductHighlightsCard({ product, phone }: { product: Product; ph
         </span>
       </div>
 
+      <div className="mt-3 flex items-center justify-between gap-4 text-sm">
+        <span className="text-ink-500">{fa.product.brand}</span>
+        <span className="font-medium text-ink-900" translate="no">
+          {product.brand}
+        </span>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-4 text-sm">
+        <span className="text-ink-500">{fa.product.sku}</span>
+        <span className="font-medium tabular-nums text-ink-900" translate="no">
+          {product.sku}
+        </span>
+      </div>
+
       {topSpecs.length > 0 && (
         <ul className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
           {topSpecs.map((spec, i) => (

@@ -54,11 +54,20 @@ now in parallel), domain, and the Ubuntu server.
 
 ## Phases
 
-### Phase 0 — Scaffold & design system
+### Phase 0 — Scaffold & design system ✅ done (2026-08-26)
 Next.js + TS + Tailwind v4, self-hosted Vazirmatn, `dir="rtl"`, palette tokens,
 `formatToman` / `formatJalali` / `toPersianDigits` helpers, `lib/i18n/fa.ts`,
 UI primitives (Button, Input, Card, Badge, Pill, Modal, Tabs, Rating, DirIcon).
 **Done when:** a tokens demo page renders every primitive correctly in RTL.
+
+**Actually delivered:** this went beyond the phase as scoped above — the
+session built a full mocked demo (home, category, product, cart and login
+pages, header/footer/mega-menu, 15 of the ~40 planned products) reading
+through `lib/db/*.ts` against `lib/mock/*.ts`. See `README.md` for the
+real-vs-mocked breakdown. This pulls forward most of the *UI* work originally
+scoped for phases 2–5; those phases now mean "wire the existing UI to a real
+backend and fill functional gaps," not "build the UI." `docs/PROMPTS.md` has
+been annotated accordingly.
 
 ### Phase 1 — Data layer
 Prisma schema + migration + seed: `Category` (self-referencing, 2 levels),

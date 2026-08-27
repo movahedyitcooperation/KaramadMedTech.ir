@@ -32,9 +32,11 @@ export function Logo({ variant = "full", className }: LogoProps) {
   return (
     <div className={cn("inline-flex items-center gap-3", className)}>
       <LogoIcon />
-      <div className="flex flex-col leading-tight">
-        <span className="text-lg font-bold text-ink-900">{fa.brand.name}</span>
-        <span className="text-xs text-ink-500">{fa.brand.tagline}</span>
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate text-base font-bold text-ink-900 sm:text-lg" translate="no">
+          {fa.brand.name}
+        </span>
+        <span className="hidden text-xs text-ink-500 sm:block">{fa.brand.tagline}</span>
       </div>
     </div>
   );
