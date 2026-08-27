@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 
 interface CategoryFiltersProps {
@@ -27,7 +28,7 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
             placeholder={fa.category.priceMin}
             min={0}
             autoComplete="off"
-            className="h-10 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
+            className="h-11 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
           />
           <span className="text-ink-500" aria-hidden="true">
             —
@@ -41,7 +42,7 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
             placeholder={fa.category.priceMax}
             min={0}
             autoComplete="off"
-            className="h-10 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
+            className="h-11 w-full rounded-input border border-line bg-surface px-3 text-sm text-ink-900"
           />
         </div>
       </div>
@@ -49,10 +50,13 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
       {subcategories.length > 0 && (
         <div>
           <h3 className="mb-3 text-sm font-bold text-ink-900">{fa.category.subcategoriesTitle}</h3>
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {subcategories.map((s) => (
               <li key={s.slug}>
-                <Link href={`/category/${s.slug}`} className="text-sm text-ink-500 hover:text-brand-600">
+                <Link
+                  href={`/category/${s.slug}`}
+                  className="tap-target flex items-center py-1 text-sm text-ink-500 hover:text-brand-600"
+                >
                   {s.name}
                 </Link>
               </li>
@@ -63,11 +67,16 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
 
       {brands.length > 0 && (
         <div>
-          <h3 className="mb-3 text-sm font-bold text-ink-900">{fa.category.brandTitle}</h3>
-          <ul className="space-y-2">
+          <h3 className="mb-3 text-sm font-bold text-ink-900">
+            {fa.category.brandTitle}
+            <span className="ms-1.5 font-normal text-ink-400 tabular">
+              ({toPersianDigits(brands.length)})
+            </span>
+          </h3>
+          <ul className="-me-1 max-h-56 space-y-1 overflow-y-auto overscroll-contain pe-1">
             {brands.map((brand) => (
               <li key={brand}>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-900">
+                <label className="tap-target flex cursor-pointer items-center gap-2 py-1 text-sm text-ink-900">
                   <input
                     type="checkbox"
                     name="brand"
@@ -83,7 +92,7 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
         </div>
       )}
 
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-900">
+      <label className="tap-target flex cursor-pointer items-center gap-2 py-1 text-sm text-ink-900">
         <input
           type="checkbox"
           name="inStockOnly"
@@ -97,13 +106,13 @@ export function CategoryFilters({ subcategories, brands, values }: CategoryFilte
       <div className="flex gap-2">
         <button
           type="submit"
-          className="h-10 flex-1 cursor-pointer rounded-pill bg-brand-600 text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-700"
+          className="h-11 flex-1 cursor-pointer rounded-pill bg-brand-600 text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-700"
         >
           {fa.category.applyFilters}
         </button>
         <Link
           href="?"
-          className="flex h-10 items-center justify-center rounded-pill border border-line px-4 text-sm text-ink-900 hover:bg-bg"
+          className="flex h-11 items-center justify-center rounded-pill border border-line px-4 text-sm text-ink-900 hover:bg-bg"
         >
           {fa.category.clearFilters}
         </Link>

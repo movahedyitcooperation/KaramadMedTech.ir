@@ -4,8 +4,10 @@ import { ArrowCounterClockwise, Trash } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { MobileActionBar } from "@/components/shop/MobileActionBar";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
+import { useOnScreen } from "@/hooks/useOnScreen";
 import { formatToman } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -21,6 +23,10 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
   const addItem = useCartStore((s) => s.addItem);
   const [pendingRemoval, setPendingRemoval] = useState<CartLine | null>(null);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The fixed checkout bar shows on small screens until the summary card
+  // (which carries the same total and button) scrolls into view.
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const summaryVisible = useOnScreen(summaryRef);
 
   function onRemove(item: CartLine) {
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
@@ -88,7 +94,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
     <div>
       {undoBar}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_320px]">
         <ul className="space-y-4">
           {items.map((item) => (
             <li
@@ -116,7 +122,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
                     type="button"
                     onClick={() => onRemove(item)}
                     aria-label={fa.cart.removeItem}
-                    className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-500 hover:bg-bg hover:text-danger"
+                    className="tap-target flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-500 hover:bg-bg hover:text-danger"
                   >
                     <Trash size={16} aria-hidden="true" />
                   </button>
@@ -136,7 +142,10 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
           ))}
         </ul>
 
-        <div className="h-fit rounded-card border border-line bg-surface p-5 shadow-sm lg:sticky lg:top-24">
+        <div
+          ref={summaryRef}
+          className="h-fit rounded-card border border-line bg-surface p-5 shadow-sm md:sticky md:top-24"
+        >
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-ink-500">{fa.cart.subtotal}</span>
@@ -171,6 +180,24 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
           </Button>
         </div>
       </div>
+
+      <MobileActionBar hidden={summaryVisible}>
+        <div className="shrink-0">
+          <span className="block text-xs text-ink-500">{fa.cart.total}</span>
+          <span className="block text-base font-bold tabular-nums text-ink-900">
+            {formatToman(total)}
+          </span>
+        </div>
+        <Button
+          variant="success"
+          size="lg"
+          className="flex-1"
+          disabled
+          title={fa.cart.checkoutComingSoon}
+        >
+          {fa.cart.goToCheckout}
+        </Button>
+      </MobileActionBar>
     </div>
   );
 }

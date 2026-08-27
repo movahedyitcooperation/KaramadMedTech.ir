@@ -12,11 +12,14 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   const all: BreadcrumbItem[] = [{ label: fa.common.home, href: "/" }, ...items];
 
   return (
-    <nav aria-label="مسیر صفحه" className="mb-4 flex flex-wrap items-center gap-1 text-sm">
+    <nav
+      aria-label="مسیر صفحه"
+      className="no-scrollbar mb-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm sm:flex-wrap sm:overflow-visible sm:whitespace-normal"
+    >
       {all.map((item, i) => {
         const isLast = i === all.length - 1;
         return (
-          <span key={i} className="flex items-center gap-1">
+          <span key={i} className="flex shrink-0 items-center gap-1">
             {i > 0 && <DirIcon icon={CaretLeft} size={14} className="text-ink-500" />}
             {item.href && !isLast ? (
               <Link href={item.href} className="text-ink-500 hover:text-brand-600">

@@ -115,8 +115,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         {fa.category.resultsCount(toPersianDigits(result.total))}
       </p>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <aside className="hidden lg:block">
+      <div className="grid gap-6 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
+        <aside className="hidden md:block">
           <CategoryFilters
             subcategories={subcategories.map((s) => ({ slug: s.slug, name: s.name }))}
             brands={brands}
@@ -131,7 +131,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <p className="mt-1 text-sm text-ink-500">{fa.category.noResultsDesc}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {result.items.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

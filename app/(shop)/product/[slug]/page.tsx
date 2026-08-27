@@ -47,7 +47,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const jsonLd = buildProductJsonLd(product, `/product/${product.slug}`);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 sm:px-6 md:pb-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -63,10 +63,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ShareButton productName={product.name} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px_320px]">
-        <ProductGallery images={product.images} productName={product.name} />
+      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_320px_320px]">
+        <ProductGallery images={product.images} />
         <ProductPurchaseCard product={product} />
-        <ProductHighlightsCard product={product} phone={contact.phone} />
+        <div className="md:col-span-2 lg:col-span-1">
+          <ProductHighlightsCard product={product} phone={contact.phone} />
+        </div>
       </div>
 
       <div className="mt-10">

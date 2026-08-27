@@ -10,6 +10,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0e7c86",
+  // Let the layout paint into the notch / home-indicator area so
+  // `env(safe-area-inset-*)` resolves for the fixed action bars and FAB.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
