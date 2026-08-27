@@ -44,7 +44,7 @@ export function QuickAddButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative z-10 mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-input border text-xs font-medium transition-colors duration-(--duration-fast)",
+        "relative z-10 mt-3 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-input border text-xs font-medium transition-[color,background-color,border-color,transform] duration-(--duration-fast) ease-out-soft active:scale-[0.98]",
         added
           ? "border-green-500 bg-green-500/10 text-green-600"
           : "border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100",
@@ -53,7 +53,7 @@ export function QuickAddButton({
     >
       {added ? (
         <>
-          <Check size={15} weight="bold" aria-hidden="true" />
+          <Check size={15} weight="bold" aria-hidden="true" className="animate-check-pop" />
           {fa.product.addedToCart}
         </>
       ) : (

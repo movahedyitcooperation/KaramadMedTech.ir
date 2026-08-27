@@ -4,6 +4,7 @@ import Link from "next/link";
 import { HeroBackground } from "@/components/shop/HeroBackground";
 import { buttonVariants } from "@/components/ui/Button";
 import { Carousel } from "@/components/ui/Carousel";
+import { Reveal } from "@/components/ui/Reveal";
 import { fa } from "@/lib/i18n/fa";
 import type { HeroSlide } from "@/lib/types/settings";
 import { cn } from "@/lib/utils/cn";
@@ -17,8 +18,8 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         className="relative flex min-h-[320px] items-center overflow-hidden rounded-card sm:min-h-[400px]"
       >
         <HeroBackground />
-        <div className="relative max-w-xl px-6 py-12 sm:px-12">
-          <h1 className="text-balance text-2xl font-bold leading-[1.5] text-white drop-shadow-sm sm:text-3xl lg:text-[2.5rem]">
+        <Reveal className="relative max-w-xl px-6 py-12 sm:px-12">
+          <h1 className="reveal-rise text-balance text-2xl font-bold leading-[1.5] text-white drop-shadow-sm sm:text-3xl lg:text-[2.5rem]">
             {parts.map((part, i) => (
               <span key={i}>
                 {part}
@@ -30,13 +31,15 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               </span>
             ))}
           </h1>
-          <Link
-            href={slide.ctaHref}
-            className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-7")}
-          >
-            {slide.ctaLabel}
-          </Link>
-        </div>
+          <span className="reveal-rise mt-7 inline-block [--reveal-delay:110ms]">
+            <Link
+              href={slide.ctaHref}
+              className={cn(buttonVariants({ variant: "accent", size: "lg" }))}
+            >
+              {slide.ctaLabel}
+            </Link>
+          </span>
+        </Reveal>
       </div>
     );
   });

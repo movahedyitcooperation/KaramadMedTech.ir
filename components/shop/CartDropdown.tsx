@@ -4,6 +4,7 @@ import { ShoppingCart } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/Button";
+import { useDisclosureAnimation } from "@/hooks/useDisclosureAnimation";
 import { formatToman, toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -14,6 +15,16 @@ export function CartDropdown() {
   const ref = useRef<HTMLDivElement>(null);
   const items = useCartStore((s) => s.items);
   const count = items.reduce((sum, i) => sum + i.qty, 0);
+  const { mounted, visible } = useDisclosureAnimation(open, 150);
+
+  // Replay a one-shot pop on the badge whenever the cart gains items, so an
+  // add-to-cart action elsewhere on the page is acknowledged at the header.
+  const prevCount = useRef(count);
+  const [pulse, setPulse] = useState(0);
+  useEffect(() => {
+    if (count > prevCount.current) setPulse((p) => p + 1);
+    prevCount.current = count;
+  }, [count]);
 
   useEffect(() => {
     if (!open) return;
@@ -47,8 +58,12 @@ export function CartDropdown() {
         </span>
         {count > 0 && (
           <span
+            key={pulse}
             aria-hidden="true"
-            className="absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1 text-[11px] font-bold text-white"
+            className={cn(
+              "absolute -top-2 -end-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1 text-[11px] font-bold text-white",
+              pulse > 0 && "animate-cart-pop"
+            )}
           >
             {toPersianDigits(count)}
           </span>
@@ -58,11 +73,16 @@ export function CartDropdown() {
         {count > 0 ? fa.header.cartItemCount(toPersianDigits(count)) : fa.header.cartEmpty}
       </span>
 
-      {open && (
+      {mounted && (
         <div
           role="dialog"
           aria-label={fa.cart.dropdownTitle}
-          className="absolute start-0 top-full z-50 mt-2 w-[min(90vw,380px)] rounded-card border border-line bg-surface p-4 shadow-lg"
+          className={cn(
+            "absolute start-0 top-full z-50 mt-2 w-[min(90vw,380px)] origin-top rounded-card border border-line bg-surface p-4 shadow-lg transition-[opacity,transform] ease-out-soft",
+            visible
+              ? "opacity-100 translate-y-0 scale-100 duration-200"
+              : "-translate-y-1 scale-[0.98] opacity-0 duration-150"
+          )}
         >
           {items.length === 0 ? (
             <p className="py-6 text-center text-sm text-ink-500">{fa.header.cartEmpty}</p>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { DirIcon } from "@/components/ui/DirIcon";
+import { useDisclosureAnimation } from "@/hooks/useDisclosureAnimation";
 import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import type { Category } from "@/lib/types/category";
@@ -28,9 +29,10 @@ export function MobileNavDrawer({
   const [open, setOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const { mounted, visible } = useDisclosureAnimation(open, 150);
 
   useEffect(() => {
-    if (!open || !drawerRef.current) return;
+    if (!mounted || !drawerRef.current) return;
 
     const focusable = drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     (focusable[0] ?? drawerRef.current).focus();
@@ -65,7 +67,7 @@ export function MobileNavDrawer({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = original;
     };
-  }, [open]);
+  }, [mounted]);
 
   return (
     <>
@@ -78,10 +80,13 @@ export function MobileNavDrawer({
         <List size={22} aria-hidden="true" />
       </button>
 
-      {open && (
+      {mounted && (
         <div className="fixed inset-0 z-[100] lg:hidden">
           <div
-            className="absolute inset-0 bg-ink-900/40"
+            className={cn(
+              "absolute inset-0 bg-ink-900/40 transition-opacity ease-out-soft",
+              visible ? "opacity-100 duration-200" : "opacity-0 duration-150"
+            )}
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
@@ -91,7 +96,12 @@ export function MobileNavDrawer({
             aria-modal="true"
             aria-label={fa.header.openMenu}
             tabIndex={-1}
-            className="absolute inset-y-0 start-0 flex w-[85vw] max-w-sm flex-col overscroll-contain bg-surface shadow-lg focus:outline-none"
+            className={cn(
+              // Panel is docked at the logical-start edge (visual right under
+              // dir="rtl"); hidden state pushes it off that edge.
+              "absolute inset-y-0 start-0 flex w-[85vw] max-w-sm flex-col overscroll-contain bg-surface shadow-lg transition-transform ease-out-soft focus:outline-none",
+              visible ? "translate-x-0 duration-200" : "translate-x-full duration-150"
+            )}
           >
             <div className="flex items-center justify-between border-b border-line p-4">
               <Logo />

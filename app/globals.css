@@ -73,6 +73,7 @@
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
+  --duration-slower: 420ms; /* authored section entrance on scroll-reveal */
 
   /* ---- Type scale (reference) ---------------------------------------- */
   /* 13 · 14 · 16 (base) · 18 · 22 · 28 · 36 — headings 1.35, body 1.7    */
@@ -158,5 +159,77 @@
   }
   .skip-link:focus {
     top: 1rem;
+  }
+
+  /* Guarantee a 44px hit area on touch pointers without inflating the same
+     control for a mouse. Opt-in: add to compact icon buttons and links. */
+  @media (pointer: coarse) {
+    .tap-target {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
+  /* ---- Scroll-reveal ------------------------------------------------- *
+   * A <Reveal> ancestor carries data-revealed="true|false". While it is
+   * "false" the marked descendants sit in their resting (hidden) state;
+   * when it flips to "true" they transition in. <Reveal> only ever emits
+   * "false" client-side when motion is allowed, so no-JS and
+   * prefers-reduced-motion users always get "true" (content visible, no
+   * transform left stranded by the reduced-motion duration override).   */
+  .reveal-rise {
+    transition:
+      opacity var(--duration-slower) var(--ease-out-soft),
+      transform var(--duration-slower) var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal-mark {
+    transform-origin: right center; /* logical-start edge under dir="rtl" */
+    transition: transform var(--duration-slow) var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [dir="ltr"] .reveal-mark {
+    transform-origin: left center;
+  }
+  [data-revealed="false"] .reveal-rise,
+  [data-revealed="false"].reveal-rise {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  [data-revealed="false"] .reveal-mark,
+  [data-revealed="false"].reveal-mark {
+    transform: scaleX(0);
+  }
+
+  /* One-shot acknowledgements. The reduced-motion block above collapses
+     the duration, so these degrade to an instant state change.          */
+  .animate-cart-pop {
+    animation: cart-badge-pop var(--duration-slow) var(--ease-out-soft);
+  }
+  .animate-check-pop {
+    animation: check-pop var(--duration-base) var(--ease-out-soft);
+  }
+}
+
+@keyframes cart-badge-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

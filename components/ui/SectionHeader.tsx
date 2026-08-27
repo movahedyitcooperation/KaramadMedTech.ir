@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "@/components/ui/Reveal";
 import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
 
@@ -27,17 +28,20 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("mb-5 flex items-end justify-between gap-4", className)}>
+    <Reveal className={cn("mb-5 flex items-end justify-between gap-4", className)}>
       <div className="min-w-0">
         {kicker && (
-          <span className="flex items-center gap-2 text-xs font-medium tracking-wide text-brand-600">
-            <span className="h-px w-8 bg-accent-500" aria-hidden="true" />
+          <span className="reveal-rise flex items-center gap-2 text-xs font-medium tracking-wide text-brand-600">
+            <span
+              className="reveal-mark h-px w-8 bg-accent-500 [--reveal-delay:120ms]"
+              aria-hidden="true"
+            />
             {kicker}
           </span>
         )}
         <Heading
           className={cn(
-            "text-balance font-bold text-ink-900",
+            "reveal-rise text-balance font-bold text-ink-900 [--reveal-delay:60ms]",
             kicker ? "mt-1.5" : "",
             Heading === "h1" ? "text-2xl sm:text-[26px]" : "text-xl sm:text-[22px]"
           )}
@@ -53,6 +57,6 @@ export function SectionHeader({
           {fa.common.viewAll}
         </Link>
       )}
-    </div>
+    </Reveal>
   );
 }

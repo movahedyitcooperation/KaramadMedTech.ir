@@ -3,6 +3,7 @@
 import { X } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useDisclosureAnimation } from "@/hooks/useDisclosureAnimation";
 import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
 
@@ -19,9 +20,10 @@ export interface ModalProps {
 
 export function Modal({ open, onClose, title, children, className }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const { mounted, visible } = useDisclosureAnimation(open, 150);
 
   useEffect(() => {
-    if (!open || !dialogRef.current) return;
+    if (!mounted || !dialogRef.current) return;
 
     const focusable = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     (focusable[0] ?? dialogRef.current).focus();
@@ -58,14 +60,17 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = original;
     };
-  }, [open, onClose]);
+  }, [mounted, onClose]);
 
-  if (!open || typeof document === "undefined") return null;
+  if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-ink-900/40 backdrop-blur-sm"
+        className={cn(
+          "absolute inset-0 bg-ink-900/40 backdrop-blur-sm transition-opacity ease-out-soft",
+          visible ? "opacity-100 duration-200" : "opacity-0 duration-150"
+        )}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -76,7 +81,10 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-label={title}
         tabIndex={-1}
         className={cn(
-          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-card bg-surface p-6 shadow-lg focus:outline-none",
+          "relative max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-card bg-surface p-6 shadow-lg transition-[opacity,transform] ease-out-soft focus:outline-none",
+          visible
+            ? "opacity-100 translate-y-0 scale-100 duration-200"
+            : "opacity-0 translate-y-1 scale-[0.98] duration-150",
           className
         )}
       >
