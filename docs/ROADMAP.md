@@ -70,7 +70,9 @@ so far: `Category` (self-referencing, 2 levels), `Product`, `ProductImage`,
 designed in their own phases (5/6/7). Seed script (`backend/scripts/seed.py`)
 transcribes the 6 categories + sub-categories and 15 seeded Persian products
 already present in this repo's `lib/mock/*.ts` files (فشارسنج، پالس اکسیمتر،
-دستکش معاینه، ماسک، واکر، نبولایزر، تخت معاینه…).
+دستکش معاینه، ماسک، واکر، نبولایزر، تخت معاینه…). The Next.js frontend's
+`lib/db/*.ts` now calls this API directly via `lib/api/` instead of reading
+`lib/mock/*.ts` — see `CLAUDE.md` §2.
 **Done when:** the initial migration is reviewed and applied, and the seed
 script populates a coherent catalog — see `backend/README.md`.
 

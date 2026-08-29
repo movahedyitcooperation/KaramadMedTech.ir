@@ -1,5 +1,7 @@
+import { apiFetch, apiFetchOrNull } from "@/lib/api/client";
+import { mapProduct } from "@/lib/api/mappers";
+import type { ApiProduct, ApiProductListResult } from "@/lib/api/types";
 import { getCategoryIdsInSubtree } from "@/lib/db/categories";
-import { mockProducts } from "@/lib/mock/products";
 import type { Product } from "@/lib/types/product";
 
 export interface ProductListFilters {
@@ -20,7 +22,29 @@ export interface ProductListResult {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  return mockProducts.filter((p) => p.isActive);
+  // page_size=100 is the backend's own max (Query(..., le=100) in
+  // backend/app/api/v1/products.py). Only 15 products are seeded today, so
+  // one page covers the whole catalog — revisit with a real paging loop
+  // before the active catalog exceeds 100. is_active filtering already
+  // happens server-side (WHERE is_active), matching the old
+  // mockProducts.filter(isActive).
+  //
+  // No .reverse() here: the backend's sort=newest currently returns rows in
+  // the exact same order as the old mock array's declared order (verified
+  // live — every seeded product shares one created_at, since
+  // scripts/seed.py inserts all 15 in a single transaction, and Postgres's
+  // tie-break on equal created_at happens to preserve insertion order for
+  // this untouched table). That matches what getAllProducts() always
+  // returned, so getNewestProducts()/sortProducts()'s "newest" branch below
+  // — which apply their own .reverse() — keep working unchanged. This isn't
+  // a guaranteed SQL semantic, just what this table does today; a real fix
+  // (a monotonic sequence column, or staggered seed timestamps) would be a
+  // backend change if it ever became unreliable.
+  const result = await apiFetch<ApiProductListResult>("/products/", {
+    sort: "newest",
+    page_size: 100,
+  });
+  return result.items.map(mapProduct);
 }
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
@@ -39,8 +63,8 @@ export async function getBestsellerProducts(limit = 8): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const all = await getAllProducts();
-  return all.find((p) => p.slug === slug) ?? null;
+  const raw = await apiFetchOrNull<ApiProduct>(`/products/${encodeURIComponent(slug)}`);
+  return raw ? mapProduct(raw) : null;
 }
 
 function sortProducts(products: Product[], sort: ProductListFilters["sort"]): Product[] {

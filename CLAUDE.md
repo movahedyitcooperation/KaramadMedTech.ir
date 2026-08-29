@@ -27,9 +27,13 @@ is a Next.js frontend that talks to a **separate Python/FastAPI backend**
 rather than Next.js owning the database directly via Prisma/Server Actions.
 Data access lives exclusively in the Python backend now (SQLAlchemy 2.0
 async + Alembic + PostgreSQL) — Prisma is not part of this project.
-`lib/db/*.ts` on the frontend still reads mock data for now; it will
-eventually be replaced by calls to this API, but that swap has not happened
-yet.
+`lib/db/*.ts` now calls this API over plain `fetch()` — no HTTP client
+dependency; Next.js's built-in per-render fetch memoization handles deduping
+identical calls — via a thin `lib/api/{client,types,mappers}.ts` adapter
+that converts the API's snake_case JSON into the frontend's existing
+camelCase TS types. `lib/mock/*.ts` is no longer imported by application
+code; it's kept only as the historical source `backend/scripts/seed.py` was
+transcribed from.
 
 | Layer | Choice |
 |---|---|
@@ -118,9 +122,9 @@ Rules:
 
 ## 7. Environment variables
 
+Frontend (`.env.local`, gitignored — see `.env.example`):
 ```
-DATABASE_URL=
-JWT_SECRET=
+API_BASE_URL=http://localhost:8000/api/v1
 NEXT_PUBLIC_SITE_URL=https://karamadmedtech.ir
 SMS_PROVIDER=console|kavenegar|smsir
 SMS_API_KEY=
@@ -129,6 +133,14 @@ PAYMENT_PROVIDER=mock|zarinpal
 ZARINPAL_MERCHANT_ID=
 ZARINPAL_SANDBOX=true
 ```
+`API_BASE_URL` is read server-side only, by `lib/api/client.ts`, defaulting
+to `http://localhost:8000/api/v1` when unset — every `lib/db/*.ts` call site
+is a Server Component running on the Node.js process, so this deliberately
+isn't a `NEXT_PUBLIC_*` var (no reason to inline it into the client bundle).
+
+Backend credentials (`DATABASE_URL`, `JWT_SECRET`, `FRONTEND_ORIGIN`) live in
+`backend/.env` — see `backend/.env.example`. The frontend does not read them.
+
 In development `SMS_PROVIDER=console` prints the OTP to the terminal and
 `PAYMENT_PROVIDER=mock` auto-approves payment. **Never** block development on
 real credentials.

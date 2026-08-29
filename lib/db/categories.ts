@@ -1,8 +1,23 @@
-import { mockCategories } from "@/lib/mock/categories";
+import { apiFetch, apiFetchOrNull } from "@/lib/api/client";
+import { mapCategoryBase, mapCategoryRead } from "@/lib/api/mappers";
+import type { ApiCategoryRead, ApiCategoryTree } from "@/lib/api/types";
 import type { Category } from "@/lib/types/category";
 
 export async function getAllCategories(): Promise<Category[]> {
-  return mockCategories.filter((c) => c.isActive);
+  // GET /categories/ returns a one-level tree (top-level categories, each
+  // with a `children` array). Flatten it into the flat Category[] shape
+  // every other function in this file expects, reconstructing each child's
+  // parentId as its parent's real id — the backend's child shape
+  // (ApiCategoryBase) carries no parent_id field of its own.
+  const tree = await apiFetch<ApiCategoryTree[]>("/categories/");
+  const flat: Category[] = [];
+  for (const top of tree) {
+    flat.push(mapCategoryBase(top, null));
+    for (const child of top.children) {
+      flat.push(mapCategoryBase(child, top.id));
+    }
+  }
+  return flat;
 }
 
 export async function getTopLevelCategories(): Promise<Category[]> {
@@ -11,8 +26,8 @@ export async function getTopLevelCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const all = await getAllCategories();
-  return all.find((c) => c.slug === slug) ?? null;
+  const raw = await apiFetchOrNull<ApiCategoryRead>(`/categories/${encodeURIComponent(slug)}`);
+  return raw ? mapCategoryRead(raw) : null;
 }
 
 export async function getCategoryById(id: string): Promise<Category | null> {
