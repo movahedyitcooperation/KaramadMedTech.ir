@@ -12,9 +12,11 @@
   transfer. The old scp-based tree is kept at `~/karamad-medtech-old-scp`
   as a rollback safety net; safe to delete once this is confirmed stable.
 - `karamadmedtech.ir` DNS now points here and Nginx's `server_name`
-  includes it (alongside the bare IP, kept for direct testing). **Still no
-  TLS** — the site is plain HTTP on both the domain and the IP. See "Known
-  gaps."
+  includes it (alongside the bare IP, kept for direct testing). **TLS is
+  live** — Certbot issued a real cert for `karamadmedtech.ir` and
+  `www.karamadmedtech.ir` (auto-renewing, 90-day Let's Encrypt cert) and
+  configured the HTTP→HTTPS redirect. Plain HTTP on the bare IP now 404s
+  (Certbot's default for unmatched `server_name`s in that block).
 
 ## First-time bootstrap
 
@@ -76,9 +78,9 @@ Practical implications:
 |---|---|---|
 | `backend/.env` | `DATABASE_URL` | `postgresql+asyncpg://karamad:<password>@localhost:5432/karamad_medtech` |
 | `backend/.env` | `JWT_SECRET` | Generated at bootstrap (`openssl rand -hex 32`), distinct from local dev's |
-| `backend/.env` | `FRONTEND_ORIGIN` | `http://karamadmedtech.ir` — update to `https://` once TLS is added |
-| `.env.local` (repo root) | `API_BASE_URL` | `http://127.0.0.1:8000/api/v1` — both services run on the same box |
-| `.env.local` (repo root) | `BACKEND_PUBLIC_ORIGIN` | `http://karamadmedtech.ir` — browser-facing origin for admin-uploaded product images; **not** the loopback `API_BASE_URL` above, the browser must be able to reach it directly. Update to `https://` once TLS is added |
+| `backend/.env` | `FRONTEND_ORIGIN` | `https://karamadmedtech.ir` |
+| `.env.local` (repo root) | `API_BASE_URL` | `http://127.0.0.1:8000/api/v1` — both services run on the same box, loopback stays plain HTTP even though the public origin is HTTPS |
+| `.env.local` (repo root) | `BACKEND_PUBLIC_ORIGIN` | `https://karamadmedtech.ir` — browser-facing origin for admin-uploaded product images; **not** the loopback `API_BASE_URL` above, the browser must be able to reach it directly |
 | `backend/.env` | `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES`, `UPLOAD_DIR` | Admin-auth/upload config — safe defaults ship in `backend/.env.example`, rarely need overriding |
 
 To rotate a secret: edit the relevant `.env`, then `sudo systemctl restart
@@ -112,16 +114,17 @@ nightly `pg_dump`) before real admin-uploaded images accumulate there.
 
 ## Firewall
 
-`ufw` allows SSH (22), HTTP (80), and HTTPS (443, pre-opened for when TLS
-is added). Check with `sudo ufw status verbose`.
+`ufw` allows SSH (22), HTTP (80), and HTTPS (443, now in active use).
+Check with `sudo ufw status verbose`.
 
 ## Known gaps / next steps
 
-- **No TLS yet**, even though the domain is live. Next step:
-  `sudo apt install certbot python3-certbot-nginx`, then
-  `sudo certbot --nginx -d karamadmedtech.ir -d www.karamadmedtech.ir`,
-  then update `FRONTEND_ORIGIN`/`BACKEND_PUBLIC_ORIGIN` to `https://` and
-  rebuild the frontend (`.env.local` is baked in at build time).
+- **Cert renewal is unverified.** Certbot's systemd timer (`certbot.timer`)
+  handles renewal automatically, but a real renewal + Nginx reload hasn't
+  actually been observed yet (cert issued 2026-08-30, expires
+  2026-11-28). Worth checking `sudo systemctl status certbot.timer` and
+  `sudo certbot renew --dry-run` occasionally until one real cycle has
+  been seen to succeed.
 - **No uploads backup** — see the Backups section above.
 - **Admin credential is still the local-dev throwaway** —
   `admin@karamadmedtech.ir` / `ChangeMe123!`, bootstrapped via
