@@ -52,3 +52,5 @@ next-env.d.ts
 
 # secrets — never commit
 GitHub repo PAT and URL.txt
+*.local.md
+ADMIN_CREDENTIALS.local.md
