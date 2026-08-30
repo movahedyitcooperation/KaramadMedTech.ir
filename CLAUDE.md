@@ -48,7 +48,7 @@ transcribed from.
 | Validation | Zod on every server action / route handler (frontend); Pydantic schemas on every backend route |
 | Forms | react-hook-form + zod resolver |
 | State | Server components by default; Zustand only for cart |
-| Images | next/image, local uploads to `/public/uploads` |
+| Images | next/image; **admin-uploaded** product images live on the backend (`backend/uploads/`, served at `/api/v1/uploads/*`), resolved via `BACKEND_PUBLIC_ORIGIN` — see §6; storefront/brand assets stay in `/public` |
 | Deploy | Self-hosted Ubuntu VPS — Node + PM2 + Nginx + Certbot (frontend); uv-managed Python service (backend) |
 
 **No** Vercel-only APIs. **No** external CDN for fonts or scripts — many Iranian
@@ -101,7 +101,10 @@ Rules:
 
 ## 5. Conventions
 
-- `app/(shop)/…` public storefront, `app/(auth)/…`, `app/admin/…`.
+- `app/(shop)/…` public storefront, `app/(auth)/…`, `app/admin/…` (login page
+  at `app/admin/login/`, everything requiring auth under the route group
+  `app/admin/(protected)/` so the shared sidebar layout can't leak onto the
+  public login page — route groups don't add a URL segment).
 - Server Components by default. `"use client"` only for interactivity.
 - Mutations = **Server Actions** in `app/**/actions.ts`, validated with Zod,
   returning `{ ok: true, data } | { ok: false, error }`. Never throw to the UI.
@@ -115,16 +118,41 @@ Rules:
 - OTP: 6 digits, 2-minute TTL, max 5 attempts, rate-limited per phone **and** IP.
   Store only a hash of the code. Never log it in production.
 - JWT in `httpOnly`, `secure`, `sameSite=lax` cookie. 30-day refresh.
-- Admin routes protected by middleware checking `role === "ADMIN"`.
 - Verify the ZarinPal callback server-side before marking an order paid.
   Guard against double-verification (idempotent by `authority`).
 - Zod-validate every input. Escape all user-generated review text.
+
+### Admin auth pattern (implemented)
+
+Admin auth is **separate from** the customer SMS-OTP auth above — a distinct
+`AdminUser` model/table in the backend (`passlib[argon2]` password hashes,
+not the reserved `app/models/user.py` earmarked for future customer auth).
+
+- The backend issues **stateless bearer tokens only**
+  (`POST /api/v1/auth/admin/login` → `{access_token, expires_in}` JSON, no
+  cookie logic in the backend at all, no refresh-token flow — 8-hour expiry,
+  re-login after that).
+- The **Next.js frontend owns the httpOnly cookie**, set by a Route Handler
+  (`app/api/admin/login/route.ts`) that proxies the login call server-side —
+  the browser never talks to the backend directly, so `JWT_SECRET` never
+  needs to reach the frontend and no `NEXT_PUBLIC_*` backend URL is needed
+  for auth.
+- `middleware.ts` (matcher `/admin/:path*`) does a **cheap cookie-presence
+  check only** — it's a UX redirect to `/admin/login`, not the real security
+  boundary, and it must never be described as enforcement.
+- The **real enforcement** is the backend's `get_current_admin` FastAPI
+  dependency (`app/api/v1/auth.py`), mounted on every `/admin/*` backend
+  route — it validates the JWT signature and `role == "ADMIN"` on every
+  request, independent of anything the frontend does. This split is
+  deliberate: a bug in `middleware.ts` should degrade to "confusing redirect,"
+  never to "unauthenticated write succeeds."
 
 ## 7. Environment variables
 
 Frontend (`.env.local`, gitignored — see `.env.example`):
 ```
 API_BASE_URL=http://localhost:8000/api/v1
+BACKEND_PUBLIC_ORIGIN=http://localhost:8000
 NEXT_PUBLIC_SITE_URL=https://karamadmedtech.ir
 SMS_PROVIDER=console|kavenegar|smsir
 SMS_API_KEY=
@@ -137,9 +165,15 @@ ZARINPAL_SANDBOX=true
 to `http://localhost:8000/api/v1` when unset — every `lib/db/*.ts` call site
 is a Server Component running on the Node.js process, so this deliberately
 isn't a `NEXT_PUBLIC_*` var (no reason to inline it into the client bundle).
+`BACKEND_PUBLIC_ORIGIN` is the **browser-facing** backend origin — a
+different concern from `API_BASE_URL`, which can be a loopback-only address
+in production that the browser can't reach. It resolves admin-uploaded
+product image URLs (`lib/api/mappers.ts`'s `resolveImageUrl`) and scopes
+`next.config.ts`'s `images.remotePatterns`. Also server-side only.
 
-Backend credentials (`DATABASE_URL`, `JWT_SECRET`, `FRONTEND_ORIGIN`) live in
-`backend/.env` — see `backend/.env.example`. The frontend does not read them.
+Backend credentials (`DATABASE_URL`, `JWT_SECRET`, `JWT_ALGORITHM`,
+`JWT_EXPIRE_MINUTES`, `UPLOAD_DIR`, `FRONTEND_ORIGIN`) live in `backend/.env`
+— see `backend/.env.example`. The frontend does not read them.
 
 In development `SMS_PROVIDER=console` prints the OTP to the terminal and
 `PAYMENT_PROVIDER=mock` auto-approves payment. **Never** block development on

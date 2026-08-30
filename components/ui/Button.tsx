@@ -13,6 +13,7 @@ const buttonVariants = cva(
         coral: "bg-coral-500 text-white hover:bg-coral-600",
         outline: "border border-line bg-surface text-ink-900 hover:bg-bg",
         ghost: "bg-transparent text-ink-900 hover:bg-bg",
+        danger: "bg-danger text-white hover:bg-red-700",
       },
       size: {
         sm: "h-10 px-4 text-sm",

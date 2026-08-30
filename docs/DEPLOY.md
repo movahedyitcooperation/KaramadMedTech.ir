@@ -53,6 +53,8 @@ both before reporting success. Safe to re-run — `alembic upgrade head` and
 | `backend/.env` | `JWT_SECRET` | Generated at bootstrap (`openssl rand -hex 32`), distinct from local dev's |
 | `backend/.env` | `FRONTEND_ORIGIN` | `http://185.164.72.102` — update once the real domain is live |
 | `.env.local` (repo root) | `API_BASE_URL` | `http://127.0.0.1:8000/api/v1` — both services run on the same box |
+| `.env.local` (repo root) | `BACKEND_PUBLIC_ORIGIN` | Browser-facing backend origin for admin-uploaded product images (e.g. `http://185.164.72.102`, or the real domain once TLS is live) — **not** the loopback `API_BASE_URL` above, the browser must be able to reach it directly |
+| `backend/.env` | `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES`, `UPLOAD_DIR` | Admin-auth/upload config — safe defaults ship in `backend/.env.example`, rarely need overriding |
 
 To rotate a secret: edit the relevant `.env`, then `sudo systemctl restart
 karamad-backend` (backend vars) or `pm2 restart karamad-frontend` (frontend
@@ -77,8 +79,11 @@ gunzip -c ~/backups/karamad_medtech-<timestamp>.sql.gz | psql -h 127.0.0.1 -U ka
 ```
 Credentials for the unattended cron run come from `~/.pgpass` (mode 600).
 
-No `/public/uploads` backup step — this app has no file-upload feature yet.
-Add one to `scripts/backup.sh` once an upload feature ships.
+No `backend/uploads/` backup step yet. The admin panel's product-image
+uploads (`backend/uploads/`, served at `/api/v1/uploads/*`) now exist in the
+codebase but haven't been deployed to this server yet — once they are, add a
+step to `scripts/backup.sh` (e.g. `tar`-ing `backend/uploads/` alongside the
+nightly `pg_dump`) before real admin-uploaded images accumulate there.
 
 ## Firewall
 
@@ -91,7 +96,12 @@ is added). Check with `sudo ufw status verbose`.
   server: `sudo apt install certbot python3-certbot-nginx`, then
   `sudo certbot --nginx -d karamadmedtech.ir`, and update
   `FRONTEND_ORIGIN`/the Nginx `server_name` accordingly.
-- **No uploads backup** — no upload feature exists yet.
+- **No uploads backup** — see the Backups section above.
+- **Admin panel not yet deployed to this server.** Built and verified
+  locally (auth + Products/Categories CRUD, image uploads). The existing
+  `scripts/deploy.sh` re-deploy flow is git-pull-based, which won't work
+  until a GitHub deploy key is added — the initial deploy used a direct
+  `scp` transfer instead (see git history / session notes for why).
 - **SSH is password-only.** The current setup uses password auth (shared
   once during initial setup). Good practice going forward: generate a
   keypair locally, `ssh-copy-id claude@185.164.72.102`, confirm key login

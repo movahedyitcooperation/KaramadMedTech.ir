@@ -38,3 +38,24 @@ class CategoryTree(CategoryBase):
     """
 
     children: list[CategoryBase] = []
+
+
+# --- admin write schemas (Phase 8 — admin panel) ---------------------------
+
+
+class CategoryCreate(BaseModel):
+    slug: str
+    name: str
+    icon: str | None = None
+    parent_id: uuid.UUID | None = None
+    sort_order: int = 0
+    is_active: bool = True
+
+
+class CategoryUpdate(BaseModel):
+    slug: str | None = None
+    name: str | None = None
+    icon: str | None = None
+    parent_id: uuid.UUID | None = None
+    sort_order: int | None = None
+    is_active: bool | None = None

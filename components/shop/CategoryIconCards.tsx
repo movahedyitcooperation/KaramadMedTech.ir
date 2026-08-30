@@ -1,14 +1,7 @@
-import { Package } from "@phosphor-icons/react/dist/ssr";
-import * as PhosphorIcons from "@phosphor-icons/react/dist/ssr";
-import type { Icon } from "@phosphor-icons/react/lib";
 import Link from "next/link";
 import { fa } from "@/lib/i18n/fa";
 import type { Category } from "@/lib/types/category";
-
-function resolveIcon(name: string): Icon {
-  const icons = PhosphorIcons as unknown as Record<string, Icon>;
-  return icons[name] ?? Package;
-}
+import { resolveIcon } from "@/lib/utils/resolveIcon";
 
 export function CategoryIconCards({ categories }: { categories: Category[] }) {
   return (
