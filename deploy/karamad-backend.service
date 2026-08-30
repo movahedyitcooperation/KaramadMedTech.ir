@@ -7,7 +7,7 @@ Wants=postgresql.service
 Type=simple
 User=claude
 Group=claude
-WorkingDirectory=/home/claude/karamad-medtech/backend
+WorkingDirectory=/home/claude/karamad-medtech
 # uv installs to ~/.local/bin, which is not on systemd's default PATH.
 Environment=PATH=/home/claude/.local/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=/home/claude/.local/bin/uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
