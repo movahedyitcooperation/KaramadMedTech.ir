@@ -32,6 +32,8 @@ function createNode(vnode) {
   el.__handlers = {};
   applyProps(el, {}, vnode.props, isSvg);
   for (const child of vnode.children) el.appendChild(createNode(child));
+  // <select>.value only binds once its <option>s exist; applyProps ran before them.
+  if (vnode.tag === "select" && vnode.props.value != null) el.value = String(vnode.props.value);
   return el;
 }
 
@@ -83,7 +85,14 @@ function applyProps(el, oldProps, props, isSvg) {
       el.__handlers[type] = typeof v === "function" ? v : null;
       continue;
     }
-    if (k === "value") { if (el.value !== String(v ?? "")) el.value = v ?? ""; continue; }
+    if (k === "value") {
+      // <option value=""> — before its text node exists el.value already reads "",
+      // so the guard below would skip it and the value attr would never be set,
+      // leaving option.value falling back to the text. Pin the attribute directly.
+      if (el.tagName === "OPTION") el.setAttribute("value", v ?? "");
+      else if (el.value !== String(v ?? "")) el.value = v ?? "";
+      continue;
+    }
     if (k === "checked") { el.checked = !!v; continue; }
     if (k === "disabled") { el.disabled = !!v && v !== "false"; if (el.disabled) el.setAttribute("disabled", ""); else el.removeAttribute("disabled"); continue; }
     if (k === "html") { el.innerHTML = v; continue; }
@@ -145,6 +154,11 @@ export function patch(parent, vnode, index = 0) {
   } else {
     newKids.forEach((childV, i) => patch(existing, childV, i));
     while (existing.childNodes.length > newKids.length) existing.lastChild.remove();
+  }
+
+  // re-bind <select>.value after its <option>s are reconciled (applyProps ran first)
+  if (vnode.tag === "select" && vnode.props.value != null && existing.value !== String(vnode.props.value)) {
+    existing.value = String(vnode.props.value);
   }
 }
 

@@ -5,7 +5,7 @@ import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { toPersianNumber } from "../lib/format.js";
 import { productCard, sectionHeading } from "../components/ui.js";
-import { cardGlyph } from "../components/cat-glyph.js";
+import { cardGlyph, deptTint, deptDeep } from "../components/cat-glyph.js";
 import { PRODUCTS } from "../api/fixture.js";
 import * as A from "../actions.js";
 
@@ -45,9 +45,10 @@ function hero(s) {
 
     h("div", { "aria-hidden": "true", style: { position: "absolute", inset: 0 } },
       slides.map((sl, i) =>
-        h("img", { key: sl.id, src: sl.image, alt: "", width: 1656, height: 939,
+        h("img", { key: sl.id, src: sl.image, alt: "", width: 1656, height: 939, class: "j-hero-img",
           fetchpriority: i === 0 ? "high" : undefined, loading: i === 0 ? undefined : "lazy", decoding: "async",
-          style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: ["22% 50%", "38% 50%", "32% 50%"][i] || "50% 50%", opacity: s.hero === i ? 1 : 0, transition: "opacity 0.6s ease" } })),
+          style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: ["22% 50%", "38% 50%", "32% 50%"][i] || "50% 50%",
+            opacity: s.hero === i ? 1 : 0, transform: s.hero === i ? "scale(1)" : "scale(1.045)" } })),
       // darken the inline-start (right, in RTL) where the text column sits — the
       // prototype's 90deg darkened the wrong edge for RTL and the copy lost contrast.
       h("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(270deg, rgb(8 20 15 / 0.9) 0%, rgb(8 20 15 / 0.7) 38%, rgb(8 20 15 / 0.32) 68%, rgb(8 20 15 / 0.12) 100%)" } })),
@@ -66,14 +67,22 @@ function hero(s) {
 
       h("div", { style: { position: "absolute", insetInline: 32, insetBlockEnd: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, maxWidth: 640 } },
         h("div", { style: { display: "flex", gap: 8 } },
-          slides.map((sl, i) =>
-            h("button", { key: sl.id, onClick: () => A.heroGoto(i), "aria-label": fa.hero.dot(i + 1), "aria-current": s.hero === i ? "true" : "false",
-              style: { width: s.hero === i ? 34 : 14, height: 4, background: s.hero === i ? "var(--bone)" : "rgb(var(--bone-rgb) / 0.34)", border: "none", padding: 0, cursor: "pointer", borderRadius: "var(--r-pill)", transition: "width 0.3s ease, background 0.3s ease" } }))),
+          slides.map((sl, i) => {
+            const on = s.hero === i;
+            // the active dot's fill runs a linear sweep across one autoplay cycle
+            // (a visible cycle timer), pausing while the hero is hovered/focused.
+            const timing = on && !s.reducedMotion;
+            return h("button", { key: sl.id, class: "j-hero-dot", onClick: () => A.heroGoto(i),
+              "aria-label": fa.hero.dot(i + 1), "aria-current": on ? "true" : "false" },
+              h("span", { key: timing ? "t" + s.hero : "f", class: "j-hero-dot-fill" + (timing ? " is-timing" : ""),
+                "data-paused": String(s.heroHover) }));
+          })),
         h("div", { style: { display: "flex", gap: 8 } },
-          h("button", { onClick: A.heroPrev, "aria-label": fa.hero.prev, style: heroArrow }, "→"),
-          h("button", { onClick: A.heroNext, "aria-label": fa.hero.next, style: heroArrow }, "←")))));
+          h("button", { class: "j-hero-arrow", onClick: A.heroPrev, "aria-label": fa.hero.prev, style: heroArrow }, "→"),
+          h("button", { class: "j-hero-arrow", onClick: A.heroNext, "aria-label": fa.hero.next, style: heroArrow }, "←")))));
 }
-const heroArrow = { width: 44, height: 44, background: "rgb(8 20 15 / 0.3)", border: "1px solid rgb(var(--bone-rgb) / 0.34)", color: "var(--bone)", borderRadius: "var(--r-5)", cursor: "pointer", fontSize: 17, backdropFilter: "blur(4px)" };
+// background + border live in app.css .j-hero-arrow so :hover can override them
+const heroArrow = { width: 44, height: 44, color: "var(--bone)", borderRadius: "var(--r-5)", cursor: "pointer", fontSize: 17, backdropFilter: "blur(4px)" };
 
 /* -------------------------------------------------------------- finder --- */
 function finder(s) {
@@ -82,7 +91,7 @@ function finder(s) {
     h("div", { class: "km-g4", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 22, boxShadow: "var(--shadow-float)", display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr auto", gap: 14, alignItems: "end" } },
       field(fa.finder.category,
         h("select", { onChange: (e) => A.setFinderCat(e.target.value), value: s.finderCat, style: selectStyle },
-          h("option", { value: "" }, fa.finder.allCategories),
+          h("option", { key: "", value: "" }, fa.finder.allCategories),
           s.categories.map((c) => h("option", { key: c.slug, value: c.slug }, c.name)))),
       field(fa.finder.price,
         h("select", { onChange: (e) => A.setFinderBand(e.target.value), value: s.finderBand, style: selectStyle },
@@ -92,7 +101,9 @@ function finder(s) {
           fa.finder.sorts.map((o) => h("option", { key: o.value, value: o.value }, o.label))), { marginInlineStart: 12 }),
       h("button", { class: "j-btn j-btn--ink", onClick: A.finderGo,
         style: { padding: "14px 30px", borderRadius: "var(--r-5)", fontSize: "15.5px", fontWeight: 700, height: 48 } }, fa.finder.submit)),
-    h("p", { style: { margin: "10px 2px 0", fontSize: 13, color: "rgb(var(--ink-rgb) / 0.5)", lineHeight: 1.7 } }, fa.finder.note));
+    h("p", { style: { margin: "10px 2px 0", fontSize: 13, color: "var(--info)", lineHeight: 1.7, display: "flex", alignItems: "baseline", gap: 8 } },
+      h("span", { "aria-hidden": "true", style: { width: 6, height: 6, borderRadius: "50%", background: "var(--info)", flexShrink: 0, transform: "translateY(-1px)" } }),
+      h("span", null, fa.finder.note)));
 }
 function field(label, control, extra) {
   return h("label", { style: Object.assign({ display: "flex", flexDirection: "column", gap: 8, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.6)" }, extra || {}) }, label, control);
@@ -106,9 +117,9 @@ function categoryCards(s) {
       s.categories.map((c) =>
         h("button", { key: c.slug, class: "j-cat-card", onClick: () => A.openCategory(c.slug),
           style: { background: "none", border: "none", padding: "18px 10px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, borderRadius: "var(--r-5)" } },
-          h("span", { style: { width: 76, height: 76, borderRadius: "50%", background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", display: "grid", placeItems: "center" } }, cardGlyph(c.slug)),
+          h("span", { class: "j-cat-disc", style: { width: 76, height: 76, borderRadius: "50%", background: deptTint(c.slug), border: "1px solid color-mix(in oklab, " + deptDeep(c.slug) + " 40%, transparent)", display: "grid", placeItems: "center" } }, cardGlyph(c.slug)),
           h("span", { style: { fontSize: "14.5px", fontWeight: 600, color: "var(--ink)", lineHeight: 1.6, textAlign: "center" } }, c.name),
-          h("span", { style: { fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.5)" } }, fa.home.countUnit(countFromAll(c.slug)))))));
+          h("span", { style: { fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.68)" } }, fa.home.countUnit(countFromAll(c.slug)))))));
 }
 
 /* ----------------------------------------------------------- carousel --- */
@@ -117,9 +128,12 @@ function carousel(s, heading, aria, items, variant, action) {
     sectionHeading(heading, action),
     items.length === 0
       ? h("div", { class: "km-scroll", style: carouselRow },
-          Array.from({ length: 5 }, (_, i) => h("div", { key: i, style: { scrollSnapAlign: "start", background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.08)", borderRadius: "var(--r-3)", minHeight: 360 } })))
-      : h("div", { class: "km-scroll", style: carouselRow },
-          items.map((p) => h("div", { key: p.slug, style: { scrollSnapAlign: "start" } }, productCard(p, { variant })))));
+          Array.from({ length: 5 }, (_, i) => h("div", { key: i, class: "km-shimmer", style: { scrollSnapAlign: "start", background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.08)", borderRadius: "var(--r-3)", minHeight: 360 } })))
+      : h("div", { class: "km-scroll km-stagger", style: carouselRow },
+          // display:grid lets the single card fill the grid-stretched wrapper, so
+          // every card in the row is the same height and the CTAs line up.
+          // .km-stagger settles the cards in once, the moment their data lands.
+          items.map((p) => h("div", { key: p.slug, style: { scrollSnapAlign: "start", display: "grid" } }, productCard(p, { variant })))));
 }
 const carouselRow = { display: "grid", gridAutoFlow: "column", gridAutoColumns: "minmax(246px, 1fr)", gap: 18, overflowX: "auto", scrollSnapType: "x mandatory", paddingBlockEnd: 10 };
 
@@ -137,7 +151,7 @@ function services(s) {
 
 /* -------------------------------------------------------------- trust --- */
 function trust() {
-  return h("section", { "aria-label": fa.home.trustAria, style: { marginBlockStart: 80, background: "var(--emerald)", color: "var(--bone)" } },
+  return h("section", { "aria-label": fa.home.trustAria, style: { marginBlockStart: 80, background: "linear-gradient(180deg, var(--emerald-hi), var(--emerald) 60%)", color: "var(--bone)" } },
     h("div", { class: "km-pad km-trust", style: container({ paddingInline: 32, display: "grid", gridTemplateColumns: "repeat(6, minmax(0,1fr))" }) },
       fa.trust.map((t, i) =>
         h("div", { key: i, style: { padding: "30px 20px", borderInlineStart: "1px solid rgb(var(--bone-rgb) / 0.14)", display: "flex", flexDirection: "column", gap: 9 } },

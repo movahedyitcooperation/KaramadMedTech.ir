@@ -30,6 +30,25 @@ Six tokens, all verified against WCAG AA for the pairs actually used.
 
 Almond was deliberately pushed **cool and powdery** (`#EAE9E1`, chroma ~0.006 green-yellow) rather than the warm-cream `#F4F1EA` that the brief flags as the commonest generated background. Two greens are present as required; the warning family is a desaturated ochre, not a red, so it never reads as an error next to the genuine `--danger` red.
 
+## 2·b. Department wayfinding spectrum + `--info` (colorize pass, 2026-09)
+
+The six-token core above is unchanged: **`--ink` is still the only CTA, `--emerald` is still the only ground.** This pass adds one subordinate layer whose single job is to *say which of the six departments you are looking at*, plus one missing semantic role.
+
+| Token group | Value basis | Role — and only this role |
+|---|---|---|
+| `--dept-{slug}` ×6 | OKLCH `L 0.94 · C 0.065`, six hues 116°–352° | department fill: the 76px home category disc, the mega-menu marker chip, the mobile-nav row, the category-page H1 chip, the active sub-filter row. Chroma was raised from ~0.034 to 0.065 in the critique pass so the six hues actually separate at disc size and register against the almond page — WCAG contrast barely moves (it is luminance-based) but the colour becomes visible. |
+| `--dept-{slug}-deep` ×6 | same hue, `L ~0.44 · C ~0.09` | department ink: the category-page breadcrumb's current segment, the PDP breadcrumb's category link, the mega-menu subheading, the active sub-filter label, the H1-chip ring. All six clear **4.5:1 on `--page` and `--surface`** and on the brighter tint (measured ≥6:1). |
+| `--info` / `--info-bg` / `--info-border` | `#2C556C` clinical blue, 6.6:1 on `--page` | **informational, not caution.** Features that are not live yet: the finder's "text search isn't on" note, the PDP «مقایسه/ذخیره — به‌زودی» chips. Distinct from `--warn` (ochre = be careful) and `--danger` (red = something is wrong). |
+| `--emerald-hi` | `#234A38`, one L-step above `--emerald` | top sheen only. The header, trust band and footer carry a 4–6% vertical gradient (`--emerald-hi → --emerald`/`--emerald-deep`) so the emerald ground has material depth instead of reading as a flat block. `--bone` on it is still 8.2:1. |
+| `--emerald-live-deep` | `#0C7350` | the **text-bearing** green. `--emerald-live` (`#1C8A69`) is graphical only — focus ring, dots, hero rule; light text on it was 3.97:1. Any green fill that carries `--surface`/`--bone` text — the "موجود" in-stock badge, the WhatsApp button — uses `--emerald-live-deep` instead (`--surface` on it = 5.4:1). |
+
+Rules that keep this from becoming "a colourful storefront":
+
+1. **A department hue never appears without its category icon or its text label.** Colour is always the third cue. The six icons are the owner's own artwork (`assets/categories/<slug>.webp` — their original dark-green line art with the white background removed, trimmed square, ~6–7 KB each). They are shown **as-is, never recoloured** — `cat-glyph.js` `catIcon()` just renders an `<img>`. They sit on the pale `--dept-*` tint disc, which supplies the wayfinding colour. The geometric `GLYPH` map is kept as the fallback for an unmapped slug and for the emerald nav bar, where a dark icon on a dark ground would not read.
+2. **One department colour is visible at a time** on category and product pages. The home category rail is the only place all six appear together, and there it reads as a legend.
+3. **No colour on the shopping surface itself.** Product cards, prices, ratings, "add to cart", discount/low-stock badges are exactly as §2 defines them; the in-stock badge only changed hue (`--emerald-live` → `--emerald-live-deep`) for contrast, not role. The spectrum lives in navigation and page headers, not in the grid.
+4. **`oklch()` and `color-mix()` are used directly** (no hex fallback) — the build already ships `text-wrap: pretty`, which post-dates both.
+
 ## 3. Typography
 
 - **Body and display: Vazirmatn only**, differentiated by weight and tracking rather than a second family — 800 with `-0.015em` tracking for display, 400/500/600 for text. Justification: a second Persian display family costs another WOFF2 request against a 60 KB JS / sub-2s LCP budget, and Vazirmatn's 800 weight is genuinely distinct from its 400 at the sizes used (h1 30–50px vs body 15–16px). Where a second family would earn its bytes is a logotype, and the logotype is one word.
@@ -94,11 +113,65 @@ don't warrant marketplace chrome         │          │ │ key specs dl │ �
 - **Trust badge** — no card, no radius: six cells on the emerald band separated by 1px rules. Structure, not object.
 - **Highlight card** (PDP key specs, cart terminal state, mega-menu panel) — emerald ground, 8px radius, reversed text. Used where the site is speaking rather than listing.
 
-## 5. Motion
+## 5. Motion — re-choreographed 2026-09
 
-Spent in one place: **the hero**. Changing slide re-keys the text column and its four children stagger up (22ms apart, `transform`/`opacity` only). Autoplay is 6.5s, pauses on hover, and does not run under `prefers-reduced-motion`.
+> Supersedes the original "spent in one place" budget. The owner asked for a full
+> motion pass (`impeccable animate + delight`); the storefront now has a complete
+> motion language rather than one hero effect. What did **not** change: motion is
+> still never triggered by scroll position — no reveals, no parallax, no
+> `IntersectionObserver` — and it never delays the task.
 
-Everything else is response to action, never decoration: mega-menu and cart-dropdown drop-in (160–180ms), drawer slide, toast rise, quantity/qty-clamp text, PDP image hover zoom, product-card border darkening. That is three patterns — stagger, drop-in, and a 200ms property fade. No section reveal on scroll, no card hover-lift.
+**Thesis:** a precision instrument settling into place — weighted, damped,
+certain. Exponential ease-out (`--ease-out` = `cubic-bezier(0.16,1,0.3,1)`) from
+an already-visible rest state; never bounce or elastic. Four durations only
+(`--dur-1..4` = 120 / 200 / 320 / 560 ms), one sibling delay (`--stagger` 60 ms,
+capped at four steps).
+
+**The authored moment — the hero.** The incoming slide *focuses in*: `scale(1.045
+→ 1)` + opacity over 560 ms (transform/opacity only, no `will-change` on the
+full-bleed layer). Its text column re-keys and the four children settle line by
+line (translateY 10 px + opacity, 60 ms apart). The pagination is a row of
+fixed-width tracks; the active one's fill sweeps from the start edge across the
+6.5 s autoplay cycle — a visible cycle timer — and pauses while the hero is
+hovered or focused. Autoplay unchanged: 6.5 s, pause on hover, silent under
+`prefers-reduced-motion` (where the active track just shows filled).
+
+**Continuity.** Every navigation crossfades the page (opacity, 320 ms) through a
+wrapper keyed by *screen identity* — category / sub / product / account-tab — so
+changing a filter or a page number inside a screen does **not** re-trigger it.
+Lists settle in once, the moment their data lands: home carousels, the category
+grid, cart lines, mega-menu columns. This is driven by the reconciler
+re-creating those children on first paint, not by anything watching the
+viewport.
+
+**Feedback.** The tactile floor: every real control answers a press with a 60 ms
+`translateY(1px) scale(0.985)`. Adding to cart confirms in three places at once —
+the card / PDP button flips to an emerald **«به سبد اضافه شد»** state with a
+drawn check and reverts after 1.6 s; the header cart badge re-keys, ticks up in
+scale, and emits one ring pulse; the toast rises. `aria-live` notes (stock
+clamps, the category result count, auth errors, the login contact→code step)
+settle in on change instead of blinking.
+
+**Waiting.** Skeletons carry a shimmer sweep instead of sitting as dead grey; the
+boot screen is a real indeterminate bar. Both stop completely under reduced
+motion.
+
+**Delight.** Empty and terminal panels — empty cart, no orders, filters with no
+match, «نظرات به‌زودی» — carry a faint embossed cross in the corner: the brand
+mark as a letterhead watermark, tinted to the department hue on category pages.
+It suits a shop whose promise is فاکتور رسمی. The WhatsApp button scales in once
+after the page settles and lifts on hover.
+
+**Material.** Transform and opacity carry most of it. The mega-menu and cart
+dropdown additionally clear a 4 px blur as they land — small area, user-triggered,
+affordable. The cart dropdown and mobile nav are now always mounted and shown via
+`[data-open]` so they have a real exit as well as an entrance, and `inert` when
+closed.
+
+**Reduced motion.** Not "none". Spatial movement and the working loops are
+removed; every entrance collapses to a 140 ms opacity fade so a state change
+still confirms itself. `prefers-reduced-motion` is read into state at boot and
+kept in sync, so JS-side decisions (the hero cycle timer) also respect it.
 
 ## 6. Principles
 
@@ -129,7 +202,7 @@ Running the brief as generic e-commerce produced: full-width photo hero with an 
 
 1. **Cards were all one object.** Revised into the four distinct treatments in §4 — product, service (hairline set), trust (rules only), highlight (emerald reversed). A shadow appears exactly twice in the design (the finder card lifting off the hero, and the cart dropdown), both to signal "floating above", never as card decoration.
 2. **The filter rail was marketplace-scale.** Revised to one card with four controls, and the rating filter dropped entirely — there is no rating filter in the API and 17 products don't need one.
-3. **Motion was everywhere.** Revised to the hero stagger plus action-response only; the generic scroll-reveal and hover-lift were removed outright.
+3. **Motion was everywhere.** The generic scroll-reveal, parallax and per-card hover-lift stay removed — motion is never triggered by scroll position. The 2026-09 re-choreograph (§5) then built a full, deliberate motion language on top of the hero: route crossfades, once-only list settles on data arrival, a tactile press floor, three-place add-to-cart feedback, shimmer waits, and a letterhead watermark on empty states. Ambition without scroll gimmicks.
 4. **CTA was "the green button".** Revised to ink, which also freed emerald to do the ground work the brief demands — the generic version wasted the palette on a button.
 5. **The hero was an overlay-on-photo.** Revised to a two-column split, because the API gives `title` + `highlight` + `cta_label` as *text* and no image URL: real Persian sentences at 19px are unreadable over a photograph, and the frontend owns the imagery anyway.
 6. **What survived unchanged, deliberately:** the §2 section inventory, scroll-snap carousels, breadcrumbs, three-tab PDP, sticky cart summary. These are conventions users already know; spending novelty there would cost comprehension for nothing.

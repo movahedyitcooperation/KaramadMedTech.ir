@@ -5,6 +5,7 @@
 import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { toPersianDigits } from "../lib/format.js";
+import { letterheadMark } from "../components/ui.js";
 import * as A from "../actions.js";
 
 const container = (extra) => Object.assign({ maxWidth: "1280px", margin: "0 auto" }, extra || {});
@@ -32,7 +33,7 @@ function sideNav(s) {
 }
 
 function loading() {
-  return h("div", { style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 26, display: "flex", flexDirection: "column", gap: 16 } },
+  return h("div", { class: "km-shimmer", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 26, display: "flex", flexDirection: "column", gap: 16 } },
     h("div", { style: { height: 20, width: "40%", background: "rgb(var(--ink-rgb) / 0.08)", borderRadius: "var(--r-2)" } }),
     h("div", { style: { height: 48, background: "rgb(var(--ink-rgb) / 0.06)", borderRadius: "var(--r-5)" } }),
     h("div", { style: { height: 48, background: "rgb(var(--ink-rgb) / 0.06)", borderRadius: "var(--r-5)" } }));
@@ -113,7 +114,8 @@ function addrForm(s) {
 
 /* ----------------------------------------------------------- orders --- */
 function ordersEmpty() {
-  return h("div", { style: { background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "56px 32px", textAlign: "center" } },
+  return h("div", { style: { position: "relative", overflow: "hidden", background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "56px 32px", textAlign: "center" } },
+    letterheadMark(),
     h("strong", { style: { display: "block", fontSize: 20, fontWeight: 700 } }, fa.account.ordersEmptyTitle),
     h("p", { style: { margin: "12px auto 24px", fontSize: 15, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "50ch" } }, fa.account.ordersEmptyBody),
     h("button", { class: "j-btn j-btn--ink", onClick: A.goHome, style: { padding: "13px 26px", borderRadius: "var(--r-5)", fontSize: 15, fontWeight: 600 } }, fa.account.ordersEmptyCta));

@@ -39,6 +39,7 @@ a { color: var(--emerald); text-decoration: none; }
 a:hover { color: var(--emerald-live); }
 
 button, input, select, textarea { font-family: inherit; }
+input, textarea { caret-color: var(--emerald-live); }
 
 img { max-width: 100%; }
 
@@ -46,21 +47,90 @@ img { max-width: 100%; }
   outline: 2px solid var(--emerald-live);
   outline-offset: 2px;
   border-radius: var(--r-1);
+  box-shadow: 0 0 0 4px rgb(var(--emerald-live-rgb) / 0.22);
+  transition: box-shadow var(--dur-2) var(--ease-out);
+}
+/* on the emerald ground the emerald-live ring is only ~2:1 — carry it in bone */
+header :focus-visible,
+footer :focus-visible,
+.km-on-emerald :focus-visible {
+  outline-color: var(--bone);
+  box-shadow: 0 0 0 4px rgb(var(--bone-rgb) / 0.28);
 }
 
 ::selection { background: var(--emerald-live); color: var(--surface); }
 
-/* ---- Keyframes — the whole motion budget ---- */
-@keyframes kmUp   { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes kmIn   { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-@keyframes kmToast{ from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* ============================================================================
+   MOTION — DESIGN.md §5 (re-choreograph 2026-09)
 
-/* Hero: re-keying the text column staggers its four children up, 22ms apart. */
-.km-slidein > * { animation: kmUp 0.5s var(--ease) backwards; }
-.km-slidein > *:nth-child(1) { animation-delay: 0.02s; }
-.km-slidein > *:nth-child(2) { animation-delay: 0.09s; }
-.km-slidein > *:nth-child(3) { animation-delay: 0.16s; }
-.km-slidein > *:nth-child(4) { animation-delay: 0.23s; }
+   The reconciler in lib/dom.js re-renders the whole tree on every state change
+   and patches it against the live DOM. Consequences this system is built on:
+     • a node with a stable tag+key is patched in place — a mount `animation`
+       on it fires ONCE, ever. Use CSS transitions for its state changes.
+     • a node whose key changes (or that first appears) is re-created — its
+       mount `animation` fires again. This is how "animate on first appearance"
+       and "bump on change" work here, with no observers and no timers.
+   ========================================================================== */
+
+@keyframes kmToastIn{ from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes kmFadeOnly { from { opacity: 0; } to { opacity: 1; } }
+
+/* Staggered "settle": a line drops the last few px and lands. Used for the hero
+   text column and for lists the moment their data arrives (never on scroll). */
+@keyframes kmSettle { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* A fresh sheet on the work surface — every route change. Opacity only: no
+   fill-mode, so if the animation clock never runs the page still shows. The
+   staggered lists inside carry the movement. */
+@keyframes kmRoute  { from { opacity: 0; } to { opacity: 1; } }
+
+/* Panels come into focus: a small blur clears as they land. User-triggered and
+   small-area only (mega menu, cart dropdown) so the filter cost is affordable. */
+@keyframes kmPanel  {
+  from { opacity: 0; transform: translateY(-8px) scaleY(0.985); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes kmFabIn  { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: none; } }
+
+/* Feedback: a crisp tick, no overshoot. */
+@keyframes kmTick   { 0% { transform: scale(1); } 40% { transform: scale(1.34); } 100% { transform: scale(1); } }
+@keyframes kmRing   { from { opacity: 0.5; transform: scale(0.6); } to { opacity: 0; transform: scale(1.9); } }
+@keyframes kmDraw   { from { stroke-dashoffset: 22; } to { stroke-dashoffset: 0; } }
+
+/* Honest "working" loops — halted entirely under reduced motion. */
+@keyframes kmShimmer { from { transform: translateX(120%); } to { transform: translateX(-120%); } }
+/* inner bar is 40% of the track; -120% → 320% carries it fully off one end to
+   fully off the other, so the loop's restart happens out of sight. */
+@keyframes kmBootSlide { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
+/* The active hero dot fills across one autoplay cycle: a visible cycle timer. */
+@keyframes kmHeroProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Hero text: re-keying the column re-creates it; its children settle in turn. */
+.km-slidein > * { animation: kmSettle var(--dur-4) var(--ease-out) backwards; }
+.km-slidein > *:nth-child(1) { animation-delay: 0ms; }
+.km-slidein > *:nth-child(2) { animation-delay: var(--stagger); }
+.km-slidein > *:nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.km-slidein > *:nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+
+/* A list, the moment its data lands. The reconciler re-creates the row's
+   children when they go from skeleton to real, so this fires exactly once. */
+.km-stagger > * { animation: kmSettle 0.44s var(--ease-out) backwards; }
+.km-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.km-stagger > *:nth-child(2) { animation-delay: var(--stagger); }
+.km-stagger > *:nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.km-stagger > *:nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+.km-stagger > *:nth-child(n + 5) { animation-delay: calc(var(--stagger) * 4); }
+
+/* Route wrapper — keyed by route in app.js, so it re-creates on every nav. */
+.km-route { animation: kmRoute var(--dur-3) var(--ease-out); }
+
+/* Shimmer sweep for skeletons. The host sets position + overflow:hidden. */
+.km-shimmer { position: relative; overflow: hidden; }
+.km-shimmer::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(var(--ink-rgb) / 0.05) 45%, rgb(var(--ink-rgb) / 0.09) 50%, rgb(var(--ink-rgb) / 0.05) 55%, transparent);
+  animation: kmShimmer 1.5s var(--ease-in-out) infinite;
+}
 
 /* ---- Thin scrollbar for the scroll-snap carousels ---- */
 .km-scroll { scrollbar-width: thin; scrollbar-color: rgb(var(--ink-rgb) / 0.25) transparent; }
@@ -114,9 +184,21 @@ img { max-width: 100%; }
   .km-cart-label { display: none; }
 }
 
+/* ---- Reduced motion: fewer and gentler, not "none". Spatial movement and the
+   working loops are removed; a state change still confirms itself with a 140ms
+   opacity fade so feedback stays legible. ---- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.001s !important;
-    transition-duration: 0.001s !important;
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;   /* halt shimmer, boot, hero timer */
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
+  /* anything that would otherwise slide/scale/blur in → plain fade */
+  .km-route, .km-slidein > *, .km-stagger > *, .j-toast,
+  .j-panelin, .km-cart-badge, .km-added, .km-note {
+    animation: kmFadeOnly 140ms ease both !important;
+  }
+  .km-shimmer::after { display: none !important; }
 }

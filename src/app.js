@@ -14,7 +14,7 @@ import { accountPage } from "./pages/account.js";
 function bootScreen() {
   return h("div", { style: { minHeight: "100vh", background: "var(--emerald)", display: "grid", placeItems: "center" } },
     h("div", { style: { width: 120, height: 3, background: "rgb(var(--bone-rgb) / 0.2)", borderRadius: "var(--r-pill)", overflow: "hidden" } },
-      h("div", { style: { width: "40%", height: "100%", background: "var(--bone)", animation: "kmIn 1s ease infinite alternate" } })));
+      h("div", { style: { width: "40%", height: "100%", background: "var(--bone)", borderRadius: "inherit", animation: "kmBootSlide 1.1s cubic-bezier(0.65, 0, 0.35, 1) infinite" } })));
 }
 
 function bootErrorScreen() {
@@ -40,11 +40,18 @@ export function renderApp() {
     default: page = homePage(s);
   }
 
+  // Keyed by *which screen*, not by its filters — the reconciler re-creates this
+  // wrapper on every navigation (and only then), so each screen arrives with the
+  // route entrance while in-page filtering stays still. (base.css .km-route)
+  const routeKey = [s.route, s.catSlug, s.subSlug, s.productSlug,
+    s.route === "account" ? s.acctTab : ""].filter(Boolean).join("/") || "home";
+
   return h("div", { lang: "fa", dir: "rtl", style: { minHeight: "100vh", background: "var(--page)", display: "flex", flexDirection: "column" } },
     toastLayer(s),
     whatsappFab(s),
     header(s),
     mobileNav(s),
-    h("main", { style: { flex: 1 } }, page),
+    h("main", { style: { flex: 1 } },
+      h("div", { key: routeKey, class: "km-route" }, page)),
     footer(s));
 }

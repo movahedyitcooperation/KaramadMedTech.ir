@@ -6,6 +6,7 @@ import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { toPersianDigits, toPersianNumber } from "../lib/format.js";
 import { productCard, skeletonGrid, panel } from "../components/ui.js";
+import { deptTint, deptDeep, deptMark } from "../components/cat-glyph.js";
 import { PRODUCTS } from "../api/fixture.js";
 import { telHref } from "../lib/links.js";
 import * as A from "../actions.js";
@@ -38,15 +39,18 @@ export function categoryPage(s) {
   const brandNames = [...new Set(catPool.map((p) => p.brand).filter(Boolean))];
 
   return h("div", { class: "km-pad", style: container({ padding: "24px 32px 80px" }) },
-    h("nav", { "aria-label": fa.category.breadcrumbAria, style: { display: "flex", alignItems: "center", gap: 9, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.55)", paddingBlock: "14px 22px", flexWrap: "wrap" } },
-      h("button", { class: "j-link-quiet", onClick: A.goHome, style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.55)", cursor: "pointer" } }, fa.category.home),
+    h("nav", { "aria-label": fa.category.breadcrumbAria, style: { display: "flex", alignItems: "center", gap: 9, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.72)", paddingBlock: "14px 22px", flexWrap: "wrap" } },
+      h("button", { class: "j-link-quiet", onClick: A.goHome, style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.72)", cursor: "pointer" } }, fa.category.home),
       h("span", null, "/"),
-      h("span", { style: { color: "var(--ink)", fontWeight: 600 } }, title)),
+      h("span", { style: { color: deptDeep(cat.slug), fontWeight: 700 } }, title)),
 
     h("div", { style: { display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", marginBlockEnd: 28 } },
       h("div", null,
-        h("h1", { style: { margin: 0, fontSize: "var(--fs-h1-flat)", fontWeight: 800, letterSpacing: "-0.015em" } }, title),
-        h("p", { "aria-live": "polite", style: { margin: "10px 0 0", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.75 } }, fa.category.resultCount(total))),
+        h("div", { style: { display: "flex", alignItems: "center", gap: 14 } },
+          deptMark(cat.slug, 40),
+          h("h1", { style: { margin: 0, fontSize: "var(--fs-h1-flat)", fontWeight: 800, letterSpacing: "-0.015em" } }, title)),
+        h("p", { "aria-live": "polite", style: { margin: "12px 0 0", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.75 } },
+          h("span", { key: "rc-" + total, class: "km-note", style: { display: "inline-block" } }, fa.category.resultCount(total)))),
       h("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
         h("button", { "data-mob": "", onClick: A.toggleFilters, class: "j-btn",
           style: { display: "none", background: "var(--ink)", color: "var(--surface)", padding: "12px 20px", borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600, cursor: "pointer" } }, fa.category.filtersButton),
@@ -84,9 +88,9 @@ function sidebar(s, cat, activeSub, brandNames, catPool, total) {
         subLinks.map((x) => {
           const on = (activeSub || null) === x.slug;
           return h("button", { key: String(x.slug), onClick: () => A.openCategory(cat.slug, x.slug),
-            style: { background: on ? "rgb(var(--emerald-rgb) / 0.09)" : "transparent", border: "none", padding: "9px 12px", borderRadius: "var(--r-4)", textAlign: "start", fontSize: 14, color: on ? "var(--emerald)" : "rgb(var(--ink-rgb) / 0.75)", cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10 } },
+            style: { background: on ? deptTint(cat.slug) : "transparent", border: "none", padding: "9px 12px", borderRadius: "var(--r-4)", textAlign: "start", fontSize: 14, fontWeight: on ? 600 : 400, color: on ? deptDeep(cat.slug) : "rgb(var(--ink-rgb) / 0.75)", cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10 } },
             h("span", null, x.name),
-            h("span", { style: { color: "rgb(var(--ink-rgb) / 0.4)", fontSize: "12.5px" } }, toPersianNumber(x.count)));
+            h("span", { style: { color: on ? "color-mix(in oklab, " + deptDeep(cat.slug) + " 82%, transparent)" : "rgb(var(--ink-rgb) / 0.4)", fontSize: "12.5px" } }, toPersianNumber(x.count)));
         }))),
 
     h("div", { style: { borderBlockStart: "1px solid rgb(var(--ink-rgb) / 0.1)", paddingBlockStart: 22 } },
@@ -131,7 +135,7 @@ function resultsColumn(s, items, total, page, totalPages) {
 
   if (total === 0) {
     return h("div", null, panel({
-      title: fa.category.emptyTitle, body: fa.category.emptyBody,
+      title: fa.category.emptyTitle, body: fa.category.emptyBody, tone: deptDeep(s.catSlug),
       actions: [
         h("button", { class: "j-btn j-btn--ink", onClick: A.clearFilters, style: { padding: "13px 24px", borderRadius: "var(--r-5)", fontSize: 15, fontWeight: 600 } }, fa.category.clear),
         h("a", { href: telHref(s.settings.contact.phone), style: { border: "1px solid rgb(var(--ink-rgb) / 0.2)", padding: "13px 24px", borderRadius: "var(--r-5)", fontSize: 15, color: "var(--ink)", textDecoration: "none" } }, fa.category.emptyCall),
@@ -140,14 +144,14 @@ function resultsColumn(s, items, total, page, totalPages) {
   }
 
   return h("div", null,
-    h("div", { class: "km-g3", style: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 18 } },
+    h("div", { class: "km-g3 km-stagger", style: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 18 } },
       items.map((p) => productCard(p, { variant: "full" }))),
     totalPages > 1 && h("nav", { "aria-label": fa.category.pagerAria, style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBlockStart: 36 } },
-      h("button", { onClick: () => A.gotoPage(Math.max(1, page - 1)), disabled: page <= 1, "aria-label": fa.category.prevPage, style: pagerBtn(false) }, "→"),
+      h("button", { class: "j-pager", onClick: () => A.gotoPage(Math.max(1, page - 1)), disabled: page <= 1, "aria-label": fa.category.prevPage, style: pagerBtn(false) }, "→"),
       Array.from({ length: totalPages }, (_, i) => i + 1).map((n) =>
-        h("button", { key: n, onClick: () => A.gotoPage(n), "aria-current": n === page ? "page" : "false",
+        h("button", { key: n, class: "j-pager", onClick: () => A.gotoPage(n), "aria-current": n === page ? "page" : "false",
           style: pagerBtn(n === page) }, toPersianDigits(n))),
-      h("button", { onClick: () => A.gotoPage(Math.min(totalPages, page + 1)), disabled: page >= totalPages, "aria-label": fa.category.nextPage, style: pagerBtn(false) }, "←")));
+      h("button", { class: "j-pager", onClick: () => A.gotoPage(Math.min(totalPages, page + 1)), disabled: page >= totalPages, "aria-label": fa.category.nextPage, style: pagerBtn(false) }, "←")));
 }
 function pagerBtn(active) {
   return {

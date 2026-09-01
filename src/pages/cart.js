@@ -6,6 +6,7 @@ import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { formatToman, toPersianDigits, parseFaDigits } from "../lib/format.js";
 import { telHref, waHref } from "../lib/links.js";
+import { letterheadMark } from "../components/ui.js";
 import * as A from "../actions.js";
 
 const container = (extra) => Object.assign({ maxWidth: "1280px", margin: "0 auto" }, extra || {});
@@ -21,10 +22,12 @@ export function cartPage(s) {
 
   return h("div", { class: "km-pad", style: container({ padding: "32px 32px 80px" }) },
     h("h1", { style: { margin: "0 0 8px", fontSize: "var(--fs-h1-flat)", fontWeight: 800, letterSpacing: "-0.015em" } }, fa.cart.title),
-    h("p", { "aria-live": "polite", style: { margin: "0 0 28px", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.75 } }, fa.cart.count(count)),
+    h("p", { "aria-live": "polite", style: { margin: "0 0 28px", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.75 } },
+      h("span", { key: "cc-" + count, class: "km-note", style: { display: "inline-block" } }, fa.cart.count(count))),
 
     items.length === 0
-      ? h("div", { style: { background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "64px 32px", textAlign: "center" } },
+      ? h("div", { style: { position: "relative", overflow: "hidden", background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "64px 32px", textAlign: "center" } },
+          letterheadMark(),
           h("strong", { style: { display: "block", fontSize: 21, fontWeight: 700 } }, fa.cart.emptyTitle),
           h("p", { style: { margin: "12px auto 26px", fontSize: "15.5px", lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "48ch" } }, fa.cart.emptyBody),
           h("div", { style: { display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" } },
@@ -32,7 +35,7 @@ export function cartPage(s) {
             h("a", { href: telHref(s.settings.contact.phone), style: { border: "1px solid rgb(var(--ink-rgb) / 0.2)", padding: "14px 26px", borderRadius: "var(--r-5)", fontSize: "15.5px", color: "var(--ink)", textDecoration: "none" } }, fa.cart.emptyCall)))
 
       : h("div", { class: "km-cartgrid", style: { display: "grid", gridTemplateColumns: "1fr 372px", gap: 32, alignItems: "start" } },
-          h("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
+          h("div", { class: "km-stagger", style: { display: "flex", flexDirection: "column", gap: 14 } },
             items.map((l) =>
               h("div", { key: l.product_id, style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.09)", borderRadius: "var(--r-6)", padding: 18, display: "flex", gap: 18, alignItems: "flex-start", flexWrap: "wrap" } },
                 h("img", { src: l.image, alt: "", width: 208, height: 208, loading: "lazy",
@@ -42,11 +45,11 @@ export function cartPage(s) {
                   h("div", { style: { fontSize: 14, color: "rgb(var(--ink-rgb) / 0.58)", lineHeight: 1.7 } }, fa.cart.unitPrice + " " + formatToman(l.unit_price)),
                   h("div", { style: { display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" } },
                     h("div", { style: { display: "flex", alignItems: "center", border: "1px solid rgb(var(--ink-rgb) / 0.18)", borderRadius: "var(--r-5)", background: "#fff", overflow: "hidden" } },
-                      h("button", { onClick: () => A.setCartQty(l.product_id, l.qty - 1, l.stock), "aria-label": fa.cart.qtyDown, style: lineStep }, "−"),
+                      h("button", { class: "j-step", onClick: () => A.setCartQty(l.product_id, l.qty - 1, l.stock), "aria-label": fa.cart.qtyDown, style: lineStep }, "−"),
                       h("input", { type: "text", inputmode: "numeric", "aria-label": fa.cart.qty, value: toPersianDigits(l.qty),
                         onChange: (e) => { const v = +parseFaDigits(e.target.value); if (v) A.setCartQty(l.product_id, v, l.stock); },
                         style: { width: 52, height: 42, border: "none", textAlign: "center", fontSize: 15, fontWeight: 700, color: "var(--ink)", background: "none" } }),
-                      h("button", { onClick: () => A.setCartQty(l.product_id, l.qty + 1, l.stock), "aria-label": fa.cart.qtyUp, style: lineStep }, "+")),
+                      h("button", { class: "j-step", onClick: () => A.setCartQty(l.product_id, l.qty + 1, l.stock), "aria-label": fa.cart.qtyUp, style: lineStep }, "+")),
                     h("span", { style: { fontSize: 13, color: "rgb(var(--ink-rgb) / 0.5)" } }, fa.cart.stockHint(l.stock)),
                     h("button", { onClick: () => A.removeCartItem(l.product_id), style: { background: "none", border: "none", padding: 0, fontSize: "13.5px", color: "var(--danger)", cursor: "pointer", marginInlineStart: "auto" } }, fa.cart.remove))),
                 h("strong", { style: { fontSize: 18, fontWeight: 800, whiteSpace: "nowrap" } }, formatToman(l.unit_price * l.qty))))),

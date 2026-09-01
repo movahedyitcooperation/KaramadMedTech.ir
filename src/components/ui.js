@@ -3,9 +3,34 @@
 
 import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
+import { getState } from "../lib/state.js";
 import { formatToman, toPersianNumber, stars, formatRating } from "../lib/format.js";
 import { PLACEHOLDER_IMG } from "../api/fixture.js";
 import { openProduct, addToCart } from "../actions.js";
+
+/* A drawn check that strokes itself on — used by the "added to cart" state.
+   base.css .km-added animates the path via stroke-dashoffset. */
+export function checkGlyph() {
+  return h("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" },
+    h("path", { d: "M5 13l4 4L19 7" }));
+}
+export function addedLabel(text) {
+  return h("span", { class: "km-added" }, checkGlyph(), h("span", null, text));
+}
+
+/* Faint embossed cross in the start corner of an empty / terminal panel — the
+   brand mark as a letterhead watermark, echoing a company that issues فاکتور
+   رسمی. RTL start = top-right, matching the header lockup. Static: it sits
+   inside .km-route, which already fades the panel in. */
+export function letterheadMark(tone) {
+  const c = tone || "var(--emerald)";
+  return h("span", { "aria-hidden": "true", class: "km-letterhead", style: {
+    position: "absolute", insetBlockStart: -30, insetInlineStart: -30, width: 136, height: 136,
+    opacity: 0.1, color: c, pointerEvents: "none",
+  } },
+    h("span", { style: { position: "absolute", insetBlockStart: "50%", insetInlineStart: 0, width: "100%", height: 24, background: "currentColor", transform: "translateY(-50%)", borderRadius: 3 } }),
+    h("span", { style: { position: "absolute", insetInlineStart: "50%", insetBlockStart: 0, height: "100%", width: 24, background: "currentColor", transform: "translateX(-50%)", borderRadius: 3 } }));
+}
 
 /* ---------- icons (non-directional; cart/search/user/check never flip) ---------- */
 export const icon = {
@@ -53,7 +78,7 @@ export function productCard(p, { variant = "full" } = {}) {
       withBadge && h("span", { style: {
         position: "absolute", insetBlockStart: 12, insetInlineStart: 12, fontSize: 12, fontWeight: 700,
         padding: "4px 9px", borderRadius: "var(--r-2)", color: "var(--surface)",
-        background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live)",
+        background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live-deep)",
       } }, out ? fa.card.outOfStock : fa.card.inStock)),
 
     h("div", { style: { padding: 16, display: "flex", flexDirection: "column", gap: 10, flex: 1 } },
@@ -74,17 +99,28 @@ export function productCard(p, { variant = "full" } = {}) {
             onSale && h("span", { style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.42)", textDecoration: "line-through" } }, formatToman(p.compare_at_price)),
             h("strong", { style: { fontSize: 18, fontWeight: 800 } }, formatToman(p.price))),
 
-      h("button", {
-        class: "j-btn j-btn--ink", onClick: () => !out && addToCart(p, 1),
-        disabled: out,
-        style: {
-          marginBlockStart: "auto", padding: 12, borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600,
-          background: out ? "rgb(var(--ink-rgb) / 0.08)" : "var(--ink)",
-          color: out ? "rgb(var(--ink-rgb) / 0.5)" : "var(--surface)",
-        },
-      }, out ? fa.card.notify : fa.card.add),
+      // low-stock note sits ABOVE the CTA so `marginBlockStart:auto` still pins the
+      // button to the card's base — keeps every CTA in a carousel row on one line.
+      variant === "full" && low && h("div", { style: { marginBlockStart: "auto", fontSize: "12.5px", color: "var(--warn)", lineHeight: 1.6 } }, fa.card.lowStock(p.stock)),
 
-      variant === "full" && low && h("div", { style: { fontSize: "12.5px", color: "var(--warn)", lineHeight: 1.6 } }, fa.card.lowStock(p.stock))));
+      out
+        ? h("button", { class: "j-pill-quiet", onClick: () => openProduct(p.slug),
+            style: { marginBlockStart: (variant === "full" && low) ? 0 : "auto", padding: 12, borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600, cursor: "pointer", textAlign: "center" } },
+            fa.card.notify)
+        : addButton(p, { marginBlockStart: (variant === "full" && low) ? 0 : "auto" })));
+}
+
+/* The add-to-cart button, with its brief in-place completion state. Reads
+   justAddedId straight from the store — the render that sets it is what brings
+   us here — and reverts when actions.js clears it ~1.6s later. */
+function addButton(p, extra) {
+  const added = getState().justAddedId === p.id;
+  return h("button", {
+    class: "j-btn " + (added ? "j-btn--added" : "j-btn--ink"),
+    onClick: () => addToCart(p, 1),
+    style: Object.assign({ padding: 12, borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600,
+      background: added ? "var(--emerald-live-deep)" : "var(--ink)", color: "var(--surface)" }, extra || {}),
+  }, added ? addedLabel(fa.card.added) : fa.card.add);
 }
 
 function cardShell() {
@@ -111,8 +147,8 @@ export function sectionHeading(title, action) {
 /* ---------- skeletons ---------- */
 export function skeletonGrid(n = 6) {
   return h("div", { class: "km-g3", style: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 18 } },
-    Array.from({ length: n }, () =>
-      h("div", { style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.08)", borderRadius: "var(--r-3)", overflow: "hidden" } },
+    Array.from({ length: n }, (_, i) =>
+      h("div", { key: i, class: "km-shimmer", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.08)", borderRadius: "var(--r-3)", overflow: "hidden" } },
         h("div", { style: { aspectRatio: "1/1", background: "rgb(var(--ink-rgb) / 0.06)" } }),
         h("div", { style: { padding: 16, display: "flex", flexDirection: "column", gap: 10 } },
           bar("38%", 12), bar("88%", 14), bar("56%", 14),
@@ -123,11 +159,13 @@ function bar(w, hgt) {
 }
 
 /* ---------- empty / error panel ---------- */
-export function panel({ title, body, actions = [], dashed = true }) {
+export function panel({ title, body, actions = [], dashed = true, tone }) {
   return h("div", { style: {
+    position: "relative", overflow: "hidden",
     background: "var(--surface)", border: (dashed ? "1px dashed " : "1px solid ") + "rgb(var(--ink-rgb) / 0.22)",
     borderRadius: "var(--r-6)", padding: "56px 32px", textAlign: "center",
   } },
+    letterheadMark(tone),
     h("strong", { style: { display: "block", fontSize: 20, fontWeight: 700 } }, title),
     body && h("p", { style: { margin: "12px auto 24px", fontSize: 15, lineHeight: "var(--lh-prose)", color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "48ch" } }, body),
     actions.length && h("div", { style: { display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" } }, actions));

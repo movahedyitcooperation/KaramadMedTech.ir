@@ -8,8 +8,10 @@
   --emerald:        #0C3A2C; /* ground: header, footer, trust band, highlight cards */
   --emerald-rgb:    12 58 44;
   --emerald-deep:   #082A20; /* nav strip under the header — one step darker */
-  --emerald-live:   #1C8A69; /* interactive / positive: focus ring, in-stock, hero rule */
+  --emerald-live:   #1C8A69; /* interactive / positive, GRAPHICAL only: focus ring, dots, hero rule, active slider dot, link hover */
   --emerald-live-rgb: 28 138 105;
+  --emerald-live-deep: #0C7350; /* the text-bearing variant: any green fill that carries light text — in-stock badge, WhatsApp button. --surface on it = 5.4:1 */
+  --emerald-hi:     #234A38; /* one step lighter than --emerald — top sheen on the emerald bands (header, trust, footer) so the ground has material depth, not a flat fill */
   --page:           #EAE9E1; /* page ground — cool, powdery almond */
   --surface:        #F7F6F1; /* cards, sidebar, panels */
   --bone:           #EAE9E1; /* text on emerald */
@@ -23,6 +25,33 @@
   --warn-border:    #E0CFA4;
   --warn-border-soft: #E7D8AE;
   --danger:         #9E2B20; /* discount badge, remove, OTP errors */
+
+  --info:           #2C556C; /* informational, not caution: features that are not live yet. 6.6:1 on --page */
+  --info-bg:        #EAF3F9;
+  --info-border:    #C5DBE9;
+
+  /* ---- Department wayfinding spectrum — DESIGN.md §2·b (colorize pass) ----
+     Six OKLCH tints, one per top-level category. Colour here only ever
+     *identifies a department*: the home category rail, the mega-menu, the
+     category H1 marker, the breadcrumb's current segment, the active sub-filter.
+     It never touches the CTA (still --ink) or the ground (still --emerald).
+     Tint chroma raised to ~0.065 (critique pass) so the six hues actually
+     separate at disc size and read against the almond page — they still sit at
+     L 0.94 so the dept-deep line icon on them holds 6:1. `-deep` variants clear
+     4.5:1 on --page and --surface; colour is always a third cue behind the
+     category icon and the text label. */
+  --dept-diagnostics:      oklch(0.940 0.065 196);  /* #b8f9f9 cyan    — تجهیزات تشخیصی */
+  --dept-diagnostics-deep: oklch(0.430 0.078 210);  /* #005b67 */
+  --dept-consumables:      oklch(0.940 0.065 148);  /* #cff8d3 green   — مصرفی و بهداشتی */
+  --dept-consumables-deep: oklch(0.435 0.088 150);  /* #285e36 */
+  --dept-rehab:            oklch(0.940 0.065 300);  /* #f1e2ff violet  — توان‌بخشی و ارتوپدی */
+  --dept-rehab-deep:       oklch(0.440 0.092 300);  /* #5b467d */
+  --dept-homecare:         oklch(0.940 0.065 352);  /* #ffdaf0 rose    — مراقبت در منزل */
+  --dept-homecare-deep:    oklch(0.450 0.082 353);  /* #784159 */
+  --dept-clinic:           oklch(0.940 0.065 252);  /* #ccefff azure   — تجهیزات مطب و کلینیک */
+  --dept-clinic-deep:      oklch(0.430 0.098 262);  /* #314e85 */
+  --dept-accessories:      oklch(0.940 0.065 116);  /* #e8f1c0 khaki   — لوازم جانبی */
+  --dept-accessories-deep: oklch(0.452 0.050 118);  /* #535a3a */
 
   /* ---- Type scale (px) — DESIGN.md §3 ---- */
   --fs-display: clamp(30px, 3.4vw, 50px);
@@ -56,13 +85,34 @@
   /* ---- Elevation — a shadow appears exactly twice by design ---- */
   --shadow-float: 0 18px 44px -20px rgb(var(--emerald-rgb) / 0.35);
   --shadow-pop:   0 24px 60px rgb(var(--emerald-rgb) / 0.22);
+  --shadow-fab:   0 10px 28px rgb(var(--emerald-rgb) / 0.32);
+  --shadow-fab-lift: 0 16px 36px rgb(var(--emerald-rgb) / 0.4);
 
   /* ---- Layout ---- */
   --measure: 1280px;
   --gutter: 32px;
 
-  /* ---- Motion ---- */
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* ---- Motion — DESIGN.md §5 (re-choreograph 2026-09) --------------------
+     One authored moment (the hero: a slide focuses in, its text settles line
+     by line, and the active dot fills as a cycle timer). Everywhere else motion
+     only reports feedback, state or continuity: a keyed node the reconciler
+     re-creates runs its entrance once, a persistent node transitions its
+     properties. Curves are exponential ease-out from an already-visible
+     default — weighted and damped, like an instrument settling, never elastic.
+     Reduced motion swaps every entrance for a 140ms opacity fade (base.css). */
+  --ease:        cubic-bezier(0.2, 0.8, 0.2, 1);  /* legacy alias, still referenced */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);   /* confident arrival */
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);       /* exits — faster than entrances */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-1: 120ms;  /* feedback tick — press, badge bump */
+  --dur-2: 200ms;  /* routine state — hover, colour, focus ring */
+  --dur-3: 320ms;  /* overlay, drawer, route change */
+  --dur-4: 560ms;  /* the authored hero entrance */
+  --stagger: 60ms; /* sibling delay; total delay capped at 4 steps */
+
+  --hero-cycle: 6500ms; /* mirrors the autoplay interval in actions.js heroTick */
 }
 
 @media (max-width: 1023px) {

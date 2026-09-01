@@ -110,6 +110,7 @@ const fa = {
     inStock: "موجود",
     outOfStock: "ناموجود",
     add: "افزودن به سبد خرید",
+    added: "به سبد اضافه شد",
     notify: "اطلاع از موجودی",
     discount: (n) => toPersianDigits(n) + "٪ تخفیف",
     discountShort: (n) => toPersianDigits(n) + "٪",

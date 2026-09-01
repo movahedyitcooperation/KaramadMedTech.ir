@@ -23,6 +23,9 @@ export const initialState = {
 
   megaCat: null, cartOpen: false, phoneOpen: false, mobileNav: false, filtersOpen: false,
   hero: 0, heroHover: false, toast: "",
+  reducedMotion: (typeof window !== "undefined" && window.matchMedia)
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false,
+  justAddedId: null,
 
   homeNewest: [], homeFeatured: [], homeState: "loading",
 
@@ -205,6 +208,15 @@ export const toggleFilters = () => setState((s) => ({ filtersOpen: !s.filtersOpe
 export function closeOverlays() { setState({ megaCat: null, cartOpen: false, mobileNav: false, filtersOpen: false }); }
 
 /* ---------------- cart ---------------- */
+let justAddedTimer;
+/** Flag a product as just-added so its card / PDP button can confirm in place;
+    the header badge tick is driven separately by the count change itself. */
+function flagJustAdded(id) {
+  clearTimeout(justAddedTimer);
+  setState({ justAddedId: id });
+  justAddedTimer = setTimeout(() => setState({ justAddedId: null }), 1600);
+}
+
 export async function addToCart(product, qty = 1) {
   if (product.stock === 0) { toast(fa.toast.addOutOfStock); return; }
   const before = (getState().cart.items.find((l) => l.product_id === product.id) || {}).qty || 0;
@@ -214,7 +226,7 @@ export async function addToCart(product, qty = 1) {
     const after = (cart.items.find((l) => l.product_id === product.id) || {}).qty || 0;
     setState({ cart });
     if (after - before < want) toast(fa.toast.addClamped(product.stock));
-    else toast(fa.toast.added(product.name));
+    else { flagJustAdded(product.id); toast(fa.toast.added(product.name)); }
   } catch (err) { console.error(err); toast(fa.login.errors.network); }
 }
 

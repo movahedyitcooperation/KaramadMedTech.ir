@@ -1,6 +1,6 @@
 /* main.js — boot: state, render loop, router, timers. */
 
-import { initState, getState, subscribe } from "./lib/state.js";
+import { initState, getState, setState, subscribe } from "./lib/state.js";
 import { mount } from "./lib/dom.js";
 import { startRouter } from "./lib/router.js";
 import { applySeo } from "./lib/seo.js";
@@ -34,3 +34,7 @@ render();
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeOverlays();
 });
+
+// Keep the motion posture in sync if the OS setting changes mid-session.
+const rmQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+rmQuery.addEventListener("change", (e) => setState({ reducedMotion: e.matches }));

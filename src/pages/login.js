@@ -18,8 +18,10 @@ function mmss(sec) {
 
 export function loginPage(s) {
   return h("div", { class: "km-pad", style: container({ padding: "56px 32px 96px", display: "grid", placeItems: "center" }) },
-    h("div", { style: { width: "100%", maxWidth: 452, background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-7)", padding: 34 } },
-      s.authStep === "contact" ? contactStep(s) : codeStep(s)));
+    h("div", { style: { width: "100%", maxWidth: 452, background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-7)", padding: 34, overflow: "hidden" } },
+      // keyed by step: contact → code settles in as its own beat.
+      h("div", { key: s.authStep, class: "km-note" },
+        s.authStep === "contact" ? contactStep(s) : codeStep(s))));
 }
 
 function contactStep(s) {
@@ -32,7 +34,8 @@ function contactStep(s) {
       h("input", { type: "text", value: s.contact, onChange: (e) => A.setContact(e.target.value), autocomplete: "username", placeholder: fa.login.contactPlaceholder,
         onKeyDown: (e) => { if (e.key === "Enter") A.requestOtp(); },
         style: { padding: 15, border: "1px solid " + (bad ? "var(--danger)" : "rgb(var(--ink-rgb) / 0.18)"), borderRadius: "var(--r-5)", background: "#fff", fontSize: 16, color: "var(--ink)", direction: "ltr", textAlign: "start" } })),
-    h("div", { "aria-live": "polite", style: { minHeight: 22, paddingBlockStart: 8, fontSize: "13.5px", lineHeight: 1.7, color: "var(--danger)" } }, bad ? s.authError : ""),
+    h("div", { "aria-live": "polite", style: { minHeight: 22, paddingBlockStart: 8, fontSize: "13.5px", lineHeight: 1.7, color: "var(--danger)" } },
+      bad ? h("span", { key: s.authError, class: "km-note" }, s.authError) : ""),
     h("button", { class: "j-btn j-btn--ink", onClick: A.requestOtp, disabled: s.authBusy,
       style: { width: "100%", padding: 16, borderRadius: "var(--r-5)", fontSize: 16, fontWeight: 700, marginBlockStart: 8 } }, s.authBusy ? fa.login.requesting : fa.login.request),
     h("p", { style: { margin: "18px 0 0", fontSize: "12.5px", lineHeight: 1.85, color: "rgb(var(--ink-rgb) / 0.5)" } }, fa.login.twoIdentities),
@@ -52,7 +55,8 @@ function codeStep(s) {
         onKeyDown: (e) => { if (e.key === "Enter") A.verifyOtp(); },
         placeholder: "------",
         style: { padding: 15, border: "1px solid " + (bad ? "var(--danger)" : "rgb(var(--ink-rgb) / 0.18)"), borderRadius: "var(--r-5)", background: "#fff", fontSize: 23, fontWeight: 700, letterSpacing: "0.42em", textAlign: "center", color: "var(--ink)", direction: "ltr" } })),
-    h("div", { "aria-live": "assertive", style: { minHeight: 22, paddingBlockStart: 8, fontSize: "13.5px", lineHeight: 1.7, color: "var(--danger)" } }, bad ? s.authError : ""),
+    h("div", { "aria-live": "assertive", style: { minHeight: 22, paddingBlockStart: 8, fontSize: "13.5px", lineHeight: 1.7, color: "var(--danger)" } },
+      bad ? h("span", { key: s.authError, class: "km-note" }, s.authError) : ""),
     h("button", { class: "j-btn j-btn--ink", onClick: A.verifyOtp, disabled: s.authBusy,
       style: { width: "100%", padding: 16, borderRadius: "var(--r-5)", fontSize: 16, fontWeight: 700, marginBlockStart: 8 } }, fa.login.verify),
     h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBlockStart: 18, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.6)" } },

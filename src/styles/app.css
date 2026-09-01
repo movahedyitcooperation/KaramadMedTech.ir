@@ -7,9 +7,21 @@
   font: inherit;
   cursor: pointer;
   border: none;
-  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+  transition: background var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out),
+              color var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out),
+              box-shadow var(--dur-2) var(--ease-out);
 }
 .j-btn:disabled { cursor: not-allowed; }
+
+/* Every real control answers a press with the same small, damped tick —
+   the tactile floor of the whole storefront. */
+.j-btn:not(:disabled):active,
+.j-pill-quiet:not(:disabled):active,
+.j-hdr-ctl:active,
+.j-hdr-finder:active,
+.j-hdr-cart:active,
+.j-step:not(:disabled):active,
+.j-pager:not(:disabled):active { transform: translateY(1px) scale(0.985); transition-duration: 60ms; }
 
 /* ink — every primary action (buy, submit, login, "show products") */
 .j-btn--ink {
@@ -17,6 +29,22 @@
   color: var(--surface);
 }
 .j-btn--ink:not(:disabled):hover { background: var(--emerald); }
+
+/* Completion state for the card / PDP add button: the click on a far-away card
+   is answered right here, in the product's own words, before the toast and the
+   header badge catch up. Re-created by the reconciler when the label swaps. */
+.j-btn--added {
+  background: var(--emerald-live-deep);
+  color: var(--surface);
+  animation: kmTick var(--dur-3) var(--ease-out);
+}
+.j-btn--added:not(:disabled):hover { background: var(--emerald-live-deep); }
+.km-added { display: inline-flex; align-items: center; gap: 7px; }
+.km-added svg { width: 15px; height: 15px; flex-shrink: 0; }
+.km-added svg path {
+  stroke-dasharray: 22; stroke-dashoffset: 0;
+  animation: kmDraw 0.32s var(--ease-out) 0.04s backwards;
+}
 
 /* bone on emerald — hero primary, cart-drawer footer sits on light so uses ink */
 .j-btn--bone {
@@ -92,28 +120,134 @@
 .j-foot-link:hover { color: var(--bone); }
 
 /* ---------- Cards ---------- */
-.j-card-product {
-  transition: border-color 0.2s var(--ease);
-}
+/* The photo is the card (DESIGN.md §4): on hover the border darkens and the
+   image itself leans in a touch — one gesture, a gentle relative of the PDP
+   zoom, not a lift. No shadow, no translate. */
+.j-card-product { transition: border-color var(--dur-2) var(--ease-out); }
 .j-card-product:hover { border-color: rgb(var(--ink-rgb) / 0.3); }
+.j-card-product img { transition: transform var(--dur-3) var(--ease-out); }
+.j-card-product:hover img { transform: scale(1.035); }
 
-.j-cat-card {
-  transition: background 0.2s var(--ease);
-}
+.j-cat-card { transition: background var(--dur-2) var(--ease-out); }
 .j-cat-card:hover { background: rgb(var(--ink-rgb) / 0.045); }
+.j-cat-card .j-cat-disc { transition: transform var(--dur-3) var(--ease-out); }
+.j-cat-card:hover .j-cat-disc { transform: translateY(-3px); }
 
 /* PDP main image hover zoom */
 .j-zoom { overflow: hidden; }
-.j-zoom img { transition: transform 0.4s var(--ease); }
-.j-zoom:hover img { transform: scale(1.12); }
+.j-zoom img { transition: transform 0.45s var(--ease-out); }
+.j-zoom:hover img { transform: scale(1.1); }
 
 /* ---------- Toast ---------- */
-.j-toast { animation: kmToast 0.3s ease both; }
+.j-toast { animation: kmToastIn var(--dur-3) var(--ease-out) both; }
 
 /* ---------- Dropdowns / panels ---------- */
-.j-dropin { animation: kmIn 0.18s ease both; }
-.j-dropin--fast { animation: kmIn 0.16s ease both; }
-.j-drawer { animation: kmIn 0.2s ease both; }
+/* Panels that focus in as they land — user-triggered, small area, so the 4px
+   blur clear in kmPanel is affordable. Mega menu uses this on mount; the cart
+   dropdown and mobile nav are always-mounted and driven by [data-open] below. */
+.j-panelin { animation: kmPanel var(--dur-3) var(--ease-out) both; transform-origin: top center; }
+.j-panelin .km-stagger > * { animation-duration: 0.34s; }
+
+/* Header cart dropdown: mounted at all times, shown/hidden by data-open, so it
+   has a real exit as well as an entrance and never flashes stale content. */
+.j-cartpanel {
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out),
+              visibility 0s linear var(--dur-2);
+}
+.j-cartpanel[data-open="false"] {
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-8px) scaleY(0.98);
+}
+.j-cartpanel[data-open="true"] {
+  opacity: 1; visibility: visible; transform: none;
+  transition-delay: 0s;
+}
+
+/* Mobile nav: same always-mounted pattern. Backdrop fades, sheet slides from
+   the inline-end edge it already sits against. */
+.j-navwrap { transition: visibility 0s linear var(--dur-3); }
+.j-navwrap[data-open="false"] { visibility: hidden; pointer-events: none; }
+.j-navwrap[data-open="true"] { visibility: visible; transition-delay: 0s; }
+.j-navwrap .j-navscrim { transition: opacity var(--dur-3) var(--ease-out); }
+.j-navwrap[data-open="false"] .j-navscrim { opacity: 0; }
+.j-navwrap[data-open="true"] .j-navscrim { opacity: 1; }
+.j-navwrap .j-navsheet { transition: transform var(--dur-3) var(--ease-out); }
+.j-navwrap[data-open="false"] .j-navsheet { transform: translateX(-100%); }
+.j-navwrap[data-open="true"] .j-navsheet { transform: translateX(0); }
+
+/* ---------- Header cart badge — the acknowledgement ---------- */
+/* Keyed by count in shell.js: the reconciler re-creates it on every change so
+   the tick + ring fire each time an item lands or leaves the cart. */
+.km-cart-badge {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  animation: kmTick var(--dur-3) var(--ease-out);
+}
+.km-cart-badge::after {
+  content: ""; position: absolute; inset: -6px;
+  border: 1.5px solid var(--emerald-live); border-radius: var(--r-pill);
+  animation: kmRing 0.5s var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+/* ---------- Hero: image focus, pagination timer, arrows ---------- */
+/* One image animates at a time — scale + opacity only, cheap on the full-bleed
+   layer. No will-change: the browser can promote for a 560ms transition that
+   fires once per cycle, and 3 permanent GPU layers would cost more on mobile. */
+.j-hero-img {
+  transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out);
+}
+
+/* Fixed-width track; the fill is transform-only (the old code transitioned
+   `width`, which the detector flagged as layout-animation). */
+.j-hero-dot {
+  position: relative; width: 30px; height: 4px; padding: 0; border: none;
+  background: rgb(var(--bone-rgb) / 0.26); border-radius: var(--r-pill);
+  overflow: hidden; cursor: pointer;
+  transition: background var(--dur-2) var(--ease-out);
+}
+/* active state reads from the brighter track alone, before the timer fill runs */
+.j-hero-dot[aria-current="true"] { background: rgb(var(--bone-rgb) / 0.5); }
+.j-hero-dot-fill {
+  position: absolute; inset: 0; background: var(--bone); border-radius: inherit;
+  transform: scaleX(0); transform-origin: right center; /* RTL: fills from the start edge */
+  transition: transform var(--dur-3) var(--ease-out);
+}
+.j-hero-dot[aria-current="true"] .j-hero-dot-fill { transform: scaleX(1); }
+/* the active dot's fill sweeps across one autoplay cycle — a visible timer.
+   Keyed per slide in home.js so it restarts; data-paused holds it on hover. */
+.j-hero-dot-fill.is-timing {
+  animation: kmHeroProgress var(--hero-cycle) linear both;
+  transition: none;
+}
+.j-hero-dot-fill.is-timing[data-paused="true"] { animation-play-state: paused; }
+
+/* base look lives here (not inline) so :hover can override it */
+.j-hero-arrow {
+  background: rgb(8 20 15 / 0.3);
+  border: 1px solid rgb(var(--bone-rgb) / 0.34);
+  transition: background var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+.j-hero-arrow:hover { background: rgb(8 20 15 / 0.55); border-color: var(--bone); }
+.j-hero-arrow:active { transform: translateY(1px) scale(0.97); transition-duration: 60ms; }
+
+/* ---------- WhatsApp FAB ---------- */
+.j-fab {
+  box-shadow: var(--shadow-fab);
+  animation: kmFabIn var(--dur-3) var(--ease-out) 0.55s backwards;
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+}
+.j-fab:hover { transform: translateY(-2px); box-shadow: var(--shadow-fab-lift); }
+.j-fab:active { transform: translateY(0) scale(0.94); transition-duration: 60ms; }
+
+/* ---------- aria-live notes / step swaps — arrive rather than blink ---------- */
+/* No fill-mode: a single element with no stagger delay, so if the animation
+   never runs the content simply shows at rest. */
+.km-note { animation: kmSettle var(--dur-2) var(--ease-out); }
+
+/* ---------- letterhead watermark on empty / terminal panels ----------
+   Static by design — opacity is set inline (~0.1); no animation may land it
+   back at 1. It rides in on the parent panel's .km-route fade. */
 
 /* ---------- Utility ---------- */
 .j-visually-hidden {

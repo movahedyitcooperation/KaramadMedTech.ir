@@ -5,7 +5,7 @@ import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { formatToman, toPersianNumber } from "../lib/format.js";
 import { telHref, waHref, socialHref } from "../lib/links.js";
-import { navGlyph } from "./cat-glyph.js";
+import { navGlyph, deptMark, deptDeep } from "./cat-glyph.js";
 import { icon } from "./ui.js";
 import * as A from "../actions.js";
 
@@ -17,7 +17,7 @@ function cartSubtotal(cart) { return cart.items.reduce((a, l) => a + l.unit_pric
 /* ------------------------------------------------------------------ header --- */
 export function header(s) {
   const count = cartCount(s.cart);
-  return h("header", { style: { background: "var(--emerald)", color: "var(--bone)", position: "sticky", insetBlockStart: 0, zIndex: 60 } },
+  return h("header", { style: { background: "linear-gradient(180deg, var(--emerald-hi), var(--emerald) 72%)", color: "var(--bone)", position: "sticky", insetBlockStart: 0, zIndex: 60 } },
     h("div", { class: "km-pad", style: container({ padding: "16px 32px", display: "flex", alignItems: "center", gap: 24 }) },
 
       h("button", { onClick: A.goHome, "aria-label": fa.brand.homeAria,
@@ -51,8 +51,10 @@ export function header(s) {
           h("button", { class: "j-hdr-cart", onClick: A.toggleCart, "aria-expanded": String(s.cartOpen), "aria-label": fa.header.cart,
             style: { display: "flex", alignItems: "center", gap: 9, padding: "11px 18px", borderRadius: "var(--r-pill)", fontSize: "14.5px", fontWeight: 600, cursor: "pointer", border: "none" } },
             icon.cart(), h("span", { class: "km-cart-label" }, fa.header.cart),
-            count > 0 && h("span", { style: { fontSize: "14.5px", fontWeight: 700 } }, toPersianNumber(count))),
-          s.cartOpen && cartDropdown(s)),
+            // keyed by count: the reconciler re-creates it on every change, so the
+            // tick + ring in app.css fire each time the cart gains or loses a unit.
+            count > 0 && h("span", { key: "cnt-" + count, class: "km-cart-badge", style: { fontSize: "14.5px", fontWeight: 700 } }, toPersianNumber(count))),
+          cartDropdown(s)),
 
         h("button", { "data-mob": "", class: "j-hdr-ctl", onClick: A.toggleMobileNav, "aria-label": fa.header.menu,
           style: { display: "none", width: 44, height: 44, borderRadius: "var(--r-5)", cursor: "pointer", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5 } },
@@ -87,23 +89,26 @@ function megaPanel(s) {
     const chunk = kids.slice(i * per, (i + 1) * per);
     if (chunk.length) cols.push({ first: i === 0, links: chunk });
   }
-  return h("div", { class: "j-dropin--fast", style: {
+  return h("div", { class: "j-panelin", style: {
     position: "absolute", insetInline: 0, insetBlockStart: "100%", background: "var(--surface)",
     borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.12)", boxShadow: "0 26px 50px -12px rgb(var(--emerald-rgb) / 0.28)", zIndex: 65,
+    transformOrigin: "top center",
   } },
-    h("div", { class: "km-pad", style: container({ padding: 32, display: "grid", gridTemplateColumns: "1fr 1fr 1fr 300px", gap: 36 }) },
+    h("div", { class: "km-pad km-stagger", style: container({ padding: 32, display: "grid", gridTemplateColumns: "1fr 1fr 1fr 300px", gap: 36 }) },
       cols.map((col, i) =>
         h("div", { key: i },
-          h("div", { style: { fontSize: "14.5px", fontWeight: 700, color: "var(--emerald)", paddingBlockEnd: 12, marginBlockEnd: 10, borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.12)", visibility: col.first ? "visible" : "hidden" } }, fa.nav.subheading),
+          h("div", { style: { fontSize: "14.5px", fontWeight: 700, color: deptDeep(cat.slug), paddingBlockEnd: 12, marginBlockEnd: 10, borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.12)", visibility: col.first ? "visible" : "hidden" } }, fa.nav.subheading),
           h("div", { style: { display: "flex", flexDirection: "column", gap: 2 } },
             col.links.map((l) =>
               h("button", { key: l.slug, class: "j-link-quiet", onClick: () => A.openCategory(cat.slug, l.slug),
                 style: { padding: "8px 0", textAlign: "start", fontSize: "14.5px", color: "rgb(var(--ink-rgb) / 0.78)", cursor: "pointer", display: "flex", alignItems: "baseline", gap: 8 } },
                 h("span", null, l.name)))))),
-      h("div", { style: { background: "var(--emerald)", color: "var(--bone)", padding: 24, borderRadius: "var(--r-5)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 20 } },
+      h("div", { style: { background: "linear-gradient(160deg, var(--emerald-hi), var(--emerald) 65%)", color: "var(--bone)", padding: 24, borderRadius: "var(--r-5)", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 20 } },
         h("div", null,
-          h("div", { style: { fontSize: 17, fontWeight: 700, lineHeight: 1.6 } }, cat.name),
-          h("p", { style: { margin: "8px 0 0", fontSize: 14, lineHeight: 1.85, color: "rgb(var(--bone-rgb) / 0.72)" } }, fa.catBlurb[cat.slug] || "")),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+            deptMark(cat.slug, 32),
+            h("div", { style: { fontSize: 17, fontWeight: 700, lineHeight: 1.6 } }, cat.name)),
+          h("p", { style: { margin: "12px 0 0", fontSize: 14, lineHeight: 1.85, color: "rgb(var(--bone-rgb) / 0.72)" } }, fa.catBlurb[cat.slug] || "")),
         h("button", { class: "j-btn j-btn--bone", onClick: () => A.openCategory(cat.slug),
           style: { padding: "12px 18px", borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600, alignSelf: "flex-start" } }, fa.nav.allOfCategory))));
 }
@@ -112,10 +117,13 @@ function megaPanel(s) {
 function cartDropdown(s) {
   const count = cartCount(s.cart);
   const empty = s.cart.items.length === 0;
-  return h("div", { class: "km-cartpanel j-dropin", style: {
+  // Mounted at all times; shown/hidden by data-open so it has a real exit as
+  // well as an entrance and never flashes a stale total. (app.css .j-cartpanel)
+  return h("div", { class: "km-cartpanel j-cartpanel", "data-open": String(s.cartOpen), inert: s.cartOpen ? undefined : "", style: {
     position: "absolute", insetBlockStart: "calc(100% + 12px)", insetInlineEnd: 0,
     width: "min(392px, calc(100vw - 32px))", background: "var(--surface)", color: "var(--ink)",
     border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", boxShadow: "var(--shadow-pop)", padding: 20, zIndex: 70,
+    transformOrigin: "top right",
   } },
     h("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBlockEnd: 14 } },
       h("strong", { style: { fontSize: 16, fontWeight: 700 } }, fa.cartDrawer.title),
@@ -140,16 +148,19 @@ function cartDropdown(s) {
 
 /* -------------------------------------------------------------- mobile nav --- */
 export function mobileNav(s) {
-  if (!s.mobileNav) return null;
-  return h("div", { style: { position: "fixed", inset: 0, zIndex: 80, display: "flex" } },
-    h("div", { onClick: A.toggleMobileNav, style: { position: "absolute", inset: 0, background: "rgb(var(--emerald-rgb) / 0.5)" } }),
-    h("div", { class: "j-drawer", style: { position: "relative", marginInlineStart: "auto", width: "min(360px, 88vw)", background: "var(--surface)", height: "100%", overflowY: "auto", padding: 24 } },
+  // Mounted at all times; data-open drives the scrim fade + sheet slide both
+  // ways (app.css .j-navwrap). inert keeps it out of the tab order when closed.
+  return h("div", { class: "j-navwrap", "data-open": String(s.mobileNav), inert: s.mobileNav ? undefined : "",
+    style: { position: "fixed", inset: 0, zIndex: 80, display: "flex" } },
+    h("div", { class: "j-navscrim", onClick: A.toggleMobileNav, style: { position: "absolute", inset: 0, background: "rgb(var(--emerald-rgb) / 0.5)" } }),
+    h("div", { class: "j-navsheet", style: { position: "relative", marginInlineStart: "auto", width: "min(360px, 88vw)", background: "var(--surface)", height: "100%", overflowY: "auto", padding: 24 } },
       h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBlockEnd: 20 } },
         h("strong", { style: { fontSize: 17 } }, fa.mobileNav.title),
         h("button", { onClick: A.toggleMobileNav, "aria-label": fa.mobileNav.close, style: { background: "none", border: "1px solid rgb(var(--ink-rgb) / 0.16)", width: 38, height: 38, borderRadius: "var(--r-5)", cursor: "pointer", fontSize: 18, color: "var(--ink)" } }, "×")),
       s.categories.map((c) =>
         h("div", { key: c.slug, style: { borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.08)", paddingBlock: 12 } },
-          h("button", { onClick: () => A.openCategory(c.slug), style: { background: "none", border: "none", padding: 0, fontSize: 16, fontWeight: 700, color: "var(--emerald)", cursor: "pointer", textAlign: "start" } }, c.name),
+          h("button", { onClick: () => A.openCategory(c.slug), style: { background: "none", border: "none", padding: 0, fontSize: 16, fontWeight: 700, color: deptDeep(c.slug), cursor: "pointer", textAlign: "start", display: "flex", alignItems: "center", gap: 10 } },
+            deptMark(c.slug, 24), h("span", null, c.name)),
           h("div", { style: { display: "flex", flexWrap: "wrap", gap: 8, marginBlockStart: 10 } },
             (c.children || []).map((sc) =>
               h("button", { key: sc.slug, onClick: () => A.openCategory(c.slug, sc.slug), style: { background: "var(--page)", border: "none", padding: "7px 12px", borderRadius: "var(--r-pill)", fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.75)", cursor: "pointer" } }, sc.name))))),
@@ -171,7 +182,7 @@ export function footer(s) {
     { kind: "whatsapp", href: waHref(set) },
   ].filter(Boolean);
 
-  return h("footer", { style: { background: "var(--emerald)", color: "var(--bone)", marginBlockStart: "auto" } },
+  return h("footer", { style: { background: "linear-gradient(180deg, var(--emerald-hi) -8%, var(--emerald) 22%, var(--emerald-deep))", color: "var(--bone)", marginBlockStart: "auto" } },
     h("div", { class: "km-pad", style: container({ padding: "56px 32px 32px" }) },
       h("div", { class: "km-foot", style: { display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1.3fr", gap: 40 } },
 
@@ -208,14 +219,15 @@ export function footer(s) {
 
 /* ----------------------------------------------------------- whatsapp / toast --- */
 export function whatsappFab(s) {
-  return h("a", { href: waHref(s.settings), "aria-label": fa.wa.aria, style: {
+  return h("a", { href: waHref(s.settings), "aria-label": fa.wa.aria, class: "j-fab", style: {
     position: "fixed", insetBlockEnd: 24, insetInlineEnd: 24, zIndex: 85, width: 56, height: 56, borderRadius: "50%",
-    background: "var(--emerald-live)", color: "var(--surface)", display: "grid", placeItems: "center",
-    boxShadow: "0 10px 28px rgb(var(--emerald-rgb) / 0.32)", textDecoration: "none", fontSize: "12.5px", fontWeight: 700, lineHeight: 1.3, textAlign: "center",
+    background: "var(--emerald-live-deep)", color: "var(--surface)", display: "grid", placeItems: "center",
+    textDecoration: "none", fontSize: "12.5px", fontWeight: 700, lineHeight: 1.3, textAlign: "center",
   } }, fa.wa.label);
 }
 
 export function toastLayer(s) {
   return h("div", { "aria-live": "polite", style: { position: "fixed", insetBlockEnd: 24, insetInlineStart: 24, zIndex: 90, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" } },
-    s.toast && h("div", { class: "j-toast", style: { background: "var(--ink)", color: "var(--surface)", padding: "14px 20px", borderRadius: "var(--r-5)", fontSize: 15, lineHeight: 1.6, maxWidth: 340, boxShadow: "var(--shadow-pop)" } }, s.toast));
+    // keyed by message: a new toast interrupting a visible one re-plays the rise.
+    s.toast && h("div", { key: s.toast, class: "j-toast", style: { background: "var(--ink)", color: "var(--surface)", padding: "14px 20px", borderRadius: "var(--r-5)", fontSize: 15, lineHeight: 1.6, maxWidth: 340, boxShadow: "var(--shadow-pop)" } }, s.toast));
 }

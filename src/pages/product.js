@@ -5,8 +5,9 @@
 import { h } from "../lib/dom.js";
 import fa from "../i18n/fa.js";
 import { formatToman, toPersianDigits, toPersianNumber, stars, formatRating } from "../lib/format.js";
-import { productCard, panel } from "../components/ui.js";
+import { productCard, panel, addedLabel, letterheadMark } from "../components/ui.js";
 import { imgUrl, imgPos } from "../components/ui.js";
+import { deptDeep } from "../components/cat-glyph.js";
 import { telHref, waHref } from "../lib/links.js";
 import * as A from "../actions.js";
 
@@ -41,10 +42,10 @@ export function productPage(s) {
 
   return h("div", { class: "km-pad", style: container({ padding: "24px 32px 80px" }) },
     h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, paddingBlock: "14px 24px", flexWrap: "wrap" } },
-      h("nav", { "aria-label": fa.pdp.breadcrumbAria, style: { display: "flex", alignItems: "center", gap: 9, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.55)", flexWrap: "wrap" } },
-        h("button", { class: "j-link-quiet", onClick: A.goHome, style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.55)", cursor: "pointer" } }, fa.pdp.home),
+      h("nav", { "aria-label": fa.pdp.breadcrumbAria, style: { display: "flex", alignItems: "center", gap: 9, fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.72)", flexWrap: "wrap" } },
+        h("button", { class: "j-link-quiet", onClick: A.goHome, style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.72)", cursor: "pointer" } }, fa.pdp.home),
         h("span", null, "/"),
-        cat && h("button", { class: "j-link-quiet", onClick: () => A.openCategory(cat.slug), style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.55)", cursor: "pointer" } }, cat.name),
+        cat && h("button", { class: "j-link-quiet", onClick: () => A.openCategory(cat.slug), style: { fontSize: "13.5px", color: deptDeep(cat.slug), fontWeight: 600, cursor: "pointer" } }, cat.name),
         cat && h("span", null, "/"),
         h("span", { style: { color: "var(--ink)", fontWeight: 600 } }, p.name)),
       h("button", { class: "j-pill-quiet", onClick: A.pdpShare, style: { padding: "9px 16px", borderRadius: "var(--r-pill)", fontSize: "13.5px", cursor: "pointer" } }, fa.pdp.share)),
@@ -66,7 +67,7 @@ export function productPage(s) {
         h("div", null,
           h("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" } },
             h("span", { style: { fontSize: "13.5px", fontWeight: 700, color: "rgb(var(--ink-rgb) / 0.55)", letterSpacing: "0.03em", direction: "ltr" } }, p.brand || ""),
-            h("span", { style: { fontSize: 13, fontWeight: 700, padding: "5px 11px", borderRadius: "var(--r-2)", color: "var(--surface)", background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live)" } }, out ? fa.pdp.outOfStock : fa.pdp.inStock)),
+            h("span", { style: { fontSize: 13, fontWeight: 700, padding: "5px 11px", borderRadius: "var(--r-2)", color: "var(--surface)", background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live-deep)" } }, out ? fa.pdp.outOfStock : fa.pdp.inStock)),
           h("h1", { style: { margin: "12px 0 0", fontSize: "var(--fs-h1)", fontWeight: 800, lineHeight: 1.5, letterSpacing: "-0.012em", textWrap: "pretty" } }, p.name),
           p.short_desc && h("p", { style: { margin: "14px 0 0", fontSize: 16, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.68)", maxWidth: "52ch" } }, p.short_desc)),
 
@@ -76,18 +77,32 @@ export function productPage(s) {
             h("strong", { style: { fontSize: 30, fontWeight: 800, letterSpacing: "-0.01em" } }, formatToman(p.price)),
             onSale && h("span", { style: { fontSize: 13, fontWeight: 700, color: "var(--surface)", background: "var(--danger)", padding: "4px 9px", borderRadius: "var(--r-2)" } }, fa.pdp.discount(discount))),
 
-          h("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" } },
-            h("div", { style: { display: "flex", alignItems: "center", border: "1px solid rgb(var(--ink-rgb) / 0.18)", borderRadius: "var(--r-5)", background: "#fff", overflow: "hidden" } },
-              h("button", { onClick: A.pdpQtyDown, "aria-label": fa.pdp.qtyDown, style: stepBtn }, "−"),
-              h("input", { type: "text", inputmode: "numeric", "aria-label": fa.pdp.qty, value: toPersianDigits(s.pdpQty), onChange: (e) => A.pdpQtySet(e.target.value),
-                style: { width: 58, height: 48, border: "none", textAlign: "center", fontSize: 16, fontWeight: 700, color: "var(--ink)", background: "none" } }),
-              h("button", { onClick: A.pdpQtyUp, "aria-label": fa.pdp.qtyUp, style: stepBtn }, "+")),
-            h("button", { class: "j-btn j-btn--ink", onClick: A.pdpAdd, disabled: out,
-              style: { flex: 1, minWidth: 210, padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: "16.5px", fontWeight: 700,
-                background: out ? "rgb(var(--ink-rgb) / 0.08)" : "var(--ink)", color: out ? "rgb(var(--ink-rgb) / 0.5)" : "var(--surface)" } }, out ? fa.pdp.notifyRestock : fa.pdp.buy)),
+          out
+            ? h("a", { href: waHref(s.settings),
+                style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, textDecoration: "none",
+                  padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: "16.5px", fontWeight: 700,
+                  background: "var(--ink)", color: "var(--surface)" } },
+                h("span", { style: { width: 7, height: 7, borderRadius: "50%", background: "var(--emerald-live)", flexShrink: 0 } }),
+                h("span", null, fa.pdp.notifyRestock))
+            : h("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" } },
+                h("div", { style: { display: "flex", alignItems: "center", border: "1px solid rgb(var(--ink-rgb) / 0.18)", borderRadius: "var(--r-5)", background: "#fff", overflow: "hidden" } },
+                  h("button", { class: "j-step", onClick: A.pdpQtyDown, "aria-label": fa.pdp.qtyDown, style: stepBtn }, "−"),
+                  h("input", { type: "text", inputmode: "numeric", "aria-label": fa.pdp.qty, value: toPersianDigits(s.pdpQty), onChange: (e) => A.pdpQtySet(e.target.value),
+                    style: { width: 58, height: 48, border: "none", textAlign: "center", fontSize: 16, fontWeight: 700, color: "var(--ink)", background: "none" } }),
+                  h("button", { class: "j-step", onClick: A.pdpQtyUp, "aria-label": fa.pdp.qtyUp, style: stepBtn }, "+")),
+                (() => {
+                  const added = s.justAddedId === p.id;
+                  return h("button", { class: "j-btn " + (added ? "j-btn--added" : "j-btn--ink"), onClick: A.pdpAdd,
+                    style: { flex: 1, minWidth: 210, padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: "16.5px", fontWeight: 700,
+                      background: added ? "var(--emerald-live-deep)" : "var(--ink)", color: "var(--surface)" } },
+                    added ? addedLabel(fa.card.added) : fa.pdp.buy);
+                })()),
 
           h("div", { "aria-live": "polite", style: { fontSize: "13.5px", lineHeight: 1.75, color: "var(--warn)", minHeight: 20 } },
-            s.pdpStockNote || (p.stock > 0 && p.stock <= 3 ? fa.pdp.lowStockNote(p.stock) : "")),
+            (() => {
+              const note = s.pdpStockNote || (p.stock > 0 && p.stock <= 3 ? fa.pdp.lowStockNote(p.stock) : "");
+              return note ? h("span", { key: note, class: "km-note" }, note) : "";
+            })()),
 
           h("div", { style: { display: "flex", gap: 12, flexWrap: "wrap", borderBlockStart: "1px solid rgb(var(--ink-rgb) / 0.1)", paddingBlockStart: 18 } },
             h("button", { disabled: true, style: soonBtn }, fa.pdp.compareSoon),
@@ -117,10 +132,10 @@ export function productPage(s) {
     s.related.length > 0 && h("section", { "aria-label": fa.pdp.relatedHeading, style: { marginBlockStart: 64 } },
       h("h2", { style: { margin: "0 0 22px", fontSize: 24, fontWeight: 800, letterSpacing: "-0.01em" } }, fa.pdp.relatedHeading),
       h("div", { class: "km-scroll", style: { display: "grid", gridAutoFlow: "column", gridAutoColumns: "minmax(232px, 1fr)", gap: 18, overflowX: "auto", scrollSnapType: "x mandatory", paddingBlockEnd: 10 } },
-        s.related.map((rp) => h("div", { key: rp.slug, style: { scrollSnapAlign: "start" } }, productCard(rp, { variant: "mini" }))))));
+        s.related.map((rp) => h("div", { key: rp.slug, style: { scrollSnapAlign: "start", display: "grid" } }, productCard(rp, { variant: "mini" }))))));
 }
 const stepBtn = { width: 44, height: 48, background: "none", border: "none", fontSize: 19, color: "var(--ink)", cursor: "pointer" };
-const soonBtn = { background: "none", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", padding: "10px 16px", borderRadius: "var(--r-5)", fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.42)", cursor: "not-allowed" };
+const soonBtn = { background: "var(--info-bg)", border: "1px dashed var(--info-border)", padding: "10px 16px", borderRadius: "var(--r-5)", fontSize: "13.5px", color: "var(--info)", cursor: "not-allowed" };
 
 /* -------------------------------------------------------------- tabs --- */
 function tabs(s, p, groups, safety) {
@@ -156,7 +171,8 @@ function tabs(s, p, groups, safety) {
                 h("span", { style: { lineHeight: 1.7, fontWeight: 500 } }, r.value))))),
       ),
 
-      s.pdpTab === "comments" && h("div", { style: { background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "48px 32px", textAlign: "center", maxWidth: 720 } },
+      s.pdpTab === "comments" && h("div", { style: { position: "relative", overflow: "hidden", background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "48px 32px", textAlign: "center", maxWidth: 720 } },
+        letterheadMark(),
         h("strong", { style: { display: "block", fontSize: 19, fontWeight: 700 } }, fa.pdp.commentsSoonTitle),
         h("p", { style: { margin: "12px auto 22px", fontSize: 15, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "48ch" } }, fa.pdp.commentsSoonBody),
         h("a", { href: waHref(s.settings), style: { display: "inline-block", background: "var(--ink)", color: "var(--surface)", padding: "13px 24px", borderRadius: "var(--r-5)", fontSize: 15, fontWeight: 600, textDecoration: "none" } }, fa.pdp.commentsSoonCta))));
@@ -164,7 +180,7 @@ function tabs(s, p, groups, safety) {
 
 /* ---------------------------------------------------------- skeleton --- */
 function pdpSkeleton() {
-  const box = (extra) => h("div", { style: Object.assign({ background: "rgb(var(--ink-rgb) / 0.06)", borderRadius: "var(--r-4)" }, extra || {}) });
+  const box = (extra) => h("div", { class: "km-shimmer", style: Object.assign({ background: "rgb(var(--ink-rgb) / 0.06)", borderRadius: "var(--r-4)" }, extra || {}) });
   return h("div", { class: "km-pdp", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44, alignItems: "start" } },
     box({ aspectRatio: "1/1" }),
     h("div", { style: { display: "flex", flexDirection: "column", gap: 16 } },
