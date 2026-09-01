@@ -1,0 +1,16 @@
+{
+  "name": "karamadmedtech-storefront",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "تجهیزات پزشکی کارآمد — Persian RTL storefront, vanilla JS (no framework, no build step).",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "sitemap": "node scripts/gen-sitemap.mjs",
+    "test": "node --test \"src/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

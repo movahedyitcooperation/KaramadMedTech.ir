@@ -1,0 +1,70 @@
+/* tokens.css — the single source of colour, type and spacing for the storefront.
+   No hex value appears anywhere else in the codebase. Roles are from DESIGN.md §2. */
+
+:root {
+  /* ---- Colour: six tokens on emerald + almond, plus warn/danger ---- */
+  --ink:            #17211D; /* body text, every primary CTA, cart badge   13.1:1 on surface */
+  --ink-rgb:        23 33 29;
+  --emerald:        #0C3A2C; /* ground: header, footer, trust band, highlight cards */
+  --emerald-rgb:    12 58 44;
+  --emerald-deep:   #082A20; /* nav strip under the header — one step darker */
+  --emerald-live:   #1C8A69; /* interactive / positive: focus ring, in-stock, hero rule */
+  --emerald-live-rgb: 28 138 105;
+  --page:           #EAE9E1; /* page ground — cool, powdery almond */
+  --surface:        #F7F6F1; /* cards, sidebar, panels */
+  --bone:           #EAE9E1; /* text on emerald */
+  --bone-rgb:       234 233 225;
+
+  --img-bg:         #EFF4F8; /* flat placeholder behind every product image (no flash / CLS) */
+
+  --warn:           #8A5A12; /* low stock, clamped qty, safety block, free-ship hint */
+  --warn-strong:    #6B4708;
+  --warn-bg:        #FBF4E4;
+  --warn-border:    #E0CFA4;
+  --warn-border-soft: #E7D8AE;
+  --danger:         #9E2B20; /* discount badge, remove, OTP errors */
+
+  /* ---- Type scale (px) — DESIGN.md §3 ---- */
+  --fs-display: clamp(30px, 3.4vw, 50px);
+  --fs-h1:      clamp(24px, 2.4vw, 33px);
+  --fs-h1-flat: 32px;
+  --fs-h2:      27px;
+  --fs-h3:      24px;
+  --fs-lead:    19px;
+  --fs-lg:      16.5px;
+  --fs-base:    16px;
+  --fs-15:      15px;
+  --fs-14:      14.5px;
+  --fs-13:      13.5px;
+  --fs-12:      12.5px;
+  --fs-11:      11.5px;
+
+  --lh-prose:   1.9;   /* Persian prose wants more leading than Latin */
+  --lh-tight:   1.34;
+  --track-display: -0.015em;
+
+  /* ---- Radius ---- */
+  --r-1: 2px;
+  --r-2: 3px;
+  --r-3: 4px;
+  --r-4: 5px;
+  --r-5: 6px;
+  --r-6: 8px;
+  --r-7: 10px;
+  --r-pill: 99px;
+
+  /* ---- Elevation — a shadow appears exactly twice by design ---- */
+  --shadow-float: 0 18px 44px -20px rgb(var(--emerald-rgb) / 0.35);
+  --shadow-pop:   0 24px 60px rgb(var(--emerald-rgb) / 0.22);
+
+  /* ---- Layout ---- */
+  --measure: 1280px;
+  --gutter: 32px;
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (max-width: 1023px) {
+  :root { --gutter: 20px; }
+}

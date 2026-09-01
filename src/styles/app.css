@@ -1,0 +1,128 @@
+/* app.css — interactive states (the `style-hover` of the prototype, now real CSS)
+   and the handful of shared component patterns. Structure/spacing stays as inline
+   style objects in the render functions; every colour there is a token, never a hex. */
+
+/* ---------- Buttons ---------- */
+.j-btn {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.j-btn:disabled { cursor: not-allowed; }
+
+/* ink — every primary action (buy, submit, login, "show products") */
+.j-btn--ink {
+  background: var(--ink);
+  color: var(--surface);
+}
+.j-btn--ink:not(:disabled):hover { background: var(--emerald); }
+
+/* bone on emerald — hero primary, cart-drawer footer sits on light so uses ink */
+.j-btn--bone {
+  background: var(--bone);
+  color: var(--ink);
+}
+.j-btn--bone:not(:disabled):hover { background: #fff; }
+
+/* ghost on emerald ground */
+.j-btn--ghost-bone {
+  background: none;
+  color: var(--bone);
+  border: 1px solid rgb(var(--bone-rgb) / 0.44);
+}
+.j-btn--ghost-bone:hover { border-color: var(--bone); color: var(--bone); }
+
+/* quiet outline pill on the light surface */
+.j-pill-quiet {
+  background: none;
+  color: var(--ink);
+  border: 1px solid rgb(var(--ink-rgb) / 0.18);
+  transition: border-color 0.2s var(--ease);
+}
+.j-pill-quiet:hover { border-color: var(--ink); }
+
+/* header controls on emerald */
+.j-hdr-ctl {
+  background: none;
+  color: var(--bone);
+  border: 1px solid rgb(var(--bone-rgb) / 0.22);
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.j-hdr-ctl:hover { border-color: rgb(var(--bone-rgb) / 0.5); }
+
+.j-hdr-finder {
+  background: rgb(var(--bone-rgb) / 0.08);
+  border: 1px solid rgb(var(--bone-rgb) / 0.18);
+  color: rgb(var(--bone-rgb) / 0.72);
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.j-hdr-finder:hover {
+  background: rgb(var(--bone-rgb) / 0.14);
+  border-color: rgb(var(--bone-rgb) / 0.36);
+}
+
+.j-hdr-cart {
+  background: var(--bone);
+  color: var(--ink);
+  transition: background 0.2s var(--ease);
+}
+.j-hdr-cart:hover { background: var(--surface); }
+
+/* ---------- Links ---------- */
+.j-link-quiet {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  transition: color 0.2s var(--ease);
+}
+.j-link-quiet:hover { color: var(--emerald-live); }
+
+.j-foot-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: rgb(var(--bone-rgb) / 0.72);
+  transition: color 0.2s var(--ease);
+  text-align: start;
+}
+.j-foot-link:hover { color: var(--bone); }
+
+/* ---------- Cards ---------- */
+.j-card-product {
+  transition: border-color 0.2s var(--ease);
+}
+.j-card-product:hover { border-color: rgb(var(--ink-rgb) / 0.3); }
+
+.j-cat-card {
+  transition: background 0.2s var(--ease);
+}
+.j-cat-card:hover { background: rgb(var(--ink-rgb) / 0.045); }
+
+/* PDP main image hover zoom */
+.j-zoom { overflow: hidden; }
+.j-zoom img { transition: transform 0.4s var(--ease); }
+.j-zoom:hover img { transform: scale(1.12); }
+
+/* ---------- Toast ---------- */
+.j-toast { animation: kmToast 0.3s ease both; }
+
+/* ---------- Dropdowns / panels ---------- */
+.j-dropin { animation: kmIn 0.18s ease both; }
+.j-dropin--fast { animation: kmIn 0.16s ease both; }
+.j-drawer { animation: kmIn 0.2s ease both; }
+
+/* ---------- Utility ---------- */
+.j-visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.j-line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

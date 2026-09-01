@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://karamadmedtech.ir/sitemap.xml
