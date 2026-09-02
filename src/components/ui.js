@@ -69,7 +69,11 @@ export function productCard(p, { variant = "full" } = {}) {
         h("strong", { style: { fontSize: "16.5px", fontWeight: 800 } }, formatToman(p.price))));
   }
 
-  const withBadge = variant === "full";
+  // Distill pass: the green «موجود» pill sat on ~15 of 17 cards saying nothing
+  // the enabled Add button didn't. Only the exception — «ناموجود» — earns a
+  // badge on the scan surface now; in-stock is the unmarked default. Low stock
+  // still speaks, in words, on its own line below.
+  const withBadge = variant === "full" && out;
   return h("article", { class: "j-card-product", style: cardShell("4px") },
     h("button", { class: "j-link-quiet", "aria-label": p.name, onClick: () => openProduct(p.slug),
       style: { padding: 0, display: "block", position: "relative", width: "100%", background: "none", border: "none", cursor: "pointer" } },
@@ -78,12 +82,12 @@ export function productCard(p, { variant = "full" } = {}) {
       withBadge && h("span", { style: {
         position: "absolute", insetBlockStart: 12, insetInlineStart: 12, fontSize: 12, fontWeight: 700,
         padding: "4px 9px", borderRadius: "var(--r-2)", color: "var(--surface)",
-        background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live-deep)",
-      } }, out ? fa.card.outOfStock : fa.card.inStock)),
+        background: "rgb(var(--ink-rgb) / 0.72)",
+      } }, fa.card.outOfStock)),
 
     h("div", { style: { padding: 16, display: "flex", flexDirection: "column", gap: 10, flex: 1 } },
       h("div", { style: { display: "flex", alignItems: "center", gap: 8, minHeight: 20 } },
-        h("span", { style: { fontSize: "12.5px", fontWeight: 600, color: "rgb(var(--ink-rgb) / 0.5)", letterSpacing: "0.02em", direction: "ltr" } }, p.brand || ""),
+        h("span", { style: { fontSize: "12.5px", fontWeight: 600, color: "rgb(var(--ink-rgb) / 0.68)", letterSpacing: "0.02em", direction: "ltr" } }, p.brand || ""),
         variant === "full" && onSale && h("span", { style: {
           fontSize: 12, fontWeight: 700, color: "var(--surface)", background: "var(--danger)", padding: "3px 8px", borderRadius: "var(--r-2)",
         } }, fa.card.discountShort(discount))),
@@ -91,7 +95,7 @@ export function productCard(p, { variant = "full" } = {}) {
       h("button", { class: "j-link-quiet j-line-clamp-2", onClick: () => openProduct(p.slug),
         style: { textAlign: "start", fontSize: 15, lineHeight: 1.75, color: "var(--ink)", minHeight: "52.5px" } }, p.name),
 
-      ratingRow(p, variant !== "featured"),
+      ratingRow(p),
 
       variant === "featured"
         ? h("strong", { style: { fontSize: 18, fontWeight: 800 } }, formatToman(p.price))
@@ -130,11 +134,13 @@ function cardShell() {
   };
 }
 
-export function ratingRow(p, withCount) {
-  return h("div", { style: { display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "rgb(var(--ink-rgb) / 0.55)" } },
+// The rating is the shop's own expert assessment, not customer reviews (there is
+// no review system — BACKEND-GAPS #4). The «(۳۸)» count implied reviews that
+// don't exist, so it's gone; the score and stars stay.
+export function ratingRow(p) {
+  return h("div", { style: { display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "rgb(var(--ink-rgb) / 0.7)" } },
     h("span", { style: { color: "var(--emerald)", letterSpacing: "0.05em" }, "aria-hidden": "true" }, stars(p.rating_avg)),
-    h("span", null, formatRating(p.rating_avg)),
-    withCount && h("span", { style: { color: "rgb(var(--ink-rgb) / 0.35)" } }, fa.card.ratingCount(p.rating_count)));
+    h("span", null, formatRating(p.rating_avg)));
 }
 
 /* ---------- section heading with optional action on the end edge ---------- */
@@ -167,6 +173,6 @@ export function panel({ title, body, actions = [], dashed = true, tone }) {
   } },
     letterheadMark(tone),
     h("strong", { style: { display: "block", fontSize: 20, fontWeight: 700 } }, title),
-    body && h("p", { style: { margin: "12px auto 24px", fontSize: 15, lineHeight: "var(--lh-prose)", color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "48ch" } }, body),
+    body && h("p", { style: { margin: "12px auto 24px", fontSize: 15, lineHeight: "var(--lh-prose)", color: "rgb(var(--ink-rgb) / 0.72)", maxWidth: "48ch" } }, body),
     actions.length && h("div", { style: { display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" } }, actions));
 }

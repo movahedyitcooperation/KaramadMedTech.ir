@@ -30,27 +30,28 @@
   --info-bg:        #EAF3F9;
   --info-border:    #C5DBE9;
 
-  /* ---- Department wayfinding spectrum — DESIGN.md §2·b (colorize pass) ----
-     Six OKLCH tints, one per top-level category. Colour here only ever
-     *identifies a department*: the home category rail, the mega-menu, the
-     category H1 marker, the breadcrumb's current segment, the active sub-filter.
-     It never touches the CTA (still --ink) or the ground (still --emerald).
-     Tint chroma raised to ~0.065 (critique pass) so the six hues actually
-     separate at disc size and read against the almond page — they still sit at
-     L 0.94 so the dept-deep line icon on them holds 6:1. `-deep` variants clear
-     4.5:1 on --page and --surface; colour is always a third cue behind the
-     category icon and the text label. */
-  --dept-diagnostics:      oklch(0.940 0.065 196);  /* #b8f9f9 cyan    — تجهیزات تشخیصی */
+  /* ---- Department wayfinding spectrum — DESIGN.md §2·b ----
+     Six OKLCH hues, one per top-level category. Colour here only ever
+     *identifies a department*, and is always the third cue behind the category
+     icon and the text label. It never touches the CTA (still --ink) or the
+     ground (still --emerald).
+     Quieter pass (2026-09): the tint chroma the colorize pass had pushed to
+     ~0.065 is pulled back to ~0.034 — a faint wash, not a statement. The home
+     rail still reads as a legend, but a soft one; the department identity is
+     carried by the owner's icon and the `-deep` accents, not by a saturated
+     disc. `-deep` variants are unchanged and still clear 4.5:1 on --page and
+     --surface (measured ≥6:1); the line icon on the pale tint still holds 6:1. */
+  --dept-diagnostics:      oklch(0.942 0.034 196);  /* cyan   — تجهیزات تشخیصی */
   --dept-diagnostics-deep: oklch(0.430 0.078 210);  /* #005b67 */
-  --dept-consumables:      oklch(0.940 0.065 148);  /* #cff8d3 green   — مصرفی و بهداشتی */
+  --dept-consumables:      oklch(0.942 0.034 148);  /* green  — مصرفی و بهداشتی */
   --dept-consumables-deep: oklch(0.435 0.088 150);  /* #285e36 */
-  --dept-rehab:            oklch(0.940 0.065 300);  /* #f1e2ff violet  — توان‌بخشی و ارتوپدی */
+  --dept-rehab:            oklch(0.942 0.034 300);  /* violet — توان‌بخشی و ارتوپدی */
   --dept-rehab-deep:       oklch(0.440 0.092 300);  /* #5b467d */
-  --dept-homecare:         oklch(0.940 0.065 352);  /* #ffdaf0 rose    — مراقبت در منزل */
+  --dept-homecare:         oklch(0.942 0.034 352);  /* rose   — مراقبت در منزل */
   --dept-homecare-deep:    oklch(0.450 0.082 353);  /* #784159 */
-  --dept-clinic:           oklch(0.940 0.065 252);  /* #ccefff azure   — تجهیزات مطب و کلینیک */
+  --dept-clinic:           oklch(0.942 0.034 252);  /* azure  — تجهیزات مطب و کلینیک */
   --dept-clinic-deep:      oklch(0.430 0.098 262);  /* #314e85 */
-  --dept-accessories:      oklch(0.940 0.065 116);  /* #e8f1c0 khaki   — لوازم جانبی */
+  --dept-accessories:      oklch(0.942 0.034 116);  /* khaki  — لوازم جانبی */
   --dept-accessories-deep: oklch(0.452 0.050 118);  /* #535a3a */
 
   /* ---- Type scale (px) — DESIGN.md §3 ---- */

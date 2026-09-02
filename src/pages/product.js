@@ -56,9 +56,12 @@ export function productPage(s) {
         h("div", { class: "j-zoom", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-5)", overflow: "hidden", aspectRatio: "1/1" } },
           h("img", { src: mainImg.url, alt: mainImg.alt || p.name, width: 1385, height: 1385, loading: "lazy", decoding: "async",
             style: { display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: mainImg.pos || "50% 50%", background: "var(--img-bg)" } })),
-        h("div", { style: { display: "flex", gap: 10 } },
-          (images.length > 1 ? images : [images[0], images[0], images[0], images[0]]).slice(0, 4).map((im, i) =>
-            h("button", { key: i, onClick: () => A.setPdpThumb(Math.min(i, images.length - 1)), "aria-label": fa.pdp.thumb(i + 1),
+        // Only a real gallery gets a thumbnail strip. Padding one image out to
+        // four identical clones read as a rendering bug (prior critique); a
+        // single-image product just shows the one image.
+        images.length > 1 && h("div", { style: { display: "flex", gap: 10 } },
+          images.slice(0, 4).map((im, i) =>
+            h("button", { key: i, onClick: () => A.setPdpThumb(i), "aria-label": fa.pdp.thumb(i + 1),
               style: { width: 76, height: 76, border: "1px solid " + (i === s.pdpThumb ? "var(--emerald)" : "rgb(var(--ink-rgb) / 0.14)"), borderRadius: "var(--r-3)", background: "var(--img-bg)", cursor: "pointer", padding: 0, overflow: "hidden" } },
               h("img", { src: im.url, alt: "", width: 152, height: 152, loading: "lazy", decoding: "async", style: { display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: im.pos || "50% 50%" } })))))
       ,
@@ -66,10 +69,10 @@ export function productPage(s) {
       h("div", { style: { display: "flex", flexDirection: "column", gap: 22 } },
         h("div", null,
           h("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" } },
-            h("span", { style: { fontSize: "13.5px", fontWeight: 700, color: "rgb(var(--ink-rgb) / 0.55)", letterSpacing: "0.03em", direction: "ltr" } }, p.brand || ""),
+            h("span", { style: { fontSize: "13.5px", fontWeight: 700, color: "rgb(var(--ink-rgb) / 0.7)", letterSpacing: "0.03em", direction: "ltr" } }, p.brand || ""),
             h("span", { style: { fontSize: 13, fontWeight: 700, padding: "5px 11px", borderRadius: "var(--r-2)", color: "var(--surface)", background: out ? "rgb(var(--ink-rgb) / 0.72)" : "var(--emerald-live-deep)" } }, out ? fa.pdp.outOfStock : fa.pdp.inStock)),
           h("h1", { style: { margin: "12px 0 0", fontSize: "var(--fs-h1)", fontWeight: 800, lineHeight: 1.5, letterSpacing: "-0.012em", textWrap: "pretty" } }, p.name),
-          p.short_desc && h("p", { style: { margin: "14px 0 0", fontSize: 16, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.68)", maxWidth: "52ch" } }, p.short_desc)),
+          p.short_desc && h("p", { style: { margin: "14px 0 0", fontSize: 16, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.72)", maxWidth: "52ch" } }, p.short_desc)),
 
         h("div", { style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 24, display: "flex", flexDirection: "column", gap: 18 } },
           h("div", { style: { display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" } },
@@ -113,16 +116,16 @@ export function productPage(s) {
             h("strong", { style: { fontSize: 16, fontWeight: 700 } }, fa.pdp.keySpecs),
             h("span", { style: { display: "flex", alignItems: "center", gap: 8, fontSize: "13.5px", color: "rgb(var(--bone-rgb) / 0.72)" } },
               h("span", { style: { letterSpacing: "0.06em" }, "aria-hidden": "true" }, stars(p.rating_avg)),
-              h("span", null, fa.pdp.ratingLine(formatRating(p.rating_avg), p.rating_count)))),
+              h("span", null, fa.pdp.ratingLine(formatRating(p.rating_avg))))),
           h("dl", { style: { margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "12px 20px", fontSize: "14.5px" } },
             p.specs.slice(0, 4).map((sp, i) =>
               h("div", { key: i, style: { display: "contents" } },
-                h("dt", { style: { color: "rgb(var(--bone-rgb) / 0.6)", lineHeight: 1.7 } }, sp.key),
+                h("dt", { style: { color: "rgb(var(--bone-rgb) / 0.7)", lineHeight: 1.7 } }, sp.key),
                 h("dd", { style: { margin: 0, lineHeight: 1.7, fontWeight: 600 } }, sp.value)))),
           h("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", borderBlockStart: "1px solid rgb(var(--bone-rgb) / 0.16)", paddingBlockStart: 18 } },
             h("a", { href: telHref(s.settings.contact.phone), style: { background: "var(--bone)", color: "var(--ink)", padding: "12px 20px", borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 700, textDecoration: "none" } }, fa.pdp.consultPhone),
             h("a", { href: waHref(s.settings), style: { border: "1px solid rgb(var(--bone-rgb) / 0.34)", color: "var(--bone)", padding: "12px 20px", borderRadius: "var(--r-5)", fontSize: "14.5px", textDecoration: "none" } }, fa.pdp.askWhatsapp)),
-          h("div", { style: { fontSize: "12.5px", color: "rgb(var(--bone-rgb) / 0.55)", lineHeight: 1.8 } },
+          h("div", { style: { fontSize: "12.5px", color: "rgb(var(--bone-rgb) / 0.65)", lineHeight: 1.8 } },
             fa.pdp.sku + " ", h("span", { style: { direction: "ltr", display: "inline-block", fontWeight: 600, letterSpacing: "0.03em" } }, p.sku)))))
     ,
     // tabs
@@ -149,7 +152,7 @@ function tabs(s, p, groups, safety) {
       defs.map((t) => {
         const on = s.pdpTab === t.id;
         return h("button", { key: t.id, role: "tab", "aria-selected": String(on), onClick: () => A.setPdpTab(t.id),
-          style: { background: on ? "rgb(var(--emerald-rgb) / 0.06)" : "transparent", border: "none", borderBlockEnd: "2px solid " + (on ? "var(--emerald)" : "transparent"), padding: "14px 22px", fontSize: "15.5px", fontWeight: on ? 700 : 500, color: on ? "var(--emerald)" : "rgb(var(--ink-rgb) / 0.6)", cursor: "pointer" } }, t.label);
+          style: { background: on ? "rgb(var(--emerald-rgb) / 0.06)" : "transparent", border: "none", borderBlockEnd: "2px solid " + (on ? "var(--emerald)" : "transparent"), padding: "14px 22px", fontSize: "15.5px", fontWeight: on ? 700 : 500, color: on ? "var(--emerald)" : "rgb(var(--ink-rgb) / 0.68)", cursor: "pointer" } }, t.label);
       })),
     h("div", { role: "tabpanel", style: { paddingBlockStart: 28 } },
       s.pdpTab === "review" && h("div", { style: { maxWidth: "72ch", display: "flex", flexDirection: "column", gap: 16 } },
@@ -160,21 +163,21 @@ function tabs(s, p, groups, safety) {
           h("strong", { style: { display: "block", fontSize: "14.5px", fontWeight: 700, color: "var(--warn-strong)", marginBlockEnd: 12 } }, fa.pdp.safetyHeading),
           h("dl", { style: { margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "9px 18px", fontSize: "14.5px" } },
             safety.map((sp, i) => h("div", { key: i, style: { display: "contents" } },
-              h("dt", { style: { color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.7 } }, sp.key),
+              h("dt", { style: { color: "rgb(var(--ink-rgb) / 0.68)", lineHeight: 1.7 } }, sp.key),
               h("dd", { style: { margin: 0, lineHeight: 1.7, fontWeight: 600 } }, sp.value))))),
         groups.map((g, i) =>
           h("div", { key: i },
             h("div", { style: { fontSize: 16, fontWeight: 700, color: "var(--emerald)", paddingBlockEnd: 10, borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.14)" } }, g.name),
             g.rows.map((r, j) =>
               h("div", { key: j, style: { display: "grid", gridTemplateColumns: "200px 1fr", gap: 20, padding: "13px 0", borderBlockEnd: "1px solid rgb(var(--ink-rgb) / 0.07)", fontSize: 15 } },
-                h("span", { style: { color: "rgb(var(--ink-rgb) / 0.58)", lineHeight: 1.7 } }, r.key),
+                h("span", { style: { color: "rgb(var(--ink-rgb) / 0.68)", lineHeight: 1.7 } }, r.key),
                 h("span", { style: { lineHeight: 1.7, fontWeight: 500 } }, r.value))))),
       ),
 
       s.pdpTab === "comments" && h("div", { style: { position: "relative", overflow: "hidden", background: "var(--surface)", border: "1px dashed rgb(var(--ink-rgb) / 0.22)", borderRadius: "var(--r-6)", padding: "48px 32px", textAlign: "center", maxWidth: 720 } },
         letterheadMark(),
         h("strong", { style: { display: "block", fontSize: 19, fontWeight: 700 } }, fa.pdp.commentsSoonTitle),
-        h("p", { style: { margin: "12px auto 22px", fontSize: 15, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.62)", maxWidth: "48ch" } }, fa.pdp.commentsSoonBody),
+        h("p", { style: { margin: "12px auto 22px", fontSize: 15, lineHeight: 1.9, color: "rgb(var(--ink-rgb) / 0.72)", maxWidth: "48ch" } }, fa.pdp.commentsSoonBody),
         h("a", { href: waHref(s.settings), style: { display: "inline-block", background: "var(--ink)", color: "var(--surface)", padding: "13px 24px", borderRadius: "var(--r-5)", fontSize: 15, fontWeight: 600, textDecoration: "none" } }, fa.pdp.commentsSoonCta))));
 }
 

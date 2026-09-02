@@ -120,23 +120,20 @@
 .j-foot-link:hover { color: var(--bone); }
 
 /* ---------- Cards ---------- */
-/* The photo is the card (DESIGN.md §4): on hover the border darkens and the
-   image itself leans in a touch — one gesture, a gentle relative of the PDP
-   zoom, not a lift. No shadow, no translate. */
+/* The photo is the card (DESIGN.md §4): on hover the border darkens. Quieter
+   pass: the paired image zoom-on-hover was decoration — the border is the
+   affordance. No shadow, no translate, no zoom. */
 .j-card-product { transition: border-color var(--dur-2) var(--ease-out); }
 .j-card-product:hover { border-color: rgb(var(--ink-rgb) / 0.3); }
-.j-card-product img { transition: transform var(--dur-3) var(--ease-out); }
-.j-card-product:hover img { transform: scale(1.035); }
 
 .j-cat-card { transition: background var(--dur-2) var(--ease-out); }
 .j-cat-card:hover { background: rgb(var(--ink-rgb) / 0.045); }
-.j-cat-card .j-cat-disc { transition: transform var(--dur-3) var(--ease-out); }
-.j-cat-card:hover .j-cat-disc { transform: translateY(-3px); }
 
-/* PDP main image hover zoom */
+/* PDP main image hover zoom — a real affordance for inspecting the product, so
+   it stays, but calmer (was scale(1.1)). */
 .j-zoom { overflow: hidden; }
-.j-zoom img { transition: transform 0.45s var(--ease-out); }
-.j-zoom:hover img { transform: scale(1.1); }
+.j-zoom img { transition: transform var(--dur-3) var(--ease-out); }
+.j-zoom:hover img { transform: scale(1.04); }
 
 /* ---------- Toast ---------- */
 .j-toast { animation: kmToastIn var(--dur-3) var(--ease-out) both; }
@@ -177,17 +174,13 @@
 
 /* ---------- Header cart badge — the acknowledgement ---------- */
 /* Keyed by count in shell.js: the reconciler re-creates it on every change so
-   the tick + ring fire each time an item lands or leaves the cart. */
+   the tick fires each time an item lands or leaves the cart. Quieter pass: the
+   expanding ring pulse on top of the tick was a flourish — the tick alone
+   confirms the change. */
 .km-cart-badge {
   position: relative;
   display: inline-flex; align-items: center; justify-content: center;
   animation: kmTick var(--dur-3) var(--ease-out);
-}
-.km-cart-badge::after {
-  content: ""; position: absolute; inset: -6px;
-  border: 1.5px solid var(--emerald-live); border-radius: var(--r-pill);
-  animation: kmRing 0.5s var(--ease-out) forwards;
-  pointer-events: none;
 }
 
 /* ---------- Hero: image focus, pagination timer, arrows ---------- */
@@ -232,13 +225,16 @@
 .j-hero-arrow:active { transform: translateY(1px) scale(0.97); transition-duration: 60ms; }
 
 /* ---------- WhatsApp FAB ---------- */
+/* Quieter pass: was a scale-from-half entrance plus a hover lift. Now it just
+   fades in once the page has settled, and answers hover with a slightly deeper
+   shadow — no lift. The press tick stays (tactile floor). */
 .j-fab {
   box-shadow: var(--shadow-fab);
   animation: kmFabIn var(--dur-3) var(--ease-out) 0.55s backwards;
-  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  transition: box-shadow var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out);
 }
-.j-fab:hover { transform: translateY(-2px); box-shadow: var(--shadow-fab-lift); }
-.j-fab:active { transform: translateY(0) scale(0.94); transition-duration: 60ms; }
+.j-fab:hover { box-shadow: var(--shadow-fab-lift); }
+.j-fab:active { transform: scale(0.94); transition-duration: 60ms; }
 
 /* ---------- aria-live notes / step swaps — arrive rather than blink ---------- */
 /* No fill-mode: a single element with no stagger delay, so if the animation

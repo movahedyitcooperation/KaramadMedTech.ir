@@ -26,7 +26,7 @@ export function homePage(s) {
       h("button", { class: "j-pill-quiet", onClick: () => A.openCategory("diagnostics"), style: { padding: "10px 18px", borderRadius: "var(--r-pill)", fontSize: 14, cursor: "pointer" } }, fa.home.allProducts)),
     services(s),
     carousel(s, fa.home.featuredHeading, fa.home.featuredAria, s.homeFeatured, "featured",
-      h("span", { style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.5)", lineHeight: 1.7 } }, fa.home.featuredNote)),
+      h("span", { style: { fontSize: "13.5px", color: "rgb(var(--ink-rgb) / 0.7)", lineHeight: 1.7 } }, fa.home.featuredNote)),
     trust(s));
 }
 
@@ -41,31 +41,42 @@ function hero(s) {
       e.preventDefault();
       e.key === "ArrowLeft" ? A.heroNext() : A.heroPrev();
     },
-    style: { background: "var(--emerald)", color: "var(--bone)", position: "relative", overflow: "hidden", height: 600, display: "flex", alignItems: "center" } },
+    // minHeight, not height: shorter than the old fixed 600 on every screen, but
+    // it still grows to hold the headline + highlight + two CTAs on a narrow
+    // phone instead of clipping them.
+    style: { background: "var(--emerald)", color: "var(--bone)", position: "relative", overflow: "hidden", minHeight: "clamp(468px, 58vh, 552px)", display: "flex", alignItems: "center" } },
 
     h("div", { "aria-hidden": "true", style: { position: "absolute", inset: 0 } },
       slides.map((sl, i) =>
         h("img", { key: sl.id, src: sl.image, alt: "", width: 1656, height: 939, class: "j-hero-img",
           fetchpriority: i === 0 ? "high" : undefined, loading: i === 0 ? undefined : "lazy", decoding: "async",
           style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: ["22% 50%", "38% 50%", "32% 50%"][i] || "50% 50%",
-            opacity: s.hero === i ? 1 : 0, transform: s.hero === i ? "scale(1)" : "scale(1.045)" } })),
+            opacity: s.hero === i ? 1 : 0, transform: s.hero === i ? "scale(1)" : "scale(1.02)" } })),
       // darken the inline-start (right, in RTL) where the text column sits — the
-      // prototype's 90deg darkened the wrong edge for RTL and the copy lost contrast.
-      h("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(270deg, rgb(8 20 15 / 0.9) 0%, rgb(8 20 15 / 0.7) 38%, rgb(8 20 15 / 0.32) 68%, rgb(8 20 15 / 0.12) 100%)" } })),
+      // prototype's 90deg darkened the wrong edge for RTL and the copy lost
+      // contrast. Quieter pass: the falloff is gentler than before (peak 0.9 →
+      // 0.82) while keeping bone text clear of 4.5:1 over the darkest photo.
+      h("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(270deg, rgb(8 20 15 / 0.82) 0%, rgb(8 20 15 / 0.6) 40%, rgb(8 20 15 / 0.26) 70%, rgb(8 20 15 / 0.08) 100%)" } })),
 
-    h("div", { class: "km-pad", style: container({ position: "relative", width: "100%", height: "100%", padding: "64px 32px 96px", display: "flex", flexDirection: "column", justifyContent: "center" }) },
+    h("div", { class: "km-pad", style: container({ position: "relative", width: "100%", padding: "48px 32px 158px", display: "flex", flexDirection: "column", justifyContent: "center" }) },
       h("div", { key: "h" + s.hero, class: "km-slidein", style: { maxWidth: 640 } },
-        h("div", { style: { fontSize: 14, color: "rgb(var(--bone-rgb) / 0.65)", lineHeight: 1.7 } },
-          fa.hero.counter(s.hero + 1, slides.length) + (slide.kicker ? " — " + slide.kicker : "")),
-        h("h1", { style: { margin: "14px 0 0", fontSize: "var(--fs-display)", fontWeight: 800, lineHeight: "var(--lh-tight)", letterSpacing: "var(--track-display)", textWrap: "pretty", maxWidth: "20ch", textShadow: "0 2px 20px rgb(0 0 0 / 0.25)" } }, slide.title),
+        h("div", { style: { fontSize: 14, color: "rgb(var(--bone-rgb) / 0.7)", lineHeight: 1.7 } },
+          fa.hero.counter(s.hero + 1, slides.length)),
+        h("h1", { style: { margin: "14px 0 0", fontSize: "var(--fs-display)", fontWeight: 800, lineHeight: "var(--lh-tight)", letterSpacing: "var(--track-display)", textWrap: "pretty", maxWidth: "20ch", textShadow: "0 1px 12px rgb(0 0 0 / 0.28)" } }, slide.title),
         h("p", { style: { margin: "20px 0 0", fontSize: "var(--fs-lead)", lineHeight: 1.85, color: "rgb(var(--bone-rgb) / 0.9)", maxWidth: "44ch", borderInlineStart: "2px solid var(--emerald-live)", paddingInlineStart: 18 } }, slide.highlight),
         h("div", { style: { display: "flex", flexWrap: "wrap", gap: 12, marginBlockStart: 32 } },
           h("button", { class: "j-btn j-btn--bone", onClick: () => A.openCategory(slide.cta_href),
             style: { padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: 16, fontWeight: 700 } }, slide.cta_label),
           h("button", { class: "j-btn j-btn--ghost-bone", onClick: A.togglePhone,
-            style: { padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: 16, backdropFilter: "blur(4px)" } }, fa.hero.consult))),
+            style: { padding: "16px 28px", borderRadius: "var(--r-5)", fontSize: 16 } }, fa.hero.consult)))),
 
-      h("div", { style: { position: "absolute", insetInline: 32, insetBlockEnd: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, maxWidth: 640 } },
+    // Pagination + arrows: pinned to the section's own bottom edge and aligned to
+    // the content's start edge, so they hold one fixed spot no matter how tall a
+    // given slide's headline and highlight run. Clear of the finder card, which
+    // overlaps only the bottom 56px; the content column reserves matching
+    // padding-block-end so a tall slide on a phone never runs under it.
+    h("div", { class: "km-pad", style: container({ position: "absolute", insetInline: 0, insetBlockEnd: 88, paddingInline: 32, pointerEvents: "none" }) },
+      h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, maxWidth: 640, pointerEvents: "auto" } },
         h("div", { style: { display: "flex", gap: 8 } },
           slides.map((sl, i) => {
             const on = s.hero === i;
@@ -82,13 +93,13 @@ function hero(s) {
           h("button", { class: "j-hero-arrow", onClick: A.heroNext, "aria-label": fa.hero.next, style: heroArrow }, "←")))));
 }
 // background + border live in app.css .j-hero-arrow so :hover can override them
-const heroArrow = { width: 44, height: 44, color: "var(--bone)", borderRadius: "var(--r-5)", cursor: "pointer", fontSize: 17, backdropFilter: "blur(4px)" };
+const heroArrow = { width: 44, height: 44, color: "var(--bone)", borderRadius: "var(--r-5)", cursor: "pointer", fontSize: 17 };
 
 /* -------------------------------------------------------------- finder --- */
 function finder(s) {
   return h("section", { class: "km-pad", "aria-label": fa.finder.aria, "data-finder": "",
     style: container({ paddingInline: 32, marginBlockStart: -56, position: "relative", zIndex: 10 }) },
-    h("div", { class: "km-g4", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 22, boxShadow: "var(--shadow-float)", display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr auto", gap: 14, alignItems: "end" } },
+    h("div", { class: "km-g4", style: { background: "var(--surface)", border: "1px solid rgb(var(--ink-rgb) / 0.1)", borderRadius: "var(--r-6)", padding: 22, boxShadow: "var(--shadow-float)", display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr auto", gap: 14, alignItems: "end" } },
       field(fa.finder.category,
         h("select", { onChange: (e) => A.setFinderCat(e.target.value), value: s.finderCat, style: selectStyle },
           h("option", { key: "", value: "" }, fa.finder.allCategories),
@@ -98,7 +109,7 @@ function finder(s) {
           fa.finder.bands.map((b) => h("option", { key: b.value, value: b.value }, b.label)))),
       field(fa.finder.sort,
         h("select", { onChange: (e) => A.setFinderSort(e.target.value), value: s.sort, style: selectStyle },
-          fa.finder.sorts.map((o) => h("option", { key: o.value, value: o.value }, o.label))), { marginInlineStart: 12 }),
+          fa.finder.sorts.map((o) => h("option", { key: o.value, value: o.value }, o.label)))),
       h("button", { class: "j-btn j-btn--ink", onClick: A.finderGo,
         style: { padding: "14px 30px", borderRadius: "var(--r-5)", fontSize: "15.5px", fontWeight: 700, height: 48 } }, fa.finder.submit)),
     h("p", { style: { margin: "10px 2px 0", fontSize: 13, color: "var(--info)", lineHeight: 1.7, display: "flex", alignItems: "baseline", gap: 8 } },
@@ -119,7 +130,7 @@ function categoryCards(s) {
           style: { background: "none", border: "none", padding: "18px 10px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, borderRadius: "var(--r-5)" } },
           h("span", { class: "j-cat-disc", style: { width: 76, height: 76, borderRadius: "50%", background: deptTint(c.slug), border: "1px solid color-mix(in oklab, " + deptDeep(c.slug) + " 40%, transparent)", display: "grid", placeItems: "center" } }, cardGlyph(c.slug)),
           h("span", { style: { fontSize: "14.5px", fontWeight: 600, color: "var(--ink)", lineHeight: 1.6, textAlign: "center" } }, c.name),
-          h("span", { style: { fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.68)" } }, fa.home.countUnit(countFromAll(c.slug)))))));
+          h("span", { style: { fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.72)" } }, fa.home.countUnit(countFromAll(c.slug)))))));
 }
 
 /* ----------------------------------------------------------- carousel --- */

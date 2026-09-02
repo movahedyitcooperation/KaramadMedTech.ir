@@ -38,7 +38,10 @@ function coveredSlugs(slug) {
 }
 
 const SORTERS = {
-  newest: () => 0,
+  // The fixture has no created_at. "newest" mirrors getNewest() — last-seeded
+  // first — so the home جدیدترین carousel and a category page sorted by
+  // جدیدترین show the same order instead of two different ones.
+  newest: (a, b) => PRODUCTS.indexOf(b) - PRODUCTS.indexOf(a),
   cheapest: (a, b) => a.price - b.price,
   expensive: (a, b) => b.price - a.price,
   rating: (a, b) => b.rating_avg - a.rating_avg,

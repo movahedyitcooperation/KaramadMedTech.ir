@@ -49,12 +49,12 @@ export function categoryPage(s) {
         h("div", { style: { display: "flex", alignItems: "center", gap: 14 } },
           deptMark(cat.slug, 40),
           h("h1", { style: { margin: 0, fontSize: "var(--fs-h1-flat)", fontWeight: 800, letterSpacing: "-0.015em" } }, title)),
-        h("p", { "aria-live": "polite", style: { margin: "12px 0 0", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.6)", lineHeight: 1.75 } },
+        h("p", { "aria-live": "polite", style: { margin: "12px 0 0", fontSize: 15, color: "rgb(var(--ink-rgb) / 0.7)", lineHeight: 1.75 } },
           h("span", { key: "rc-" + total, class: "km-note", style: { display: "inline-block" } }, fa.category.resultCount(total)))),
       h("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
         h("button", { "data-mob": "", onClick: A.toggleFilters, class: "j-btn",
           style: { display: "none", background: "var(--ink)", color: "var(--surface)", padding: "12px 20px", borderRadius: "var(--r-5)", fontSize: "14.5px", fontWeight: 600, cursor: "pointer" } }, fa.category.filtersButton),
-        h("label", { style: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "rgb(var(--ink-rgb) / 0.6)" } },
+        h("label", { style: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "rgb(var(--ink-rgb) / 0.7)" } },
           fa.category.sort,
           h("select", { onChange: (e) => A.setSort(e.target.value), value: s.sort,
             style: { padding: "11px 14px", border: "1px solid rgb(var(--ink-rgb) / 0.18)", borderRadius: "var(--r-5)", background: "var(--surface)", fontSize: "14.5px", color: "var(--ink)" } },
@@ -90,7 +90,7 @@ function sidebar(s, cat, activeSub, brandNames, catPool, total) {
           return h("button", { key: String(x.slug), onClick: () => A.openCategory(cat.slug, x.slug),
             style: { background: on ? deptTint(cat.slug) : "transparent", border: "none", padding: "9px 12px", borderRadius: "var(--r-4)", textAlign: "start", fontSize: 14, fontWeight: on ? 600 : 400, color: on ? deptDeep(cat.slug) : "rgb(var(--ink-rgb) / 0.75)", cursor: "pointer", display: "flex", justifyContent: "space-between", gap: 10 } },
             h("span", null, x.name),
-            h("span", { style: { color: on ? "color-mix(in oklab, " + deptDeep(cat.slug) + " 82%, transparent)" : "rgb(var(--ink-rgb) / 0.4)", fontSize: "12.5px" } }, toPersianNumber(x.count)));
+            h("span", { style: { color: on ? "color-mix(in oklab, " + deptDeep(cat.slug) + " 82%, transparent)" : "rgb(var(--ink-rgb) / 0.6)", fontSize: "12.5px" } }, toPersianNumber(x.count)));
         }))),
 
     h("div", { style: { borderBlockStart: "1px solid rgb(var(--ink-rgb) / 0.1)", paddingBlockStart: 22 } },
@@ -104,13 +104,13 @@ function sidebar(s, cat, activeSub, brandNames, catPool, total) {
 
     brandNames.length > 0 && h("div", { style: { borderBlockStart: "1px solid rgb(var(--ink-rgb) / 0.1)", paddingBlockStart: 22 } },
       h("div", { style: { fontSize: "14.5px", fontWeight: 700, marginBlockEnd: 4 } }, fa.category.brandHeading),
-      h("p", { style: { margin: "0 0 12px", fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.5)", lineHeight: 1.7 } }, fa.category.brandNote),
+      h("p", { style: { margin: "0 0 12px", fontSize: "12.5px", color: "rgb(var(--ink-rgb) / 0.68)", lineHeight: 1.7 } }, fa.category.brandNote),
       h("div", { style: { display: "flex", flexDirection: "column", gap: 9 } },
         brandNames.map((b) =>
           h("label", { key: b, style: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer" } },
             h("input", { type: "checkbox", checked: s.brands.includes(b), onChange: () => A.toggleBrand(b), style: { width: 17, height: 17, accentColor: "var(--emerald)" } }),
             h("span", { style: { flex: 1, direction: "ltr", textAlign: "start" } }, b),
-            h("span", { style: { color: "rgb(var(--ink-rgb) / 0.4)", fontSize: "12.5px" } }, toPersianNumber(catPool.filter((p) => p.brand === b).length)))))),
+            h("span", { style: { color: "rgb(var(--ink-rgb) / 0.6)", fontSize: "12.5px" } }, toPersianNumber(catPool.filter((p) => p.brand === b).length)))))),
 
     h("div", { style: { borderBlockStart: "1px solid rgb(var(--ink-rgb) / 0.1)", paddingBlockStart: 22, display: "flex", flexDirection: "column", gap: 14 } },
       h("label", { style: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer" } },

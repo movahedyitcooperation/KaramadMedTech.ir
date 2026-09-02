@@ -39,12 +39,12 @@ const fa = {
 
   nav: {
     aria: "دسته‌بندی محصولات",
-    subheading: "زیردسته‌ها",
     allOfCategory: "همه کالاهای این دسته",
   },
 
-  // Mega-panel copy — the live CategoryTree carries no blurb field, so this is
-  // frontend-owned marketing copy keyed by category slug.
+  // Frontend-owned marketing copy keyed by category slug. Currently unreferenced
+  // since the mega-panel was distilled to a plain link row; kept for a future
+  // category-header or PDP use.
   catBlurb: {
     diagnostics: "فشارسنج، پالس اکسیمتر و تب‌سنج با دقت کالیبره‌شده برای مطب و منزل.",
     consumables: "دستکش، ماسک و محلول ضدعفونی؛ خرید جعبه‌ای برای مصرف دوره‌ای.",
@@ -109,12 +109,11 @@ const fa = {
   card: {
     inStock: "موجود",
     outOfStock: "ناموجود",
-    add: "افزودن به سبد خرید",
+    add: "افزودن به سبد",
     added: "به سبد اضافه شد",
     notify: "اطلاع از موجودی",
     discount: (n) => toPersianDigits(n) + "٪ تخفیف",
     discountShort: (n) => toPersianDigits(n) + "٪",
-    ratingCount: (n) => "(" + toPersianDigits(n) + ")",
     lowStock: (n) => "تنها " + toPersianDigits(n) + " عدد موجود است",
   },
 
@@ -169,7 +168,7 @@ const fa = {
     compareSoon: "مقایسه — به‌زودی",
     saveSoon: "ذخیره — به‌زودی",
     keySpecs: "مشخصات کلیدی",
-    ratingLine: (avg, count) => avg + " از " + toPersianDigits(count) + " نظر",
+    ratingLine: (avg) => "امتیاز کارشناسی " + avg + " از ۵",
     consultPhone: "مشاوره تلفنی",
     askWhatsapp: "پرسش در واتس‌اپ",
     sku: "کد کالا:",
