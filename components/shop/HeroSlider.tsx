@@ -26,7 +26,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
             ))}
           </h1>
           <Link href={slide.ctaHref} className="mt-6 inline-block">
-            <Button variant="teal" size="lg">
+            <Button variant="ink" size="lg">
               {slide.ctaLabel}
             </Button>
           </Link>

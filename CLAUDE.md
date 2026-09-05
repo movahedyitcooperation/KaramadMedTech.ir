@@ -16,8 +16,13 @@ A production e-commerce storefront for a **medical supplies business** in Iran.
 Audience: clinics, pharmacies, home-care buyers, and individuals.
 Language: **Persian only, full RTL**. Currency: **تومان**. Dates: **Jalali (Shamsi)**.
 
-Visual reference: `docs/references/` (10 screenshots of `iprojector.ir`).
-We reuse that site's **layout and information architecture**, not its colors.
+Visual reference (historical): 10 screenshots of `iprojector.ir` at the repo
+root (`./reference design.png` … `design10.png` — not `docs/references/`,
+which doesn't exist). The storefront reused that site's layout and
+information architecture in its first build, not its colors. **Superseded
+by §3**: the site's current visual identity is a full design port from a
+coworker's redesign (emerald/ink/almond palette, department color-coding,
+plain-CSS motion system) — §3 is the actual source of truth now.
 
 ## 2. Stack (fixed — do not substitute)
 
@@ -37,17 +42,18 @@ transcribed from.
 
 | Layer | Choice |
 |---|---|
-| Frontend framework | Next.js 15+, App Router, TypeScript (strict) |
-| Styling | Tailwind CSS v4, CSS variables for tokens |
+| Frontend framework | Next.js 16.3.3, App Router, TypeScript (strict) |
+| Styling | Tailwind CSS v4 (CSS-first — `@theme` in `app/globals.css`, no `tailwind.config.*` file), CSS variables for tokens |
 | Backend | Python 3.12, FastAPI, served from `backend/` — see `backend/README.md` |
 | DB | PostgreSQL |
 | ORM | SQLAlchemy 2.0 (async) + Alembic, in the Python backend — **not** Prisma |
-| Auth | Custom SMS-OTP, JWT in httpOnly cookie (no NextAuth) |
+| Auth | Custom OTP over phone (SMS) or email, JWT in httpOnly cookie (no NextAuth). Customer and admin auth are separate systems — see §6 |
 | Payments | ZarinPal, behind a `PaymentProvider` interface |
-| SMS | Kavenegar or SMS.ir, behind an `SmsProvider` interface |
-| Validation | Zod on every server action / route handler (frontend); Pydantic schemas on every backend route |
-| Forms | react-hook-form + zod resolver |
-| State | Server components by default; Zustand only for cart |
+| SMS | Kavenegar or SMS.ir, behind an `SmsProvider` interface (`backend/app/core/sms.py`) — backend-side, a `console` dev mode prints the code to the terminal |
+| Email | Console (dev) or SMTP via Python's stdlib `smtplib`, behind an `EmailProvider` interface (`backend/app/core/email.py`) — no email SDK dependency |
+| Validation | Plain runtime checks (regex/length/required) in Server Actions; structured `{code}`-shaped error responses from the backend, mapped to Persian strings in `lib/i18n/fa.ts`. **No Zod anywhere in this codebase** |
+| Forms | Plain `useState` per form (a flat values object + a generic `set(key, value)` setter), submitted via a Server Action. **No `react-hook-form`, no form library** — neither is installed; every form built so far (login, admin product/category forms, address form) follows this same shape |
+| State | Server Components by default; Server Actions for mutations; Zustand only for the toast queue (`lib/stores/toast-store.ts`). Cart and customer-auth state live server-side (httpOnly cookie + Postgres), not in a client store |
 | Images | next/image; **admin-uploaded** product images live on the backend (`backend/uploads/`, served at `/api/v1/uploads/*`), resolved via `BACKEND_PUBLIC_ORIGIN` — see §6; storefront/brand assets stay in `/public` |
 | Deploy | Self-hosted Ubuntu VPS — Node + PM2 + Nginx + Certbot (frontend); uv-managed Python service (backend) |
 
@@ -56,35 +62,70 @@ users cannot reach Google Fonts. Self-host everything in `/public`.
 
 ## 3. Design system
 
-Same structure as the reference, medical palette.
+Ported from a coworker's redesign (originally a separate vanilla-JS
+prototype on branch `frontend-new-design`, read as a design/behavior
+reference — never merged as code). Full token values live in
+`app/globals.css`'s `@theme` block, which clears Tailwind's default color
+palette (`--color-*: initial`) before redeclaring — no hex/oklch value
+should appear anywhere else in the codebase.
 
 ```css
-/* app/globals.css — @theme */
---color-brand-50:  #EAF4FB;
---color-brand-100: #D2E7F6;
---color-brand-500: #1780C9;
---color-brand-600: #0E6BA8;   /* primary — headers, links, primary buttons */
---color-brand-700: #0A5382;
---color-teal-500:  #14A38B;   /* success, in-stock, cart button */
---color-teal-600:  #0F8672;
---color-coral-500: #E8613C;   /* secondary CTA — login/register, مشاوره */
---color-coral-600: #CF4F2C;
---color-ink-900:   #0F1B2A;   /* body text */
---color-ink-500:   #64748B;   /* muted text */
---color-line:      #E4EBF2;   /* borders */
---color-bg:        #F6F9FC;   /* page background */
---color-surface:   #FFFFFF;   /* cards */
---color-danger:    #DC2626;   /* destructive only — never decorative */
+/* app/globals.css — @theme (abbreviated; see the file for the full set) */
+--color-ink:              #17211D;  /* body text AND every primary CTA */
+--color-emerald:          #0C3A2C;  /* ground: header, footer, trust band, highlight cards */
+--color-emerald-live:     #1C8A69;  /* GRAPHICAL only — focus ring, dots, hero rule */
+--color-emerald-live-deep:#0C7350;  /* the TEXT-bearing green — in-stock badge, WhatsApp button */
+--color-page:             #EAE9E1;  /* page ground — cool, powdery almond */
+--color-surface:          #F7F6F1;  /* cards, sidebar, panels */
+--color-danger:           #9E2B20;  /* discount badge, remove, OTP errors */
+--color-warn:             #8A5A12;  /* low stock, clamped qty, safety notes */
+--color-info:             #2C556C;  /* "not live yet" messaging, not a caution */
+--color-dept-*:           /* six OKLCH pairs — diagnostics/consumables/rehab/homecare/clinic/accessories */
 ```
 
-Rules:
-- Radius: `12px` cards, `999px` pills (header buttons), `8px` inputs.
-- Shadows: soft and low-contrast — `0 2px 12px rgb(15 27 42 / 0.06)`.
-- The reference's neon/hexagon hero decorations become **soft blue gradient
-  meshes with subtle cross/plus medical motifs**. No neon glow.
-- Font: **Vazirmatn**, self-hosted woff2 in `/public/fonts`, weights 400/500/700.
-- Section headings use a small colored tick on the **right** side (RTL), as in
-  reference screenshots 1 and 3.
+**Non-negotiable rules:**
+- **CTA color is ink (`#17211D`) everywhere.** Emerald is reserved for
+  ground and state, never a button fill. **Coral/terracotta is explicitly
+  banned** — treated as a generic "AI-generated site" tell.
+- **Department color-coding** (`lib/utils/department.ts` +
+  `components/shop/DepartmentMark.tsx`, the *only* sanctioned way to render
+  one): a department hue must **never** appear without its icon and label —
+  color is always the third cue, never the only one. Only **one** department
+  color is ever visible on a given category/product page; the home category
+  rail is the only place all six appear together, as a legend. **No
+  department color on the shopping surface itself** — product cards, prices,
+  ratings, add-to-cart buttons and badges use ink/danger/warn only.
+- **Four distinct card treatments, not one generic `<Card>`** (`Card.tsx`
+  is retired): `components/ui/Panel.tsx` (hairline surface, for
+  empty/terminal states — dashed border + a letterhead watermark),
+  `components/ui/HighlightCard.tsx` (emerald ground, reversed text, only
+  "where the site is speaking rather than listing" — PDP key specs, the
+  cart's checkout-not-live terminal card, the mega-menu panel),
+  `components/ui/RuleBox.tsx` (one box divided by hairlines — service
+  cells, trust badges — reads as a set, not individual cards), and the
+  product card (its own component, hairline border + full-bleed photo, no
+  shadow, no image zoom, border darkens on hover only).
+- **Radius**: `2–10px` for cards/panels/inputs (`--radius-1`…`-7`), never
+  pill except buttons (`--radius-pill`, in `Button`'s base class, not a
+  variant — every button in this design is a pill).
+- **Shadows are used in exactly two places by design**: the home finder
+  card floating off the hero (`--shadow-float`) and the cart dropdown
+  (`--shadow-pop`). Everywhere else is a hairline border, never a shadow.
+- **Motion is plain CSS** (keyframes + transitions in `app/globals.css`,
+  crossfade via `components/ui/ScreenTransition.tsx` keyed on screen
+  identity) — no animation library. Thesis: "weighted, damped, certain,"
+  never scroll-triggered (no `IntersectionObserver` reveals/parallax
+  anywhere). Every entrance collapses to a plain 140ms opacity fade under
+  `prefers-reduced-motion`.
+- **"Two audiences, one card"**: a ۹۵٬۰۰۰-toman item and an
+  ۸۹-million-toman item use the identical card and price treatment — no
+  premium tier styling.
+- Font: **Vazirmatn**, self-hosted woff2 in `/public/fonts`, weights
+  400/500/600/700/800, loaded via `@font-face` in `app/globals.css` (not
+  `next/font`).
+- Numerals: Persian digits in prose/prices/spec values
+  (`toPersianDigits`/`formatToman`); **Latin digits in SKU, phone, postal
+  code**, wrapped `direction:ltr; unicode-bidi:plaintext`.
 
 ## 4. RTL / localization rules (non-negotiable)
 
@@ -106,8 +147,9 @@ Rules:
   `app/admin/(protected)/` so the shared sidebar layout can't leak onto the
   public login page — route groups don't add a URL segment).
 - Server Components by default. `"use client"` only for interactivity.
-- Mutations = **Server Actions** in `app/**/actions.ts`, validated with Zod,
-  returning `{ ok: true, data } | { ok: false, error }`. Never throw to the UI.
+- Mutations = **Server Actions** in `app/**/actions.ts`, validated with plain
+  runtime checks (no Zod — see §2), returning
+  `{ ok: true, data } | { ok: false, error }`. Never throw to the UI.
 - DB access only in `lib/db/*.ts` query modules — never Prisma inside a component.
 - Every price/stock check happens **server-side at checkout**. Never trust the cart.
 - Components: `components/ui/*` (primitives), `components/shop/*` (domain).
@@ -115,12 +157,56 @@ Rules:
 
 ## 6. Security baseline
 
-- OTP: 6 digits, 2-minute TTL, max 5 attempts, rate-limited per phone **and** IP.
-  Store only a hash of the code. Never log it in production.
-- JWT in `httpOnly`, `secure`, `sameSite=lax` cookie. 30-day refresh.
+- OTP: 6 digits, 2-minute TTL, max 5 verify attempts, rate-limited per
+  **contact** (phone or email — see §2's Auth row) **and** IP. Store only a
+  hash of the code (`hash_otp_code`/`verify_otp_code`, reusing the same
+  `passlib` argon2 context as admin passwords). Never log it in production —
+  the two `console`-mode providers (`backend/app/core/{sms,email}.py`) are
+  the *only* places a raw code is ever printed, and only in development.
+  OTP generation/verification/rate-limiting/provider-dispatch all happen
+  **backend-side only** — it owns the DB and the rate-limit counters, so
+  `SMS_PROVIDER`/`EMAIL_PROVIDER`/etc. live in `backend/.env`, not the
+  frontend's `.env.local` (see §7).
+- Customer JWT in `httpOnly`, `secure`, `sameSite=lax` cookie, 30-day expiry,
+  single-issue (no refresh-token rotation) — see "Customer auth pattern"
+  below.
 - Verify the ZarinPal callback server-side before marking an order paid.
   Guard against double-verification (idempotent by `authority`).
-- Zod-validate every input. Escape all user-generated review text.
+- Validate every input with plain runtime checks (no Zod — see §2). Escape
+  all user-generated review text.
+
+### Customer auth pattern (implemented)
+
+Customer auth is a separate `User` model/table (not `AdminUser`),
+authenticated via a 6-digit OTP sent to either a phone (SMS) or an email
+address — a single `POST /api/v1/auth/customer/request-otp` endpoint
+accepts one `contact` field and classifies phone-vs-email server-side
+(`^09\d{9}$`, else a basic email regex). Phone and email are **separate
+identities** — verifying by one and later by the other creates two
+unrelated accounts with separate carts and addresses; there is no
+cross-channel merge.
+
+- The backend issues stateless bearer tokens only
+  (`POST .../verify-otp` → `{access_token, expires_in, contact, cart}`),
+  30-day expiry (`CUSTOMER_JWT_EXPIRE_DAYS`), no refresh-token flow.
+- The Next.js frontend owns the httpOnly `customer_token` cookie, set by a
+  **Server Action** (`app/(auth)/login/actions.ts`) — unlike the admin
+  exception below, this is a Server Action rather than a Route Handler,
+  since Next.js Server Actions can call `cookies().set()` directly and this
+  keeps customer auth on the same Server-Action convention as the rest of
+  the app.
+- `middleware.ts`'s `/account/:path*` branch is a cheap cookie-presence
+  check only (UX redirect) — never the security boundary. Enforcement is
+  the backend's `get_current_customer` dependency, invoked on every
+  `/account/*` and authenticated `/cart/*` request.
+- Guest carts are identified by a separate `guest_cart_token` httpOnly
+  cookie, minted by `middleware.ts` for every visitor (not just logged-in
+  ones — the cart's contents live in Postgres, keyed by this opaque token
+  until login), forwarded as `X-Guest-Cart-Token` only when no bearer token
+  is present. Merged server-side into the account's cart on a successful
+  `verify-otp`, then cleared — a fresh token is minted for the next
+  anonymous session, so an account's cart never leaks to a shared device's
+  next guest.
 
 ### Admin auth pattern (implemented)
 
@@ -154,9 +240,6 @@ Frontend (`.env.local`, gitignored — see `.env.example`):
 API_BASE_URL=http://localhost:8000/api/v1
 BACKEND_PUBLIC_ORIGIN=http://localhost:8000
 NEXT_PUBLIC_SITE_URL=https://karamadmedtech.ir
-SMS_PROVIDER=console|kavenegar|smsir
-SMS_API_KEY=
-SMS_TEMPLATE=
 PAYMENT_PROVIDER=mock|zarinpal
 ZARINPAL_MERCHANT_ID=
 ZARINPAL_SANDBOX=true
@@ -171,13 +254,37 @@ in production that the browser can't reach. It resolves admin-uploaded
 product image URLs (`lib/api/mappers.ts`'s `resolveImageUrl`) and scopes
 `next.config.ts`'s `images.remotePatterns`. Also server-side only.
 
-Backend credentials (`DATABASE_URL`, `JWT_SECRET`, `JWT_ALGORITHM`,
-`JWT_EXPIRE_MINUTES`, `UPLOAD_DIR`, `FRONTEND_ORIGIN`) live in `backend/.env`
-— see `backend/.env.example`. The frontend does not read them.
+Backend (`backend/.env`, gitignored — see `backend/.env.example`):
+```
+DATABASE_URL=
+JWT_SECRET=
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=480
+UPLOAD_DIR=uploads
+FRONTEND_ORIGIN=
+SMS_PROVIDER=console|kavenegar|smsir
+SMS_API_KEY=
+SMS_TEMPLATE=
+EMAIL_PROVIDER=console|smtp
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM_ADDRESS=
+OTP_TTL_SECONDS=120
+OTP_MAX_ATTEMPTS=5
+OTP_RESEND_COOLDOWN_SECONDS=120
+OTP_MAX_REQUESTS_PER_CONTACT_PER_HOUR=5
+OTP_MAX_REQUESTS_PER_IP_PER_HOUR=20
+CUSTOMER_JWT_EXPIRE_DAYS=30
+```
+`SMS_PROVIDER`/`EMAIL_PROVIDER`/etc. live here, **not** the frontend's
+`.env.local` — OTP generation/verification is backend-only (see §6). The
+frontend does not read any backend credential.
 
-In development `SMS_PROVIDER=console` prints the OTP to the terminal and
-`PAYMENT_PROVIDER=mock` auto-approves payment. **Never** block development on
-real credentials.
+In development, `SMS_PROVIDER=console`/`EMAIL_PROVIDER=console` print the
+OTP to the backend's terminal, and `PAYMENT_PROVIDER=mock` auto-approves
+payment. **Never** block development on real credentials.
 
 ## 8. Open decisions
 
@@ -198,6 +305,14 @@ real credentials.
 - Do not add dependencies not listed here without asking.
 - Invoke the UI/UX skill before UI work — see section 10.
 - Prefer editing existing files over creating parallel ones.
+- The `app/(shop)/**` tree renders dynamically **by design** — `Header`
+  reads a `cart_count` cookie on every request so the cart badge is correct
+  and hydration-safe without an extra `GET /cart/` on ordinary page loads
+  (which would otherwise create a database row per anonymous visit, since
+  the backend lazily creates a cart for any unseen guest token). This is a
+  deliberate trade-off for this project's scale (self-hosted, no CDN,
+  loopback backend) — don't "fix" it back to static rendering without
+  re-solving that problem first.
 
 ## 10. Skills — use them
 

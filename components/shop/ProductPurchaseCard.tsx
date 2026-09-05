@@ -48,7 +48,7 @@ export function ProductPurchaseCard({ product }: { product: Product }) {
             <span className="text-sm text-ink-500">{fa.product.quantity}</span>
             <QuantityStepper value={qty} max={product.stock} onChange={setQty} />
           </div>
-          <Button variant="teal" size="lg" className="mt-4 w-full" onClick={onAddToCart}>
+          <Button variant="ink" size="lg" className="mt-4 w-full" onClick={onAddToCart}>
             {added ? fa.product.addedToCart : fa.product.addToCart}
           </Button>
         </>

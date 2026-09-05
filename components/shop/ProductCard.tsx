@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
           </Badge>
         )}
         {inStock && product.compareAtPrice && (
-          <Badge variant="coral" className="absolute start-2 top-2">
+          <Badge variant="danger" className="absolute start-2 top-2">
             تخفیف
           </Badge>
         )}

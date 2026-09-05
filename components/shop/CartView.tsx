@@ -21,7 +21,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
         <p className="text-lg font-bold text-ink-900">{fa.cart.emptyTitle}</p>
         <p className="text-sm text-ink-500">{fa.cart.emptyDesc}</p>
         <Link href="/">
-          <Button variant="primary">{fa.cart.continueShopping}</Button>
+          <Button variant="ink">{fa.cart.continueShopping}</Button>
         </Link>
       </div>
     );
@@ -104,7 +104,7 @@ export function CartView({ shipping }: { shipping: ShippingSetting }) {
           </div>
         </div>
         <Button
-          variant="teal"
+          variant="ink"
           size="lg"
           className="mt-4 w-full"
           disabled

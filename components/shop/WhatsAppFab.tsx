@@ -9,8 +9,10 @@ export async function WhatsAppFab() {
       href={`https://wa.me/${contact.whatsapp}`}
       target="_blank"
       rel="noopener noreferrer"
+      // aria-label is hardcoded here, matching pre-existing behavior — see
+      // Footer.tsx's note; the fa.ts sweep is Stage 7 scope.
       aria-label="گفتگو در واتساپ"
-      className="fixed bottom-6 end-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500 text-white shadow-soft-lg transition-transform duration-200 hover:scale-105"
+      className="km-fab fixed bottom-6 end-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-live-deep text-surface shadow-fab transition-shadow duration-(--duration-state) hover:shadow-fab-lift"
     >
       <WhatsappLogo size={28} weight="fill" aria-hidden="true" />
     </a>

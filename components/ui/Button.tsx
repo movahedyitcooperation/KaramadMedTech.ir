@@ -4,16 +4,22 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors duration-200 ease-out-soft cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 whitespace-nowrap",
+  // rounded-pill lives in the BASE, not a variant — every button in this
+  // design is a pill; a one-off square control overrides with
+  // className="rounded-3" (twMerge resolves the rounded-* group correctly).
+  // active:* is the shared "press floor" — every button gets the same
+  // tactile feedback regardless of variant.
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-[color,background-color,border-color,transform,box-shadow] duration-(--duration-state) ease-out cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 whitespace-nowrap active:translate-y-px active:scale-[0.985] active:duration-(--duration-tick)",
   {
     variants: {
       variant: {
-        primary: "bg-brand-600 text-white hover:bg-brand-700",
-        teal: "bg-teal-500 text-white hover:bg-teal-600",
-        coral: "bg-coral-500 text-white hover:bg-coral-600",
-        outline: "border border-line bg-surface text-ink-900 hover:bg-bg",
-        ghost: "bg-transparent text-ink-900 hover:bg-bg",
-        danger: "bg-danger text-white hover:bg-red-700",
+        // Ink is the primary CTA everywhere — emerald is reserved for
+        // ground/state, never a button fill (CLAUDE.md §3).
+        ink: "bg-ink text-surface hover:bg-emerald",
+        emerald: "bg-emerald-live-deep text-surface hover:bg-emerald",
+        outline: "border border-line bg-surface text-ink hover:bg-page",
+        ghost: "bg-transparent text-ink hover:bg-page",
+        danger: "bg-danger text-surface hover:brightness-90",
       },
       size: {
         sm: "h-10 px-4 text-sm",
@@ -21,7 +27,7 @@ const buttonVariants = cva(
         lg: "h-12 px-6 text-base",
       },
     },
-    defaultVariants: { variant: "primary", size: "md" },
+    defaultVariants: { variant: "ink", size: "md" },
   }
 );
 

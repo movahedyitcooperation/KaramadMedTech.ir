@@ -1,5 +1,4 @@
 import { CategoryIconCards } from "@/components/shop/CategoryIconCards";
-import { FloatingSearchBar } from "@/components/shop/FloatingSearchBar";
 import { HeroSlider } from "@/components/shop/HeroSlider";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
 import { ServiceCards } from "@/components/shop/ServiceCards";
@@ -21,7 +20,8 @@ export default async function HomePage() {
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
         <HeroSlider slides={settings.heroSlides} />
       </div>
-      <FloatingSearchBar />
+      {/* The finder card (Stage 4) replaces this — home temporarily has no
+       * search/finder affordance between Stage 2 and Stage 4. */}
       <CategoryIconCards categories={categories} />
       <ProductCarousel
         title={fa.home.newestProductsTitle}

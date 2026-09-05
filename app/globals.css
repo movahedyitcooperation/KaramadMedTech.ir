@@ -18,8 +18,24 @@
 
 @font-face {
   font-family: "Vazirmatn";
+  src: url("/fonts/Vazirmatn-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
   src: url("/fonts/Vazirmatn-Bold.woff2") format("woff2");
   font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/Vazirmatn-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
@@ -27,33 +43,147 @@
 @theme {
   --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
 
+  /* Design system v2 ("emerald + almond") — see CLAUDE.md §3 for the
+   * rationale behind every decision here (ink-only CTAs, department
+   * spectrum usage rules, the four card treatments, the motion thesis).
+   * Ported from a coworker's design (docs/... session notes) — this file
+   * is the single source of truth; no hex/oklch value should appear
+   * anywhere else in the codebase.
+   *
+   * --color-*: initial wipes Tailwind's ENTIRE default palette (grays,
+   * reds, blues, the lot), not just the old brand/teal/coral tokens.
+   * Deliberate: a component still using a stray un-migrated color class
+   * (e.g. the old Button danger variant's hover:bg-red-700) renders
+   * visibly unstyled instead of plausibly-still-working — a real bug
+   * surfaces immediately instead of hiding until someone notices the
+   * hover state is wrong. Expected fallout across Stages 2-6; not a
+   * Stage 1 blocker. */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Legacy v1 tokens — admin panel ONLY (app/admin/**, components/admin/**).
+   * The admin panel is deliberately NOT part of this design port (see the
+   * porting plan's verification section) — clearing the whole palette
+   * above would otherwise silently break its rendering too, since it's
+   * still built entirely against these names. Do not use these in any
+   * new storefront (app/(shop)/**, components/shop/**) work — use the v2
+   * tokens below instead. Remove this block only if the admin panel is
+   * ever migrated to v2 in its own dedicated pass. */
   --color-brand-50: #eaf4fb;
   --color-brand-100: #d2e7f6;
   --color-brand-500: #1780c9;
   --color-brand-600: #0e6ba8;
   --color-brand-700: #0a5382;
-
   --color-teal-500: #14a38b;
   --color-teal-600: #0f8672;
-
-  --color-coral-500: #e8613c;
-  --color-coral-600: #cf4f2c;
-
   --color-ink-900: #0f1b2a;
   --color-ink-500: #64748b;
-  --color-line: #e4ebf2;
   --color-bg: #f6f9fc;
-  --color-surface: #ffffff;
-  --color-danger: #dc2626;
-
   --radius-card: 12px;
-  --radius-pill: 999px;
   --radius-input: 8px;
-
   --shadow-soft: 0 2px 12px rgb(15 27 42 / 0.06);
   --shadow-soft-lg: 0 8px 28px rgb(15 27 42 / 0.1);
 
-  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Core */
+  --color-ink: #17211d; /* body text, every primary CTA, cart badge — 13.1:1 on surface */
+  --color-emerald: #0c3a2c; /* ground: header, footer, trust band, highlight cards */
+  --color-emerald-deep: #082a20; /* nav strip under the header — one step darker */
+  --color-emerald-live: #1c8a69; /* GRAPHICAL only: focus ring, dots, hero rule, active slider dot, link hover */
+  --color-emerald-live-deep: #0c7350; /* the TEXT-bearing green — in-stock badge, WhatsApp button (5.4:1 on surface) */
+  --color-emerald-hi: #234a38; /* top sheen on emerald bands (header/trust/footer gradients) */
+  --color-page: #eae9e1; /* page ground — cool, powdery almond (deliberately not warm-cream) */
+  --color-surface: #f7f6f1; /* cards, sidebar, panels */
+  --color-bone: #eae9e1; /* text on emerald */
+  --color-img-bg: #eff4f8; /* flat placeholder behind every product image — no flash/CLS */
+  --color-warn: #8a5a12; /* low stock, clamped qty, safety block, free-ship hint */
+  --color-warn-strong: #6b4708;
+  --color-warn-bg: #fbf4e4;
+  --color-warn-border: #e0cfa4;
+  --color-warn-border-soft: #e7d8ae;
+  --color-danger: #9e2b20; /* discount badge, remove, OTP errors */
+  --color-info: #2c556c; /* informational, not caution: features not live yet (6.6:1 on page) */
+  --color-info-bg: #eaf3f9;
+  --color-info-border: #c5dbe9;
+
+  /* Hairline — an alpha value relative to ink, not a flat hex, so it
+   * composites correctly over both --page and --surface. Tailwind v4's
+   * native opacity modifiers (e.g. border-ink/30) handle one-off
+   * strengths; this token is the default hairline everywhere else. */
+  --color-line: rgb(23 33 29 / 0.14);
+
+  /* Department wayfinding spectrum — OKLCH, no hex fallback. Tints at a
+   * deliberately quiet L 0.942 · C 0.034 (pulled back from an earlier,
+   * busier 0.065 pass); -deep variants ≥4.5:1 on both page and surface.
+   * NEVER export or use these without also rendering the department's
+   * icon + label — see components/shop/DepartmentMark.tsx, the only
+   * sanctioned way to render a department tint. */
+  --color-dept-diagnostics: oklch(0.942 0.034 196); /* cyan — تجهیزات تشخیصی */
+  --color-dept-diagnostics-deep: oklch(0.43 0.078 210);
+  --color-dept-consumables: oklch(0.942 0.034 148); /* green — مصرفی و بهداشتی */
+  --color-dept-consumables-deep: oklch(0.435 0.088 150);
+  --color-dept-rehab: oklch(0.942 0.034 300); /* violet — توانبخشی و ارتوپدی */
+  --color-dept-rehab-deep: oklch(0.44 0.092 300);
+  --color-dept-homecare: oklch(0.942 0.034 352); /* rose — مراقبت در منزل */
+  --color-dept-homecare-deep: oklch(0.45 0.082 353);
+  --color-dept-clinic: oklch(0.942 0.034 252); /* azure — تجهیزات مطب و کلینیک */
+  --color-dept-clinic-deep: oklch(0.43 0.098 262);
+  --color-dept-accessories: oklch(0.942 0.034 116); /* khaki — لوازم جانبی */
+  --color-dept-accessories-deep: oklch(0.452 0.05 118);
+
+  /* Type scale */
+  --text-display: clamp(1.875rem, 3.4vw, 3.125rem); /* 30-50px */
+  --text-h1: clamp(1.5rem, 2.4vw, 2.0625rem); /* 24-33px */
+  --text-h1-flat: 2rem; /* 32px */
+  --text-h2: 1.6875rem; /* 27px */
+  --text-h3: 1.5rem; /* 24px */
+  --text-lead: 1.1875rem; /* 19px */
+  --text-lg: 1.03125rem; /* 16.5px */
+  --text-15: 0.9375rem;
+  --text-14: 0.90625rem; /* 14.5px */
+  --text-13: 0.84375rem; /* 13.5px */
+  --text-12: 0.78125rem; /* 12.5px */
+  --text-11: 0.71875rem; /* 11.5px */
+  --tracking-display: -0.015em;
+  --leading-prose: 1.9; /* Persian prose wants more leading than Latin */
+  --leading-tight: 1.34;
+
+  /* Radius — near-square, replacing the old rounded-card/pill/input scale.
+   * Buttons stay pill (rounded-pill in Button's base, not a variant —
+   * that's still correct here, the new design's buttons are pills too).
+   * Cards/panels/inputs are 2-10px, never pill. */
+  --radius-1: 2px;
+  --radius-2: 3px;
+  --radius-3: 4px;
+  --radius-4: 5px;
+  --radius-5: 6px;
+  --radius-6: 8px;
+  --radius-7: 10px;
+  --radius-pill: 999px;
+
+  /* Elevation — used sparingly, exactly two places by design: the finder
+   * card floating off the hero (shadow-float) and the cart dropdown
+   * (shadow-pop). Everything else is a hairline border, never a shadow. */
+  --shadow-float: 0 18px 44px -20px rgb(12 58 44 / 0.35);
+  --shadow-pop: 0 24px 60px rgb(12 58 44 / 0.22);
+  --shadow-fab: 0 10px 28px rgb(12 58 44 / 0.32);
+  --shadow-fab-lift: 0 16px 36px rgb(12 58 44 / 0.4);
+
+  /* Motion. --ease-out deliberately overrides Tailwind's built-in ease-out
+   * utility (cubic-bezier(0,0,.2,1) -> (.16,1,.3,1)) — every existing use
+   * of ease-out in the codebase retimes to match, on purpose. Named
+   * durations (tick/state/panel/hero), not numbered, so they don't read as
+   * a competing scale next to Tailwind's own numeric duration-200 etc. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-tick: 120ms; /* feedback tick — press, badge bump */
+  --duration-state: 200ms; /* routine state — hover, color, focus ring */
+  --duration-panel: 320ms; /* overlay, drawer, route change */
+  --duration-hero: 560ms; /* the one authored hero entrance */
 }
 
 @layer base {
@@ -66,25 +196,75 @@
   }
 
   body {
-    background: var(--color-bg);
-    color: var(--color-ink-900);
+    background: var(--color-page);
+    color: var(--color-ink);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: var(--color-emerald);
+  }
+  a:hover {
+    color: var(--color-emerald-live);
+  }
+
+  input,
+  textarea {
+    caret-color: var(--color-emerald-live);
+  }
+
+  ::selection {
+    background: var(--color-emerald-live);
+    color: var(--color-surface);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-emerald-live);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: var(--radius-1);
+    box-shadow: 0 0 0 4px rgb(28 138 105 / 0.22);
   }
 
+  /* On an emerald ground the focus ring switches to bone so it stays
+   * visible against the dark background — apply this class to any
+   * container painted --emerald/--emerald-deep (header, footer, highlight
+   * cards). */
+  .on-emerald:focus-visible {
+    outline-color: var(--color-bone);
+    box-shadow: 0 0 0 4px rgb(234 233 225 / 0.28);
+  }
+
+  /* Reduced motion: every entrance collapses to a plain 140ms opacity
+   * fade rather than being disabled outright — motion still communicates
+   * "this changed," it just stops moving in space. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
+      animation-duration: 1ms !important;
+      animation-delay: 0ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      transition-duration: 1ms !important;
       scroll-behavior: auto !important;
+    }
+    .km-route,
+    .km-slidein > *,
+    .km-stagger > *,
+    .km-panel,
+    .km-cart-badge,
+    .km-added,
+    .km-note,
+    .km-toast {
+      animation: kmFadeOnly 140ms ease both !important;
+    }
+    .km-shimmer::after {
+      display: none !important;
+    }
+    .km-hero-progress {
+      animation: none !important;
+      transform: none !important;
     }
   }
 }
@@ -96,5 +276,200 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .km-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(23 33 29 / 0.25) transparent;
+  }
+  .km-scroll::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .km-scroll::-webkit-scrollbar-thumb {
+    background: rgb(23 33 29 / 0.25);
+    border-radius: var(--radius-pill);
+  }
+
+  /* Entrance choreography — a parent gets .km-slidein or .km-stagger,
+   * each direct child settles in with a small nth-child delay. Re-key the
+   * parent (React `key`) to replay on data change; this is what makes the
+   * "mount animation fires once" mechanism work without JS. */
+  .km-slidein > * {
+    animation: kmSettle var(--duration-hero) var(--ease-out) backwards;
+  }
+  .km-stagger > * {
+    animation: kmSettle 0.44s var(--ease-out) backwards;
+  }
+  .km-slidein > *:nth-child(1),
+  .km-stagger > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .km-slidein > *:nth-child(2),
+  .km-stagger > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .km-slidein > *:nth-child(3),
+  .km-stagger > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .km-slidein > *:nth-child(4),
+  .km-stagger > *:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .km-stagger > *:nth-child(n + 5) {
+    animation-delay: 180ms; /* capped at 4 steps, not ever-increasing */
+  }
+
+  /* Route/screen crossfade — see components/ui/ScreenTransition.tsx.
+   * Keyed on screen identity, not pathname, so a filter/page change inside
+   * one screen never re-triggers it. */
+  .km-route {
+    animation: kmRoute var(--duration-panel) var(--ease-out);
+  }
+
+  /* Overlays: panels, dropdowns, drawers. Always mounted, toggled via
+   * [data-open], so they have a real close transition instead of
+   * mount/unmount. */
+  .km-panel {
+    transform-origin: top center;
+    animation: kmPanel var(--duration-panel) var(--ease-out);
+  }
+
+  .km-tick {
+    animation: kmTick var(--duration-panel) var(--ease-out);
+  }
+
+  .km-draw {
+    stroke-dasharray: 22;
+    animation: kmDraw 0.32s var(--ease-out) 0.04s backwards;
+  }
+
+  .km-note {
+    animation: kmSettle var(--duration-state) var(--ease-out);
+  }
+
+  .km-toast {
+    animation: kmToastIn var(--duration-panel) var(--ease-out) both;
+  }
+
+  .km-fab {
+    animation: kmFadeOnly var(--duration-panel) var(--ease-out) 0.4s backwards;
+  }
+
+  .km-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .km-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(23 33 29 / 0.05) 45%,
+      rgb(23 33 29 / 0.09) 50%,
+      rgb(23 33 29 / 0.05) 55%,
+      transparent
+    );
+    animation: kmShimmer 1.5s var(--ease-in-out) infinite;
+  }
+
+  .km-hero-progress {
+    transform-origin: right center; /* RTL */
+    animation: kmHeroProgress var(--hero-cycle, 6500ms) linear both;
+  }
+  .km-hero-progress[data-paused="true"] {
+    animation-play-state: paused;
+  }
+
+  .j-line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@keyframes kmFadeOnly {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes kmSettle {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes kmRoute {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes kmPanel {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes kmTick {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes kmDraw {
+  from {
+    stroke-dashoffset: 22;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes kmToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes kmShimmer {
+  from {
+    transform: translateX(120%);
+  }
+  to {
+    transform: translateX(-120%);
+  }
+}
+@keyframes kmHeroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }

@@ -13,10 +13,13 @@ export function PhoneWidget({ phone }: { phone: string }) {
       type="button"
       onClick={() => setOpen((o) => !o)}
       aria-expanded={open}
-      className="hidden h-11 cursor-pointer items-center gap-2 rounded-pill border border-line bg-surface px-4 text-sm text-ink-900 transition-colors duration-200 hover:bg-bg md:inline-flex"
+      className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-pill border border-bone/22 bg-bone/8 px-4 text-sm transition-colors duration-(--duration-state) hover:bg-bone/14"
     >
-      <Phone size={18} className="text-brand-600" aria-hidden="true" />
-      <span>{open ? toPersianDigits(phone) : fa.header.phoneLabel}</span>
+      <span className="h-1.75 w-1.75 shrink-0 rounded-full bg-emerald-live" aria-hidden="true" />
+      <Phone size={16} aria-hidden="true" />
+      <span dir={open ? "ltr" : undefined} style={open ? { unicodeBidi: "plaintext" } : undefined}>
+        {open ? toPersianDigits(phone) : fa.header.phoneLabel}
+      </span>
     </button>
   );
 }

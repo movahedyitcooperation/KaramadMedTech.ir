@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       {product.compareAtPrice && (
         <div className="mt-4">
-          <Badge variant="coral">تخفیف ویژه</Badge>
+          <Badge variant="danger">تخفیف ویژه</Badge>
         </div>
       )}
 
