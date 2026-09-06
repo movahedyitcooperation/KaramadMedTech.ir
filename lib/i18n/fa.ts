@@ -44,6 +44,9 @@ export const fa = {
   },
 
   header: {
+    searchPlaceholder: "نام کالا، برند یا کد کالا را بنویسید",
+    searchLabel: "جست‌وجوی محصولات",
+    searchSubmit: "جست‌وجو",
     finder: "پیدا کردن محصول بر اساس دسته‌بندی و قیمت",
     finderShort: "پیدا کردن محصول",
     phone: "تماس تلفنی",
@@ -69,6 +72,7 @@ export const fa = {
   mobileNav: {
     title: "دسته‌بندی‌ها",
     close: "بستن",
+    search: "جست‌وجوی محصولات",
     finder: "پیدا کردن محصول با دسته و قیمت",
     call: "تماس تلفنی",
   },
@@ -90,7 +94,7 @@ export const fa = {
     sort: "چیدمان",
     allCategories: "همه دسته‌ها",
     submit: "نمایش محصولات",
-    note: "جست‌وجوی متنی هنوز فعال نیست؛ فعلاً کالا را با دسته‌بندی و قیمت پیدا کنید.",
+    note: "دنبال کالای مشخصی هستید؟ از نوار جست‌وجوی بالای صفحه استفاده کنید.",
     bands: [
       { value: "", label: "هر قیمتی" },
       { value: "0-500000", label: "تا ۵۰۰ هزار تومان" },
@@ -129,10 +133,31 @@ export const fa = {
     lowStock: (n: number) => `تنها ${toPersianDigits(n)} عدد موجود است`,
   },
 
+  search: {
+    title: "جست‌وجو",
+    heading: (query: string) => `نتایج جست‌وجو برای «${query}»`,
+    headingEmptyQuery: "جست‌وجوی محصولات",
+    resultCount: (n: number) => `${toPersianDigits(n)} کالا پیدا شد`,
+    placeholder: "نام کالا، برند یا کد کالا را بنویسید",
+    submit: "جست‌وجو",
+    scopeHeading: "دسته‌بندی‌ها",
+    allDepartments: "همه دسته‌ها",
+    emptyQueryTitle: "چه کالایی می‌خواهید؟",
+    emptyQueryBody:
+      "نام کالا، برند یا کد کالا را در نوار بالا بنویسید. می‌توانید از دسته‌بندی‌ها هم شروع کنید.",
+    noResultsTitle: (query: string) => `برای «${query}» کالایی پیدا نشد`,
+    noResultsBody:
+      "املای عبارت را بررسی کنید، واژهٔ کوتاه‌تری بنویسید، یا فیلترها را بردارید. برای سفارش کالای خاص می‌توانید تلفنی تماس بگیرید.",
+    noResultsCall: "تماس با فروشگاه",
+    browseCategories: "دیدن دسته‌بندی‌ها",
+  },
+
   category: {
     breadcrumbAria: "مسیر",
     home: "خانه",
     resultCount: (n: number) => `${toPersianDigits(n)} کالا`,
+    withinSearch: (query: string) => `در نتایج «${query}»`,
+    clearScope: "جست‌وجو در همه دسته‌ها",
     filtersButton: "فیلترها",
     filtersHeading: "فیلترها",
     closeFilters: "بستن فیلترها",

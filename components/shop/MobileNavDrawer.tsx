@@ -130,11 +130,19 @@ export function MobileNavDrawer({
 
           <div className="mt-5 flex flex-col gap-2.5">
             <Link
-              href="/#finder"
+              href="/search"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 rounded-4 border border-ink/14 bg-page px-4 py-3.5 text-start text-15 text-ink/72"
             >
               <span aria-hidden="true" className="block size-[15px] shrink-0 rounded-full border-[1.5px]" />
+              <span>{fa.mobileNav.search}</span>
+            </Link>
+            <Link
+              href="/#finder"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-4 border border-ink/14 bg-page px-4 py-3.5 text-start text-15 text-ink/72"
+            >
+              <span aria-hidden="true" className="block size-3.5 shrink-0 border-[1.5px]" />
               <span>{fa.mobileNav.finder}</span>
             </Link>
             <Link href={loggedIn ? "/account" : "/login"} onClick={() => setOpen(false)}>

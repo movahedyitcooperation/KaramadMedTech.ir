@@ -7,20 +7,75 @@ Nothing in this list is worked around with fake data. Where a feature does not
 exist, the UI says so in words rather than rendering an empty shell that looks
 broken or — worse — a control that posts nowhere.
 
-Adapted from the design branch's own gap analysis and re-verified against
-`backend/app/api/v1/` at the time of the design port.
+## Resolved
 
-## Ranked by value of adding it
+These were gaps when the design was ported; they are now implemented. Kept
+here (rather than deleted) so the reasoning behind the current shape is still
+findable.
+
+### ✅ Product search — `GET /products/?q=`
+
+Was: no `q` param, no index. The storefront had no results page and said so.
+
+Now: full-text-ish search over `name`, `brand`, `short_desc` and `sku`, applied
+in SQL. See `backend/app/core/search.py` for the Persian handling and
+`backend/tests/test_search.py` for what is guaranteed.
+
+- **Persian normalisation.** Postgres ships no Persian text-search
+  configuration, so `to_tsvector('persian', …)` does not exist and a stemmer is
+  out of reach. Instead one `translate()` table folds the variants that
+  actually differ in the wild — Arabic Yeh/Kaf (ي/ك) to Persian (ی/ک), alef
+  and teh-marbuta variants, ZWNJ to a space, Persian and Arabic-Indic digits to
+  ASCII, tatweel and harakat removed — and the same table is applied to both
+  the query (in Python) and the column (in SQL). A test asserts the two agree
+  character for character, because a drift between them would silently stop
+  matching rows.
+- **Tokens are ANDed, substring within each**, so «فشارسنج امرن» matches
+  regardless of word order, and a partial word still matches.
+- **Index**: migration `0004` creates a `pg_trgm` GIN index over the exact
+  normalised expression the query uses. `pg_trgm` is a core contrib module
+  (Debian/Ubuntu: `postgresql-contrib`); where it is unavailable the migration
+  logs and skips, and search still works via a sequential scan. **Check the
+  index exists after deploying** — see `docs/DEPLOY.md`.
+- Composes with every other filter, with paging, and with `include_facets`.
+
+Remaining nuance: matching is substring-based, so it does not do stemming,
+plural folding or fuzzy/typo tolerance. `pg_trgm` similarity ranking would be
+the next step if shoppers start mistyping product names.
+
+### ✅ `is_featured` as a query param
+
+Was: filterable only by fetching a page and dropping rows in JS.
+
+Now: `GET /products/?is_featured=true` filters in SQL. `getFeaturedProducts`
+requests exactly the rows it renders. Omitting the param returns both, so the
+change is backward compatible.
+
+### ✅ Facet counts — `GET /products/?include_facets=true`
+
+Was: no counts anywhere, so the home rail and the category sidebar issued one
+`COUNT` per category — an N+1 that would grow with the tree.
+
+Now: an optional `facets` block on `ProductListResult` carrying `brands`,
+`categories` (top-level departments), `subcategories` (children of the
+selected department), `in_stock`, and `price_min`/`price_max`.
+
+- **Fixed query count.** Five aggregates over one shared filtered subquery, no
+  matter how many products, brands or categories exist.
+- **Each facet drops its own dimension.** With `brands=Omron` checked, the
+  brand facet still lists Beurer and its count, while the category facet
+  already reflects the Omron narrowing. That is what makes the numbers useful
+  rather than a tautology.
+- **Opt-in.** Absent unless requested, so the home carousels and the PDP's
+  related rail pay nothing for aggregates they never read.
+
+## Still open, ranked by value of adding it
 
 | # | Gap | Frontend behaviour now | Cost to add |
 |---|---|---|---|
-| 1 | **No product search.** `/products/` has no `q` param and there is no full-text index. | The header's wide control is a **finder**, not a search box: it scrolls to the home finder card, which composes category + price band + sort and submits to the normal category listing. A visible line says so: «جست‌وجوی متنی هنوز فعال نیست؛ فعلاً کالا را با دسته‌بندی و قیمت پیدا کنید». The `/search` route has been removed — a results page and that sentence cannot both be true. | Small. A `q` param doing `ILIKE` on `name`/`brand`/`short_desc` unlocks a real search bar and results page immediately; a Postgres `tsvector` + GIN index is the proper version. **Highest-value single addition available.** |
-| 2 | **No checkout, orders or payment.** `models/order.py`, `order_item.py`, `api/v1/orders.py` and `payments.py` exist as Phase 6 stubs and are deliberately *not* included in `api/v1/router.py`. | The funnel is complete and correct **up to the cart**. The cart summary computes subtotal, shipping (flat `cost`, waived at `free_over`) and total from live `unit_price` plus `GET /settings/`, and is followed by a designed terminal card: the order is finalised by WhatsApp or phone from `settings.contact`. No fake checkout button, no stubbed endpoint, no client-held order state. The account's **سفارش‌ها** tab is a designed empty state that explains this. | Large (orders, order items, ZarinPal, stock decrement, invoice numbering). The cart summary is laid out so a real checkout step drops in below it without a rewrite. |
-| 3 | **No brands endpoint and no facet block on `ProductListResult`.** | The sidebar's brand facet is derived from the products in that category (`lib/db/products.ts`'s `getBrandFacet`) and is labelled «برندهای موجود در نتایج همین دسته», so it is not presented as exhaustive. Filtering itself uses the real `?brands=` repeated param. | Trivial: `GET /brands/`, or better, return `DISTINCT brand` alongside `ProductListResult` as a facet block — one round trip instead of two. |
-| 4 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
-| 5 | **`is_featured` is not a query param** — it exists on `ProductRead` but isn't filterable. | The پرفروش‌ترین rail fetches one page sorted by rating and filters client-side (`getFeaturedProducts`). Cheap at 15 products, wrong at 400. | Trivial: add `is_featured: bool \| None = Query(None)` to `/products/`. Do it before the catalog grows; `getFeaturedProducts` is the only caller that changes. |
-| 6 | **No product count on the category tree.** | The home rail's «۵ کالا» line and the sidebar's sub-category counts each cost one `page_size=1` request whose only useful field is `total` (`countProductsInCategory`). Six to ten cheap COUNTs per page against a loopback backend. | Trivial: a `product_count` on `CategoryTree`, or a `count` facet on `ProductListResult`. |
-| 7 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
+| 1 | **No checkout, orders or payment.** `models/order.py`, `order_item.py`, `api/v1/orders.py` and `payments.py` exist as Phase 6 stubs and are deliberately *not* included in `api/v1/router.py`. | The funnel is complete and correct **up to the cart**. The cart summary computes subtotal, shipping (flat `cost`, waived at `free_over`) and total from live `unit_price` plus `GET /settings/`, and is followed by a designed terminal card: the order is finalised by WhatsApp or phone from `settings.contact`. No fake checkout button, no stubbed endpoint, no client-held order state. The account's **سفارش‌ها** tab is a designed empty state that explains this. | Large (orders, order items, ZarinPal, stock decrement, invoice numbering). The cart summary is laid out so a real checkout step drops in below it without a rewrite. |
+| 2 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
+| 3 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
 
 ## Infrastructure findings — backend-side, not solvable from the browser
 
@@ -31,13 +86,16 @@ Adapted from the design branch's own gap analysis and re-verified against
    content-addressed UUID filenames make that safe.
 2. **Uploads are stored verbatim, up to 5 MB, with no resize or format
    conversion** (`admin_uploads.py`). A 4 MB PNG of an autoclave destroys LCP
-   on an Iranian mobile connection, and no amount of frontend `srcset` fixes a
-   4 MB original. Add a Pillow step on upload: cap the long edge (~1600px),
-   emit WebP plus a JPEG fallback at 3–4 widths, and return the variant URLs on
-   `ProductImage`.
+   on an Iranian mobile connection. Add a Pillow step on upload: cap the long
+   edge (~1600px), emit WebP plus a JPEG fallback at 3–4 widths, and return the
+   variant URLs on `ProductImage`.
 
-   Mitigated for now by `next/image`, which resizes and re-encodes on demand —
-   but that moves the cost to the Node process rather than removing it.
+   Mitigated for now by `next/image`, which resizes and re-encodes to
+   AVIF/WebP on demand — but that moves the cost to the Node process rather
+   than removing it, and the first request for each variant pays the encode.
+   The storefront's own hero art is already pre-optimised at build time
+   (1600px WebP sources, ~35–120 KB each) precisely so the optimizer starts
+   from something sane; admin uploads should get the same treatment.
 
 ## Schema limits noted, not worked around
 
@@ -70,7 +128,8 @@ Adapted from the design branch's own gap analysis and re-verified against
 - **`category_id` is a UUID, not a slug**, so `GET /categories/` is fetched and
   indexed by id wherever a product needs to name its category.
 - **The category tree is exactly two levels** (a single `selectinload`, not a
-  recursive CTE). The nav panel shows one level of children and no more.
+  recursive CTE). The nav panel shows one level of children and no more, and
+  the `subcategories` facet folds on that assumption.
 - **Phone and email are separate identities.** Verifying by one and later by
   the other creates two unrelated accounts with separate carts and addresses;
   there is no cross-channel merge. The login card says so in one line rather

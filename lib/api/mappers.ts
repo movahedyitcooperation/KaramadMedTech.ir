@@ -2,13 +2,21 @@ import type { Address, CustomerProfile } from "@/lib/types/account";
 import type { AdminProduct, AdminProductImage, AdminProductSpec } from "@/lib/types/admin";
 import type { Cart, CartLine } from "@/lib/types/cart";
 import type { Category } from "@/lib/types/category";
-import type { Product, ProductImage, ProductSpec } from "@/lib/types/product";
+import type {
+  FacetValue,
+  Product,
+  ProductFacets,
+  ProductImage,
+  ProductSpec,
+} from "@/lib/types/product";
 import type { ShippingSetting, SiteSettings } from "@/lib/types/settings";
 import type {
   ApiAddress,
   ApiCart,
   ApiCartItem,
   ApiCategoryBase,
+  ApiFacetValue,
+  ApiProductFacets,
   ApiCategoryRead,
   ApiProduct,
   ApiProductImage,
@@ -99,6 +107,22 @@ export function mapProduct(raw: ApiProduct): Product {
     // received" with no re-sort of their own.
     images: raw.images.map(mapProductImage),
     specs: raw.specs.map(mapProductSpec),
+  };
+}
+
+function mapFacetValue(raw: ApiFacetValue): FacetValue {
+  // A brand facet has no separate label — its value IS the display name.
+  return { value: raw.value, label: raw.label ?? raw.value, count: raw.count };
+}
+
+export function mapFacets(raw: ApiProductFacets): ProductFacets {
+  return {
+    brands: raw.brands.map(mapFacetValue),
+    categories: raw.categories.map(mapFacetValue),
+    subcategories: raw.subcategories.map(mapFacetValue),
+    inStock: raw.in_stock,
+    priceMin: raw.price_min,
+    priceMax: raw.price_max,
   };
 }
 

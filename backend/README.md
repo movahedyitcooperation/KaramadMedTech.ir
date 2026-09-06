@@ -59,6 +59,18 @@ uv run uvicorn app.main:app --reload --port 8000
 - API docs: http://localhost:8000/docs
 - Health check: http://localhost:8000/health
 
+## Tests
+
+```bash
+uv run pytest            # or ./.venv/Scripts/python -m pytest
+```
+
+`tests/test_search.py` covers the Persian normalisation rules as pure unit
+tests, plus integration tests for search, `is_featured` and the facet block
+against a real database. The DB-backed tests **skip** (they do not fail) when
+no database is reachable, so the suite is still useful on a machine that has
+not run `devdb.sh`.
+
 ## Project layout
 
 ```

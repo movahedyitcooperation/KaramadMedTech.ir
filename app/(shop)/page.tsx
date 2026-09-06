@@ -8,7 +8,7 @@ import { ServiceCards } from "@/components/shop/ServiceCards";
 import { TrustBadges } from "@/components/shop/TrustBadges";
 import { ScreenTransition } from "@/components/ui/ScreenTransition";
 import { getTopLevelCategories } from "@/lib/db/categories";
-import { countProductsInCategory, getFeaturedProducts, getNewestProducts } from "@/lib/db/products";
+import { getFeaturedProducts, getNewestProducts, listProducts } from "@/lib/db/products";
 import { getSiteSettings } from "@/lib/db/settings";
 import { fa } from "@/lib/i18n/fa";
 
@@ -24,22 +24,23 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [settings, categories, newest, featured] = await Promise.all([
+  const [settings, categories, newest, featured, facetSource] = await Promise.all([
     getSiteSettings(),
     getTopLevelCategories(),
     getNewestProducts(8),
     getFeaturedProducts(8),
+    // One request returns every department's product count as a facet. This
+    // used to be one COUNT per department — an N+1 that would grow with the
+    // category tree. page_size=1 because only the facets are read.
+    listProducts(null, { pageSize: 1, includeFacets: true }),
   ]);
 
-  // The category tree carries no product count (there is no `count` facet on
-  // ProductListResult — BACKEND-GAPS #3), so the rail's «۵ کالا» line costs
-  // one cheap page_size=1 COUNT per department. Six parallel queries against
-  // a loopback backend; if a `count` ever lands on the tree response, delete
-  // this and read it off `categories`.
-  const counts = await Promise.all(categories.map((c) => countProductsInCategory(c.slug)));
-  const railItems = categories.map((category, i) => ({
+  const countBySlug = new Map(
+    (facetSource.facets?.categories ?? []).map((c) => [c.value, c.count])
+  );
+  const railItems = categories.map((category) => ({
     category,
-    productCount: counts[i],
+    productCount: countBySlug.get(category.slug) ?? 0,
   }));
 
   const clinicCategory = categories.find((c) => c.slug === "tajhizat-matb-clinic") ?? null;

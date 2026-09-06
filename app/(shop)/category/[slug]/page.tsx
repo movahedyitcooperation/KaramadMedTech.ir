@@ -10,12 +10,7 @@ import { Panel } from "@/components/ui/Panel";
 import { Pagination } from "@/components/ui/Pagination";
 import { ScreenTransition } from "@/components/ui/ScreenTransition";
 import { getAllCategories, getCategoryBySlug } from "@/lib/db/categories";
-import {
-  countProductsInCategory,
-  getBrandFacet,
-  getProductsByCategory,
-  type ProductListFilters,
-} from "@/lib/db/products";
+import { getProductsByCategory, type ProductListFilters } from "@/lib/db/products";
 import { getContactSetting } from "@/lib/db/settings";
 import { fa } from "@/lib/i18n/fa";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
@@ -54,6 +49,9 @@ function parseFilters(
     : "newest";
 
   return {
+    // Carried in when a shopper narrows a search to one department from the
+    // search page's sidebar — the query has to survive that jump.
+    q: typeof sp.q === "string" ? sp.q : undefined,
     priceMin: num(sp.priceMin),
     priceMax: num(sp.priceMax),
     brands: toArray(sp.brand),
@@ -104,13 +102,22 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     .filter((c) => c.parentId === root.id)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  const [result, brands, rootCount, childCounts, contact] = await Promise.all([
-    getProductsByCategory(slug, filters),
-    getBrandFacet(root.slug),
-    countProductsInCategory(root.slug),
-    Promise.all(children.map((c) => countProductsInCategory(c.slug))),
+  // One request carries the page AND every sidebar count: brands, each
+  // sub-category, and the department total. This replaced a brand query plus
+  // one COUNT per sub-category — an N+1 that grew with the tree.
+  const [result, contact] = await Promise.all([
+    getProductsByCategory(slug, { ...filters, includeFacets: true }),
     getContactSetting(),
   ]);
+
+  const facets = result.facets;
+  const subcategoryCounts = new Map(
+    (facets?.subcategories ?? []).map((s) => [s.value, s.count])
+  );
+  // The department total is the sum of its sub-category counts under the same
+  // filters — the facet is already scoped to this department, so there is
+  // nothing further to ask the database for.
+  const rootCount = (facets?.subcategories ?? []).reduce((sum, s) => sum + s.count, 0);
 
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
   const department = resolveDepartment(root.slug);
@@ -185,6 +192,20 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 <span key={`rc-${result.total}`} className="km-note inline-block">
                   {fa.category.resultCount(result.total)}
                 </span>
+                {/* Reached from the search page's department facet: say so,
+                 * and offer the way back out to the full result set. */}
+                {filters.q && (
+                  <>
+                    {" · "}
+                    <span>{fa.category.withinSearch(filters.q)}</span>{" "}
+                    <Link
+                      href={`/search?q=${encodeURIComponent(filters.q)}`}
+                      className="text-emerald underline-offset-4 hover:underline"
+                    >
+                      {fa.category.clearScope}
+                    </Link>
+                  </>
+                )}
               </p>
             </div>
             <div className="flex items-center gap-2.5">
@@ -195,16 +216,23 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
           <div className="grid items-start gap-9 lg:grid-cols-[268px_1fr]">
             <CategoryFiltersPanel
-              rootSlug={root.slug}
-              rootName={root.name}
-              rootCount={rootCount}
-              subcategories={children.map((c, i) => ({
-                slug: c.slug,
-                name: c.name,
-                count: childCounts[i],
-              }))}
-              activeSlug={category.slug}
-              brands={brands}
+              scopeHeading={fa.category.subHeading}
+              scopeLinks={[
+                {
+                  href: `/category/${root.slug}`,
+                  name: fa.category.allOf(root.name),
+                  count: rootCount,
+                  active: category.slug === root.slug,
+                },
+                ...children.map((c) => ({
+                  href: `/category/${c.slug}`,
+                  name: c.name,
+                  count: subcategoryCounts.get(c.slug) ?? 0,
+                  active: c.slug === category.slug,
+                })),
+              ]}
+              departmentSlug={root.slug}
+              brands={(facets?.brands ?? []).map((b) => ({ name: b.value, count: b.count }))}
               total={result.total}
             />
 

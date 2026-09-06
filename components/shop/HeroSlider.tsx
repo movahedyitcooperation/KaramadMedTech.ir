@@ -13,11 +13,15 @@ import { cn } from "@/lib/utils/cn";
  * The backend's hero_slides rows carry `image_alt` but no image URL, so the
  * photograph can't come from the API. Falling back by index keeps a
  * newly-added fourth slide from rendering with no background at all.
+ *
+ * Sources are 1600px WebP (~35-120 KB each, down from 0.5-1.4 MB PNG/JPEG).
+ * next/image re-encodes to AVIF where the browser accepts it and serves a
+ * width matched to the viewport, so a phone never downloads the desktop file.
  */
 const SLIDE_IMAGES = [
-  { src: "/images/hero/hero-1.png", position: "22% 50%" },
-  { src: "/images/hero/hero-2.jpg", position: "38% 50%" },
-  { src: "/images/hero/hero-3.jpg", position: "32% 50%" },
+  { src: "/images/hero/hero-1.webp", position: "22% 50%" },
+  { src: "/images/hero/hero-2.webp", position: "38% 50%" },
+  { src: "/images/hero/hero-3.webp", position: "32% 50%" },
 ];
 const IMAGE_BY_ID: Record<string, (typeof SLIDE_IMAGES)[number]> = {
   "slide-1": SLIDE_IMAGES[0],
@@ -36,17 +40,32 @@ const CYCLE_MS = 6500;
 export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Only slides that have actually been shown get an <Image> in the tree.
+  // All three are inside the viewport (stacked, faded), so `loading="lazy"`
+  // would not hold any of them back — the browser fetches everything it can
+  // see. Mounting on demand is what keeps first paint to ONE hero image
+  // instead of three, which matters most on the mobile connections this shop
+  // is built for. Once shown, a slide stays mounted so cycling back is
+  // instant and the crossfade still has something to fade to.
+  const [shown, setShown] = useState<number[]>([0]);
   const count = slides.length;
 
-  const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
+  const go = useCallback(
+    (next: number) => {
+      const target = ((next % count) + count) % count;
+      setIndex(target);
+      setShown((prev) => (prev.includes(target) ? prev : [...prev, target]));
+    },
+    [count]
+  );
   const goPrev = useCallback(() => go(index - 1), [go, index]);
   const goNext = useCallback(() => go(index + 1), [go, index]);
 
   useEffect(() => {
     if (paused || count < 2) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % count), CYCLE_MS);
+    const t = setTimeout(() => go(index + 1), CYCLE_MS);
     return () => clearTimeout(t);
-  }, [index, paused, count]);
+  }, [index, paused, count, go]);
 
   if (count === 0) return null;
   const slide = slides[index];
@@ -75,6 +94,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
     >
       <div aria-hidden="true" className="absolute inset-0">
         {slides.map((s, i) => {
+          if (!shown.includes(i)) return null;
           const img = IMAGE_BY_ID[s.id] ?? SLIDE_IMAGES[i % SLIDE_IMAGES.length];
           return (
             <Image
@@ -83,6 +103,9 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               alt=""
               fill
               priority={i === 0}
+              // Full-bleed: the rendered width IS the viewport width, so the
+              // optimizer picks a 640px variant for a phone and a 1600px one
+              // for a wide desktop.
               sizes="100vw"
               style={{
                 objectPosition: img.position,

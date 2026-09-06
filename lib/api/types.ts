@@ -56,12 +56,32 @@ export interface ApiProduct {
   specs: ApiProductSpec[];
 }
 
+export interface ApiFacetValue {
+  value: string;
+  /** Present where `value` is a machine key (a category slug); null for a
+   * brand, whose value is already its label. */
+  label: string | null;
+  count: number;
+}
+
+/** Only present when the request passed `include_facets=true`. */
+export interface ApiProductFacets {
+  brands: ApiFacetValue[];
+  categories: ApiFacetValue[];
+  subcategories: ApiFacetValue[];
+  in_stock: number;
+  price_min: number | null;
+  price_max: number | null;
+}
+
 /** GET /products/ returns this. */
 export interface ApiProductListResult {
   items: ApiProduct[];
   total: number;
   page: number;
   page_size: number;
+  /** Null unless the request passed `include_facets=true`. */
+  facets: ApiProductFacets | null;
 }
 
 export interface ApiShippingSetting {

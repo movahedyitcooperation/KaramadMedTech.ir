@@ -9,20 +9,25 @@ import { useFiltersSheet } from "@/components/shop/FiltersSheetContext";
 import { resolveDepartment } from "@/lib/utils/department";
 import { cn } from "@/lib/utils/cn";
 
-export interface SubcategoryLink {
-  slug: string;
+export interface ScopeLink {
+  /** Href to navigate to when this scope is chosen. */
+  href: string;
   name: string;
   count: number;
+  /** Marks the entry as currently selected. */
+  active: boolean;
 }
 
 interface CategoryFiltersPanelProps {
-  /** The top-level department this listing belongs to. */
-  rootSlug: string;
-  rootName: string;
-  rootCount: number;
-  subcategories: SubcategoryLink[];
-  /** Slug currently being listed — the root itself, or one of its children. */
-  activeSlug: string;
+  /** Heading above the scope list: «زیردسته‌ها» on a department listing,
+   * «دسته‌بندی‌ها» on the search page. */
+  scopeHeading: string;
+  /** Sub-categories of a department, or the departments themselves on the
+   * search page — the panel does not care which, it just links them. */
+  scopeLinks: ScopeLink[];
+  /** Department whose tint marks the selected scope row. Null on the search
+   * page, where results span every department and no single hue applies. */
+  departmentSlug: string | null;
   brands: { name: string; count: number }[];
   total: number;
 }
@@ -38,11 +43,9 @@ interface CategoryFiltersPanelProps {
  * mobile filter UI.
  */
 export function CategoryFiltersPanel({
-  rootSlug,
-  rootName,
-  rootCount,
-  subcategories,
-  activeSlug,
+  scopeHeading,
+  scopeLinks,
+  departmentSlug,
   brands,
   total,
 }: CategoryFiltersPanelProps) {
@@ -50,7 +53,7 @@ export function CategoryFiltersPanel({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const department = resolveDepartment(rootSlug);
+  const department = departmentSlug ? resolveDepartment(departmentSlug) : null;
 
   // Uncontrolled and keyed on the URL value: the visitor types freely, and a
   // change from outside (filters cleared, back button) re-mounts the input
@@ -81,11 +84,6 @@ export function CategoryFiltersPanel({
     });
   }
 
-  const subLinks: SubcategoryLink[] = [
-    { slug: rootSlug, name: fa.category.allOf(rootName), count: rootCount },
-    ...subcategories,
-  ];
-
   const inputClass =
     "min-w-0 flex-1 rounded-3 border border-ink/18 bg-white px-3 py-2.5 text-sm text-ink";
 
@@ -108,34 +106,31 @@ export function CategoryFiltersPanel({
       </div>
 
       <div>
-        <div className="mb-3 text-14 font-bold">{fa.category.subHeading}</div>
+        <div className="mb-3 text-14 font-bold">{scopeHeading}</div>
         <div className="flex flex-col gap-px">
-          {subLinks.map((sub) => {
-            const active = sub.slug === activeSlug;
-            return (
-              <Link
-                key={sub.slug}
-                href={`/category/${sub.slug}`}
-                className={cn(
-                  "flex justify-between gap-2.5 rounded-3 px-3 py-2 text-start text-sm",
-                  active ? "font-semibold" : "font-normal text-ink/75"
-                )}
-                style={
-                  active
-                    ? {
-                        background: department?.tint ?? "var(--color-page)",
-                        color: department?.deep ?? "var(--color-ink)",
-                      }
-                    : undefined
-                }
-              >
-                <span>{sub.name}</span>
-                <span className={cn("text-12", !active && "text-ink/60")}>
-                  {toPersianNumber(sub.count)}
-                </span>
-              </Link>
-            );
-          })}
+          {scopeLinks.map((scope) => (
+            <Link
+              key={scope.href}
+              href={scope.href}
+              className={cn(
+                "flex justify-between gap-2.5 rounded-3 px-3 py-2 text-start text-sm",
+                scope.active ? "font-semibold" : "font-normal text-ink/75"
+              )}
+              style={
+                scope.active
+                  ? {
+                      background: department?.tint ?? "var(--color-page)",
+                      color: department?.deep ?? "var(--color-ink)",
+                    }
+                  : undefined
+              }
+            >
+              <span>{scope.name}</span>
+              <span className={cn("text-12", !scope.active && "text-ink/60")}>
+                {toPersianNumber(scope.count)}
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -225,11 +220,13 @@ export function CategoryFiltersPanel({
           type="button"
           onClick={() =>
             apply((p) => {
-              // Sort is a view preference, not a filter — clearing filters
-              // should not silently re-order the shelf under the visitor.
-              const sort = p.get("sort");
+              // Sort is a view preference, not a filter, and `q` IS the
+              // search — clearing filters must not silently re-order the
+              // shelf or throw away what the shopper searched for.
+              const kept = { sort: p.get("sort"), q: p.get("q") };
               for (const key of [...p.keys()]) p.delete(key);
-              if (sort) p.set("sort", sort);
+              if (kept.sort) p.set("sort", kept.sort);
+              if (kept.q) p.set("q", kept.q);
             })
           }
           className="cursor-pointer rounded-4 border border-ink/18 p-2.5 text-sm text-ink transition-colors duration-(--duration-state) hover:border-ink"

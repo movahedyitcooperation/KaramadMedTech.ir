@@ -47,13 +47,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [allCategories, contact, related] = await Promise.all([
-    getAllCategories(),
-    getContactSetting(),
-    getRelatedProducts(product, 6),
-  ]);
+  const [allCategories, contact] = await Promise.all([getAllCategories(), getContactSetting()]);
 
   const category = allCategories.find((c) => c.id === product.categoryId) ?? null;
+  // Needs the resolved category slug, so it can't join the Promise.all above.
+  const related = await getRelatedProducts(product, category?.slug ?? null, 6);
   const department = category ? resolveDepartmentForCategory(category, allCategories) : null;
   const outOfStock = product.stock === 0;
 

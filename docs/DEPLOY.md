@@ -141,3 +141,27 @@ Check with `sudo ufw status verbose`.
 - **`~/karamad-medtech-old-scp`** (the pre-git-deploy tree) is still on the
   server as a rollback safety net. Safe to `rm -rf` once the git-based
   deploy has proven stable for a while.
+
+## Product search — verify the trigram index
+
+Migration `0004` creates a `pg_trgm` GIN index that makes `?q=` searches use an
+index instead of a sequential scan. `pg_trgm` is a core contrib module, but it
+is not installed on every server — and when it is missing the migration
+**logs a notice and skips the index** rather than failing, so a deploy can
+succeed with search silently unindexed.
+
+After deploying, confirm it is there:
+
+```bash
+sudo apt install postgresql-contrib          # if the check below comes back empty
+psql "$DATABASE_URL" -c "\di ix_products_search_trgm"
+```
+
+If the index is missing, install the contrib package and re-run the migration:
+
+```bash
+uv run alembic downgrade 0003 && uv run alembic upgrade head
+```
+
+At the current catalog size a sequential scan is imperceptible; this matters
+once the catalog reaches the low thousands.

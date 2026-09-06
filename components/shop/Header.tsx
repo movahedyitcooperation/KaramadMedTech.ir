@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { CartDropdown } from "@/components/shop/CartDropdown";
 import { HeaderAuthStatus } from "@/components/shop/HeaderAuthStatus";
+import { HeaderSearch } from "@/components/shop/HeaderSearch";
 import { MegaMenuNav } from "@/components/shop/MegaMenuNav";
 import { MobileNavDrawer } from "@/components/shop/MobileNavDrawer";
 import { PhoneWidget } from "@/components/shop/PhoneWidget";
@@ -20,10 +21,10 @@ import { isLoggedIn, readCartCount } from "@/lib/session";
  * Every cart-mutating Server Action rewrites the cookie and revalidates this
  * layout, so the badge stays correct. (CLAUDE.md §9.)
  *
- * The wide control between the lockup and the cluster is the *finder*
- * affordance, not a search box — it scrolls to the home finder card. The
- * backend has no text-search endpoint, and a text input here would promise
- * one; see HomeFinder for the note that says so out loud.
+ * The wide control between the lockup and the cluster is the search field —
+ * the slot the ported design put its product-finding affordance in, which is
+ * where a shopper looks for it. It submits to /search; matching happens in
+ * Postgres (backend/app/core/search.py).
  */
 export async function Header() {
   const [categoryTree, contact, cartCount, loggedIn] = await Promise.all([
@@ -40,18 +41,12 @@ export async function Header() {
           <Logo tone="bone" />
         </Link>
 
-        <Link
-          href="/#finder"
-          className="j-hdr-finder hidden flex-1 items-center gap-2.5 rounded-pill px-4 py-3 text-start text-15 lg:flex"
-        >
-          <span aria-hidden="true" className="block size-[15px] shrink-0 rounded-full border-[1.5px]" />
-          <span>{fa.header.finder}</span>
-        </Link>
+        <HeaderSearch className="hidden flex-1 lg:flex" />
 
         <div className="ms-auto flex shrink-0 items-center gap-2.5">
           <Link
-            href="/#finder"
-            aria-label={fa.header.finderShort}
+            href="/search"
+            aria-label={fa.header.searchLabel}
             className="j-hdr-ctl grid size-11 place-items-center rounded-4 lg:hidden"
           >
             <span aria-hidden="true" className="block size-4 rounded-full border-[1.5px]" />

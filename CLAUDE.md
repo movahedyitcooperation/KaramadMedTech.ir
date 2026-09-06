@@ -65,6 +65,7 @@ cart or auth store — see the State row below.
 | Payments | ZarinPal, behind a `PaymentProvider` interface |
 | SMS | Kavenegar or SMS.ir, behind an `SmsProvider` interface (`backend/app/core/sms.py`) — backend-side, a `console` dev mode prints the code to the terminal |
 | Email | Console (dev) or SMTP via Python's stdlib `smtplib`, behind an `EmailProvider` interface (`backend/app/core/email.py`) — no email SDK dependency |
+| Search | Postgres `LIKE` over a normalised expression + a `pg_trgm` GIN index (migration 0004). No Elasticsearch, no `tsvector` — Postgres has no Persian text-search config, so there is no stemmer to use |
 | Validation | Plain runtime checks (regex/length/required) in Server Actions; structured `{code}`-shaped error responses from the backend, mapped to Persian strings in `lib/i18n/fa.ts`. **No Zod anywhere in this codebase** |
 | Forms | Plain `useState` per form (a flat values object + a generic `set(key, value)` setter), submitted via a Server Action. **No `react-hook-form`, no form library** — neither is installed; every form built so far (login, admin product/category forms, address form) follows this same shape |
 | State | Server Components by default; Server Actions for mutations; Zustand only for the toast queue (`lib/stores/toast-store.ts`). Cart and customer-auth state live server-side (httpOnly cookie + Postgres), **not** in a client store — `lib/stores/{cart,auth}-store.ts` were deleted, and re-introducing either would immediately drift from the database |
@@ -174,11 +175,24 @@ should appear anywhere else in the codebase.
 - API access only in `lib/db/*.ts` query modules — never `fetch` inside a
   component. Cookie reads/writes only in `lib/session.ts`; it is the single
   place that knows the three cookie names and the `cart_count` mirror.
-- **Filtering, sorting and paging happen in Postgres, not in JS.** The
-  backend supports `category_slug`/`price_min`/`price_max`/`brands`/
-  `in_stock_only`/`sort`/`page`/`page_size`; `lib/db/products.ts` forwards
-  them. Never fetch the whole catalog and narrow it client-side — it scales
-  badly and reports a `total` that disagrees with the server's.
+- **Filtering, searching, sorting, paging and counting all happen in
+  Postgres, not in JS.** `GET /products/` supports `q`, `category_slug`,
+  `price_min`, `price_max`, `brands` (repeated), `in_stock_only`,
+  `is_featured`, `sort`, `page`, `page_size` and `include_facets`;
+  `lib/db/products.ts` forwards them and is the only module that builds that
+  query string. Never fetch the whole catalog and narrow it client-side — it
+  scales badly and reports a `total` that disagrees with the server's.
+- **Counts come from the facet block, never from a loop.** Asking for
+  `include_facets=true` returns brand / department / sub-category / in-stock
+  counts and the price range for the *same* filtered set, computed as a fixed
+  five aggregates. If you find yourself issuing one request per category to
+  get a number, that is the N+1 this replaced.
+- **Search normalisation lives in exactly one place**
+  (`backend/app/core/search.py`) and is applied twice — in Python to the query
+  and in SQL to the column, via the same `translate()` table. Do not fold
+  Persian in the frontend; a second table would drift from the first and
+  search would silently stop matching. `backend/tests/test_search.py` asserts
+  the two agree.
 - **All filter state lives in the URL**, so a filtered listing is shareable,
   bookmarkable and back-button-correct. The only client state on the
   category page is whether the mobile filter sheet is open.
