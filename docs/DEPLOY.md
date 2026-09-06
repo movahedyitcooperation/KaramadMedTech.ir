@@ -165,3 +165,37 @@ uv run alembic downgrade 0003 && uv run alembic upgrade head
 
 At the current catalog size a sequential scan is imperceptible; this matters
 once the catalog reaches the low thousands.
+
+## Migration 0004/0005 renumber — check before upgrading
+
+Two branches independently authored a migration numbered `0004` off `0003`:
+`orders_payments` (backend-sina) and `product_search_index` (main). The merge
+kept `orders_payments` as `0004` and renumbered the search index to `0005`.
+
+**This is silent for any database that already applied the *old* `0004`**
+(the search index). Alembic records only the revision number, so such a
+database believes `0004` — now orders/payments — is applied, skips it, jumps
+to `0005`, and reports `head` while `orders`, `order_items` and `payments`
+do not exist. Nothing fails until an order endpoint is called.
+
+Check before upgrading:
+
+```bash
+psql "$DATABASE_URL" -tc "select version_num from alembic_version;"
+psql "$DATABASE_URL" -tc "select count(*) from information_schema.tables
+                          where table_schema='public'
+                            and table_name in ('orders','order_items','payments');"
+```
+
+If the revision is `0004` or later **and** that count is `0`, the database is
+in the skipped state. Repair it by stamping back to the last shared revision
+and re-running — verified data-safe, since `0004` only creates new tables and
+`0005` is written with `IF NOT EXISTS`:
+
+```bash
+uv run alembic stamp 0003
+uv run alembic upgrade head
+```
+
+A database that has never been migrated past `0003`, or one created fresh,
+needs none of this — `alembic upgrade head` does the right thing.

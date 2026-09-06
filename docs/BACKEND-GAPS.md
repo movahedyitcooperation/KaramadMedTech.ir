@@ -71,9 +71,17 @@ selected department), `in_stock`, and `price_min`/`price_max`.
 
 ## Still open, ranked by value of adding it
 
+> **Note (verification pass, after the Phase 6 merge):** gap #1 flipped sides.
+> The backend endpoints exist and were exercised end to end — checkout creates
+> an order with the address and line prices snapshotted, empties the cart,
+> assigns an order number, enforces per-customer ownership on read, rejects an
+> empty cart, and the mock payment provider returns a `payment_url`. What is
+> missing is the storefront UI for all of it.
+
+
 | # | Gap | Frontend behaviour now | Cost to add |
 |---|---|---|---|
-| 1 | **No checkout, orders or payment.** `models/order.py`, `order_item.py`, `api/v1/orders.py` and `payments.py` exist as Phase 6 stubs and are deliberately *not* included in `api/v1/router.py`. | The funnel is complete and correct **up to the cart**. The cart summary computes subtotal, shipping (flat `cost`, waived at `free_over`) and total from live `unit_price` plus `GET /settings/`, and is followed by a designed terminal card: the order is finalised by WhatsApp or phone from `settings.contact`. No fake checkout button, no stubbed endpoint, no client-held order state. The account's **سفارش‌ها** tab is a designed empty state that explains this. | Large (orders, order items, ZarinPal, stock decrement, invoice numbering). The cart summary is laid out so a real checkout step drops in below it without a rewrite. |
+| 1 | **The storefront has no checkout or orders UI, although the backend now has both.** Phase 6 (`POST /orders/`, `GET /orders/`, `GET /orders/{id}`, `POST /payments/request`, `GET /payments/callback`) landed on main from `backend-sina` and is registered on the router. | **This is now a frontend gap, not a backend one, and the UI is currently wrong about it.** The cart still ends in the «پرداخت آنلاین به‌زودی» terminal card and the account's **سفارش‌ها** tab is still an empty state — both were accurate before Phase 6 merged and are not any more. `POST /payments/request` also returns a `payment_url` pointing at `/checkout/mock-pay`, a route the frontend does not have (404). | Medium-large, and **frontend only**: address selection, an order review step, redirect to `payment_url`, a callback/return route, an order confirmation page, and an order list + detail under the account. The backend contract is verified working — see the verification notes below. |
 | 2 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
 | 3 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
 

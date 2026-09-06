@@ -8,10 +8,11 @@ import { SortDropdown } from "@/components/shop/SortDropdown";
 import { Pagination } from "@/components/ui/Pagination";
 import { Panel } from "@/components/ui/Panel";
 import { ScreenTransition } from "@/components/ui/ScreenTransition";
-import { searchProducts, type ProductListFilters } from "@/lib/db/products";
+import { searchProducts } from "@/lib/db/products";
 import { getContactSetting } from "@/lib/db/settings";
 import { fa } from "@/lib/i18n/fa";
 import { telHref } from "@/lib/utils/links";
+import { buildListingHref, parseListingParams } from "@/lib/utils/listing-params";
 
 const PAGE_SIZE = 9;
 
@@ -26,35 +27,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-function toArray(value: string | string[] | undefined): string[] {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
-}
-
-function parseFilters(
-  sp: Record<string, string | string[] | undefined>
-): ProductListFilters & { page: number } {
-  const num = (v: string | string[] | undefined) => {
-    const raw = typeof v === "string" ? Number(v) : NaN;
-    return Number.isFinite(raw) && raw >= 0 ? raw : undefined;
-  };
-  const sortRaw = typeof sp.sort === "string" ? sp.sort : "newest";
-  const sorts = ["newest", "cheapest", "expensive", "rating"] as const;
-  const sort = (sorts as readonly string[]).includes(sortRaw)
-    ? (sortRaw as ProductListFilters["sort"])
-    : "newest";
-
-  return {
-    priceMin: num(sp.priceMin),
-    priceMax: num(sp.priceMax),
-    brands: toArray(sp.brand),
-    inStockOnly: sp.inStockOnly === "1",
-    sort,
-    page: Math.max(1, Number(typeof sp.page === "string" ? sp.page : 1) || 1),
-    pageSize: PAGE_SIZE,
-    includeFacets: true,
-  };
-}
 
 /**
  * Search results.
@@ -100,7 +72,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     );
   }
 
-  const filters = parseFilters(sp);
+  const filters = parseListingParams(sp, { pageSize: PAGE_SIZE, includeFacets: true });
   const [result, contact] = await Promise.all([
     searchProducts(query, filters),
     getContactSetting(),
@@ -109,21 +81,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const facets = result.facets;
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
-  function buildHref(overrides: Record<string, string | null>, page?: number) {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(sp)) {
-      if (key === "page") continue;
-      if (Array.isArray(value)) value.forEach((v) => params.append(key, v));
-      else if (value) params.set(key, value);
-    }
-    for (const [key, value] of Object.entries(overrides)) {
-      if (value === null) params.delete(key);
-      else params.set(key, value);
-    }
-    if (page && page > 1) params.set("page", String(page));
-    const qs = params.toString();
-    return `/search${qs ? `?${qs}` : ""}`;
-  }
+  const buildHref = (overrides: Record<string, string | null> = {}, page?: number) =>
+    buildListingHref("/search", sp, overrides, page);
 
   return (
     <ScreenTransition screenKey={`search:${query}`}>
