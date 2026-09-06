@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
-import { DirIcon } from "@/components/ui/DirIcon";
 import { toPersianDigits } from "@/lib/format";
+import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
 
 interface PaginationProps {
@@ -10,49 +9,51 @@ interface PaginationProps {
   buildHref: (page: number) => string;
 }
 
+/**
+ * Square-ish page chips, ink for the current page — not pills, and not the
+ * brand green: pagination is navigation on the shopping surface, where only
+ * ink/danger/warn appear.
+ *
+ * The arrows are literal characters rather than icons because they must point
+ * the RTL way: → goes to the previous (earlier) page, ← to the next one.
+ */
 export function Pagination({ page, totalPages, buildHref }: PaginationProps) {
   if (totalPages <= 1) return null;
-
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
+  const chip = (active: boolean) =>
+    cn(
+      "grid h-10.5 min-w-10.5 place-items-center rounded-4 border text-15 font-semibold transition-colors duration-(--duration-state)",
+      active ? "border-ink bg-ink text-surface" : "border-ink/16 bg-surface text-ink hover:border-ink"
+    );
+
   return (
-    <nav aria-label="صفحه‌بندی" className="flex items-center justify-center gap-2">
+    <nav aria-label={fa.category.pagerAria} className="flex items-center justify-center gap-2">
       <Link
         href={buildHref(Math.max(1, page - 1))}
-        aria-label="صفحه قبل"
+        aria-label={fa.category.prevPage}
         aria-disabled={page === 1}
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-full border border-line",
-          page === 1 ? "pointer-events-none opacity-40" : "cursor-pointer hover:bg-bg"
-        )}
+        className={cn(chip(false), page === 1 && "pointer-events-none opacity-40")}
       >
-        <DirIcon icon={CaretLeft} size={18} />
+        →
       </Link>
       {pages.map((p) => (
         <Link
           key={p}
           href={buildHref(p)}
           aria-current={p === page ? "page" : undefined}
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium",
-            p === page
-              ? "bg-brand-600 text-white"
-              : "cursor-pointer border border-line hover:bg-bg"
-          )}
+          className={chip(p === page)}
         >
           {toPersianDigits(p)}
         </Link>
       ))}
       <Link
         href={buildHref(Math.min(totalPages, page + 1))}
-        aria-label="صفحه بعد"
+        aria-label={fa.category.nextPage}
         aria-disabled={page === totalPages}
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-full border border-line",
-          page === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer hover:bg-bg"
-        )}
+        className={cn(chip(false), page === totalPages && "pointer-events-none opacity-40")}
       >
-        <DirIcon icon={CaretRight} size={18} />
+        ←
       </Link>
     </nav>
   );

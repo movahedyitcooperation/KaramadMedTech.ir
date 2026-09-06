@@ -384,6 +384,152 @@
     animation-play-state: paused;
   }
 
+  /* The category sidebar is the SAME element at every size: a static column
+   * from lg upwards, a bottom sheet below it. One filter UI, not two. */
+  .km-filters {
+    transition: transform var(--duration-panel) var(--ease-out);
+  }
+  @media (max-width: 1023px) {
+    .km-filters {
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: 82;
+      max-height: 84vh;
+      overflow-y: auto;
+      border-radius: 14px 14px 0 0;
+      border-inline: none;
+      border-block-end: none;
+      transform: translateY(101%);
+      box-shadow: 0 -18px 44px rgb(12 58 44 / 0.28);
+    }
+    .km-filters[data-open="true"] {
+      transform: none;
+    }
+  }
+  @media (min-width: 1024px) {
+    .km-fbackdrop {
+      display: none !important;
+    }
+  }
+
+  /* Header controls on the emerald ground: a hairline outline that firms up
+   * on hover. Not a Button variant — Button's palette is for the light
+   * grounds; these only ever sit on emerald. */
+  .j-hdr-ctl {
+    background: none;
+    color: var(--color-bone);
+    border: 1px solid rgb(234 233 225 / 0.22);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-state) var(--ease-out),
+      background var(--duration-state) var(--ease-out);
+  }
+  .j-hdr-ctl:hover {
+    border-color: rgb(234 233 225 / 0.5);
+  }
+  .j-hdr-ctl:active {
+    transform: translateY(1px) scale(0.985);
+    transition-duration: 60ms;
+  }
+
+  /* The finder affordance in the header — reads as a filled field so it is
+   * obviously interactive, without being an input. */
+  .j-hdr-finder {
+    background: rgb(234 233 225 / 0.08);
+    border: 1px solid rgb(234 233 225 / 0.18);
+    color: rgb(234 233 225 / 0.72);
+    cursor: pointer;
+    transition:
+      background var(--duration-state) var(--ease-out),
+      border-color var(--duration-state) var(--ease-out);
+  }
+  .j-hdr-finder:hover {
+    background: rgb(234 233 225 / 0.14);
+    border-color: rgb(234 233 225 / 0.36);
+  }
+
+  /* The header cart badge — the acknowledgement. Keyed by count in
+   * CartDropdown so the reconciler re-creates it on every change and the
+   * tick fires each time an item lands in or leaves the cart. */
+  .km-cart-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    animation: kmTick var(--duration-panel) var(--ease-out);
+  }
+
+  /* Header cart dropdown: mounted at all times, shown/hidden by [data-open],
+   * so it has a real exit as well as an entrance and never flashes stale
+   * content while closing. */
+  .km-cartpanel {
+    transition:
+      opacity var(--duration-state) var(--ease-out),
+      transform var(--duration-state) var(--ease-out),
+      visibility 0s linear var(--duration-state);
+  }
+  .km-cartpanel[data-open="false"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px) scaleY(0.98);
+  }
+  .km-cartpanel[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+  /* Below the nav breakpoint it becomes a sheet pinned under the header
+   * rather than a dropdown that would overflow a phone's viewport. */
+  @media (max-width: 1023px) {
+    .km-cartpanel {
+      position: fixed;
+      inset-block-start: 80px;
+      inset-inline: 16px;
+      width: auto;
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+  }
+
+  /* Hero arrows: the base look lives here rather than inline so :hover can
+   * override it. Not a Button variant — these sit on a photograph, not on
+   * any of the design's grounds. */
+  .j-hero-arrow {
+    background: rgb(8 20 15 / 0.3);
+    border: 1px solid rgb(234 233 225 / 0.34);
+    transition:
+      background var(--duration-state) var(--ease-out),
+      border-color var(--duration-state) var(--ease-out),
+      transform var(--duration-tick) var(--ease-out);
+  }
+  .j-hero-arrow:hover {
+    background: rgb(8 20 15 / 0.55);
+    border-color: var(--color-bone);
+  }
+  .j-hero-arrow:active {
+    transform: translateY(1px) scale(0.97);
+    transition-duration: 60ms;
+  }
+
+  /* The PDP's main image and the mini card's photo: a calm zoom is a real
+   * affordance for inspecting a product, so it stays here — and ONLY here.
+   * Ordinary product cards deliberately have no zoom; their border darkening
+   * is the affordance. */
+  .j-zoom {
+    overflow: hidden;
+  }
+  .j-zoom img {
+    transition: transform var(--duration-panel) var(--ease-out);
+  }
+  .j-zoom:hover img {
+    transform: scale(1.04);
+  }
+
   .j-line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

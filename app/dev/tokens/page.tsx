@@ -10,8 +10,7 @@ import { HighlightCard } from "@/components/ui/HighlightCard";
 import { Input } from "@/components/ui/Input";
 import { Panel } from "@/components/ui/Panel";
 import { Pill } from "@/components/ui/Pill";
-import { QuantityStepper } from "@/components/ui/QuantityStepper";
-import { Rating } from "@/components/ui/Rating";
+import { RatingRow } from "@/components/shop/RatingRow";
 import { RuleBox } from "@/components/ui/RuleBox";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -162,9 +161,8 @@ export default function TokensPage() {
       <section>
         <h2 className="mb-4 text-lg font-bold">امتیاز و شمارنده</h2>
         <div className="flex flex-wrap items-center gap-6">
-          <Rating value={4} />
-          <Rating value={3.5} readOnly={false} onChange={() => {}} />
-          <QuantityStepper value={2} onChange={() => {}} />
+          <RatingRow value={4} />
+          <RatingRow value={3.5} />
         </div>
       </section>
 

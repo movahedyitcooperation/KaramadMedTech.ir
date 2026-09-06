@@ -44,7 +44,7 @@ export function middleware(request: NextRequest) {
     return withGuestCartCookie(request, NextResponse.redirect(new URL(target, request.url)));
   }
 
-  return withGuestCartCookie(request, NextResponse.next());
+  return withGuestCartCookie(request, null);
 }
 
 /**
@@ -52,15 +52,23 @@ export function middleware(request: NextRequest) {
  * visitor, not just shop routes (a first visit to /login or /admin/login
  * still needs a stable guest identity established beforehand). The cart's
  * actual contents live in Postgres, keyed by this opaque token; the cookie
- * itself is never a data payload. Mutating request.cookies (not just
- * response.cookies) makes the value visible within THIS request's
- * render too — the standard Next.js recipe for assigning an anonymous id
- * in middleware.
+ * itself is never a data payload.
+ *
+ * `redirect` is the response to decorate when one of the gates above already
+ * decided to redirect; pass null to continue to the route.
  */
-function withGuestCartCookie(request: NextRequest, response: NextResponse): NextResponse {
-  if (request.cookies.has(GUEST_CART_COOKIE_NAME)) return response;
+function withGuestCartCookie(request: NextRequest, redirect: NextResponse | null): NextResponse {
+  if (request.cookies.has(GUEST_CART_COOKIE_NAME)) {
+    return redirect ?? NextResponse.next();
+  }
   const token = crypto.randomUUID();
+  // Setting it on `request.cookies` and then passing that request through
+  // `NextResponse.next({ request })` is what makes the value readable during
+  // THIS request's render. Plain `NextResponse.next()` would only ship the
+  // Set-Cookie header, so the visitor's very first page render would still
+  // see no guest token and every cart call on it would 400.
   request.cookies.set(GUEST_CART_COOKIE_NAME, token);
+  const response = redirect ?? NextResponse.next({ request });
   response.cookies.set(GUEST_CART_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

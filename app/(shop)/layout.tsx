@@ -1,6 +1,5 @@
 import { Footer } from "@/components/shop/Footer";
 import { Header } from "@/components/shop/Header";
-import { TrustBadges } from "@/components/shop/TrustBadges";
 import { WhatsAppFab } from "@/components/shop/WhatsAppFab";
 
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
@@ -8,7 +7,6 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
     <>
       <Header />
       <main className="flex-1">{children}</main>
-      <TrustBadges />
       <Footer />
       <WhatsAppFab />
     </>

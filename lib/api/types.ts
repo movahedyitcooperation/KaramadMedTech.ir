@@ -100,3 +100,62 @@ export interface ApiSiteSettings {
   social: ApiSocialLinks;
   hero_slides: ApiHeroSlide[];
 }
+
+// --- cart (backend/app/schemas/cart.py) -------------------------------------
+//
+// Note what CartRead does NOT carry: no price snapshot and no totals.
+// `unit_price` is joined fresh from the product row on every read, so subtotal
+// / shipping / total are always recomputed by the caller from the latest
+// response plus GET /settings/'s shipping rule — never cached client-side.
+
+export interface ApiCartItem {
+  product_id: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  unit_price: number;
+  qty: number;
+  stock: number;
+}
+
+export interface ApiCart {
+  id: string;
+  items: ApiCartItem[];
+}
+
+// --- customer auth (backend/app/schemas/customer_auth.py) -------------------
+
+export interface ApiRequestOtpResponse {
+  contact: string;
+  channel: "phone" | "email";
+  expires_in: number;
+}
+
+export interface ApiVerifyOtpResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  contact: string;
+  cart: ApiCart;
+}
+
+// --- account (backend/app/schemas/account.py) -------------------------------
+
+export interface ApiUser {
+  id: string;
+  phone: string | null;
+  email: string | null;
+  full_name: string | null;
+}
+
+export interface ApiAddress {
+  id: string;
+  title: string;
+  full_name: string;
+  phone: string;
+  province: string;
+  city: string;
+  address_line: string;
+  postal_code: string | null;
+  is_default: boolean;
+}

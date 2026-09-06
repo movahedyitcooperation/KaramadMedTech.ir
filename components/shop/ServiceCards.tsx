@@ -1,36 +1,58 @@
-import { ChatCircleDots, CreditCard, FileText, SealCheck } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import { RuleBox } from "@/components/ui/RuleBox";
 import { fa } from "@/lib/i18n/fa";
+import { telHref } from "@/lib/utils/links";
+import type { ContactSetting } from "@/lib/types/settings";
 
-const services = [
-  { icon: CreditCard, accent: "bg-brand-600", ...fa.service.installment },
-  { icon: ChatCircleDots, accent: "bg-teal-500", ...fa.service.consultRequest },
-  { icon: FileText, accent: "bg-coral-500", ...fa.service.officialInvoice },
-  { icon: SealCheck, accent: "bg-brand-700", ...fa.service.whyUs },
-];
+/**
+ * The four service cells. A RuleBox, not four cards: they read as one set
+ * of promises the shop makes, so they share a single box divided by
+ * hairlines rather than each floating separately.
+ *
+ * The differing corner radius on each cell's small square is the only thing
+ * distinguishing them visually — deliberately not four different icons, and
+ * deliberately not four different colors.
+ */
+export function ServiceCards({
+  contact,
+  clinicCategorySlug,
+}: {
+  contact: ContactSetting;
+  clinicCategorySlug: string | null;
+}) {
+  const hrefs = [
+    clinicCategorySlug ? `/category/${clinicCategorySlug}` : "#finder",
+    telHref(contact.phone),
+    telHref(contact.phone),
+    "#site-footer",
+  ];
 
-export function ServiceCards() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {services.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <div
-              key={i}
-              className="overflow-hidden rounded-card border border-line bg-surface shadow-soft"
+    <section
+      aria-label={fa.home.servicesAria}
+      className="mx-auto max-w-[1280px] px-5 pt-18 lg:px-8"
+    >
+      <RuleBox
+        className="sm:grid-cols-2 lg:grid-cols-4"
+        itemClassName="flex min-h-48 flex-col gap-3.5 p-7"
+        items={fa.services.map((service, i) => (
+          <>
+            <span
+              aria-hidden="true"
+              className="block size-6.5 border-2 border-emerald-live"
+              style={{ borderRadius: service.radius }}
+            />
+            <strong className="text-[17px] leading-relaxed font-bold">{service.title}</strong>
+            <p className="text-sm leading-[1.85] text-ink/62">{service.body}</p>
+            <Link
+              href={hrefs[i]}
+              className="mt-auto text-start text-sm font-semibold text-emerald transition-colors duration-(--duration-state) hover:text-emerald-live"
             >
-              <div className={`h-1 ${s.accent}`} aria-hidden="true" />
-              <div className="flex flex-col items-start gap-3 p-5">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-brand-600">
-                  <Icon size={22} aria-hidden="true" />
-                </span>
-                <p className="text-sm font-bold text-ink-900">{s.title}</p>
-                <p className="text-xs text-ink-500">{s.desc}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              {service.action}
+            </Link>
+          </>
+        ))}
+      />
     </section>
   );
 }

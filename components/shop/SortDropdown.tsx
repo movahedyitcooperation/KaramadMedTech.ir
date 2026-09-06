@@ -1,37 +1,46 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { ChangeEvent } from "react";
-import { Select } from "@/components/ui/Select";
+import { useRouter, useSearchParams } from "next/navigation";
 import { fa } from "@/lib/i18n/fa";
 
+/**
+ * The چیدمان control. Writes `sort` into the URL (and drops `page`, since
+ * page 3 of a differently-ordered shelf is meaningless) and lets the server
+ * re-query — the backend orders in SQL, so this never re-sorts a list in the
+ * browser.
+ *
+ * "newest" is the backend's own default, so it is represented by the
+ * *absence* of the param rather than `?sort=newest` — the default listing
+ * keeps a clean URL.
+ */
 export function SortDropdown() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const sort = searchParams.get("sort") ?? "newest";
 
-  function onChange(e: ChangeEvent<HTMLSelectElement>) {
+  function setSort(value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (e.target.value) {
-      params.set("sort", e.target.value);
-    } else {
-      params.delete("sort");
-    }
     params.delete("page");
-    router.push(`${pathname}?${params.toString()}`);
+    if (value === "newest") params.delete("sort");
+    else params.set("sort", value);
+    const qs = params.toString();
+    router.push(qs ? `?${qs}` : "?");
   }
 
   return (
-    <Select
-      aria-label={fa.category.sortBy}
-      defaultValue={searchParams.get("sort") ?? "newest"}
-      onChange={onChange}
-      className="w-auto"
-    >
-      <option value="newest">{fa.category.sortOptions.newest}</option>
-      <option value="cheapest">{fa.category.sortOptions.cheapest}</option>
-      <option value="expensive">{fa.category.sortOptions.expensive}</option>
-      <option value="rating">{fa.category.sortOptions.rating}</option>
-    </Select>
+    <label className="flex items-center gap-2.5 text-sm text-ink/70">
+      {fa.category.sort}
+      <select
+        value={sort}
+        onChange={(e) => setSort(e.target.value)}
+        className="rounded-4 border border-ink/18 bg-surface px-3.5 py-2.5 text-14 text-ink"
+      >
+        {fa.finder.sorts.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
