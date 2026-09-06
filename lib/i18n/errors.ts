@@ -21,6 +21,12 @@ export function toPersianError(err: unknown): string {
     return fa.errors.otp_invalid_code(err.attemptsLeft ?? 0);
   }
 
+  // A 5xx carries no `code` of its own — client.ts falls back to the status
+  // text ("Internal Server Error"), which is not a contract and must not be
+  // reported as an unmapped code below. The shopper gets the retry sentence;
+  // the server already logged the real cause.
+  if (err.status >= 500) return fa.errors.serverError;
+
   const table = fa.errors as Record<string, unknown>;
   const entry = table[err.code];
   if (typeof entry === "string") return entry;

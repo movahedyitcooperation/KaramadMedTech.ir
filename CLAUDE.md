@@ -119,7 +119,7 @@ should appear anywhere else in the codebase.
   empty/terminal states — dashed border + a letterhead watermark),
   `components/ui/HighlightCard.tsx` (emerald ground, reversed text, only
   "where the site is speaking rather than listing" — PDP key specs, the
-  cart's checkout-not-live terminal card, the mega-menu panel),
+  cart's help card, the mega-menu panel),
   `components/ui/RuleBox.tsx` (one box divided by hairlines — service
   cells, trust badges — reads as a set, not individual cards), and the
   product card (its own component, hairline border + full-bleed photo, no
@@ -223,13 +223,16 @@ should appear anywhere else in the codebase.
 ### Where the design is honest about a gap
 
 Several screens deliberately state that a feature is not live rather than
-faking it: the finder's «جست‌وجوی متنی هنوز فعال نیست» line (no `q` param),
-the cart's terminal card instead of a checkout button (orders/payments are
-Phase 6 stubs, not even registered on the router), the account's سفارش‌ها
-empty state, the PDP's نظرات tab, and the disabled «به‌زودی» compare/save
-buttons. **Do not "finish" any of these with placeholder behaviour** — see
-`docs/BACKEND-GAPS.md` for what each one is waiting on and what it costs to
-build for real.
+faking it: the PDP's نظرات tab (no review submission) and the disabled
+«به‌زودی» compare/save buttons. **Do not "finish" any of these with
+placeholder behaviour** — see `docs/BACKEND-GAPS.md` for what each one is
+waiting on and what it costs to build for real.
+
+Two of the original honesty states have since been retired *because the
+feature became real*, which is the only acceptable way to remove one: text
+search now has a `q` param and a results page, and the cart now ends in a
+checkout button because `/checkout`, `/checkout/mock-pay`, `/orders/[id]` and
+the account's سفارش‌ها list all call live Phase 6 endpoints.
 
 ### Customer auth pattern (implemented)
 

@@ -179,3 +179,46 @@ export interface ApiAddress {
   postal_code: string | null;
   is_default: boolean;
 }
+
+// --- orders & payments (backend/app/schemas/{order,payment}.py) -------------
+//
+// The order snapshots its address and every line's name/sku/price at checkout
+// time, so a later product edit or price change never rewrites history.
+
+export interface ApiOrderItem {
+  /** Null once the product row is gone; the snapshot fields still stand. */
+  product_id: string | null;
+  product_name: string;
+  product_sku: string;
+  unit_price: number;
+  qty: number;
+}
+
+export interface ApiOrder {
+  id: string;
+  order_number: string;
+  address_title: string;
+  address_full_name: string;
+  address_phone: string;
+  address_province: string;
+  address_city: string;
+  address_line: string;
+  address_postal_code: string | null;
+  subtotal: number;
+  shipping_cost: number;
+  total: number;
+  status: string;
+  items: ApiOrderItem[];
+}
+
+export interface ApiOrderListResult {
+  items: ApiOrder[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface ApiPaymentRequestResponse {
+  /** Where to send the shopper: the real gateway, or the dev mock page. */
+  payment_url: string;
+}

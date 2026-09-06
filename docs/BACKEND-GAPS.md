@@ -69,21 +69,51 @@ selected department), `in_stock`, and `price_min`/`price_max`.
 - **Opt-in.** Absent unless requested, so the home carousels and the PDP's
   related rail pay nothing for aggregates they never read.
 
+### ✅ Checkout, payment and order history — the storefront UI
+
+Was: the backend's Phase 6 endpoints existed and worked, but nothing in the
+storefront called them. The cart ended in a «پرداخت آنلاین به‌زودی» card, the
+account's **سفارش‌ها** tab was an empty state that could never fill, and the
+`payment_url` the mock provider returns pointed at `/checkout/mock-pay` — a
+route the frontend did not have, so a mock checkout 404'd.
+
+Now: the funnel runs end to end, entirely against the existing endpoints. No
+backend file was changed to build it.
+
+- `/checkout` — address selection plus an order preview. The totals shown are
+  computed here for display only; `POST /orders/` recomputes subtotal,
+  shipping and total from live product rows, and the order carries the
+  backend's figures.
+- **Order creation and payment initiation are two calls, deliberately not
+  merged.** `POST /orders/` is the point of no return: it decrements stock and
+  empties the cart. `POST /payments/request` only asks for a URL. If the
+  gateway request fails, the order survives in `pending_payment` and is
+  payable from its own page — merging them would let a gateway hiccup lose the
+  basket.
+- `/checkout/mock-pay` — the dev stand-in for the bank, matching
+  `MockPaymentProvider`'s `payment_url`. Its two buttons are plain links to
+  the backend's public callback with `Status=OK`/`NOK`, exactly what ZarinPal
+  would call. It `notFound()`s outside development, so a production deploy
+  cannot expose a one-click "mark my order paid" route.
+- `/orders/[id]` — the destination of the backend's post-payment redirect. It
+  renders the `?payment=success|failed|cancelled` verdict as a banner **next
+  to the order's own status badge**, so a stale or hand-typed query string
+  cannot make an unpaid order look paid. A `pending_payment` order offers a
+  retry.
+- `/account?tab=orders` — the real list, from `GET /orders/`.
+- `/orders` (no id) forwards to that tab; `/checkout` and `/orders` joined
+  `/account` in middleware's customer gate, carrying `next` so a login never
+  costs a shopper their place in the funnel.
+
 ## Still open, ranked by value of adding it
-
-> **Note (verification pass, after the Phase 6 merge):** gap #1 flipped sides.
-> The backend endpoints exist and were exercised end to end — checkout creates
-> an order with the address and line prices snapshotted, empties the cart,
-> assigns an order number, enforces per-customer ownership on read, rejects an
-> empty cart, and the mock payment provider returns a `payment_url`. What is
-> missing is the storefront UI for all of it.
-
 
 | # | Gap | Frontend behaviour now | Cost to add |
 |---|---|---|---|
-| 1 | **The storefront has no checkout or orders UI, although the backend now has both.** Phase 6 (`POST /orders/`, `GET /orders/`, `GET /orders/{id}`, `POST /payments/request`, `GET /payments/callback`) landed on main from `backend-sina` and is registered on the router. | **This is now a frontend gap, not a backend one, and the UI is currently wrong about it.** The cart still ends in the «پرداخت آنلاین به‌زودی» terminal card and the account's **سفارش‌ها** tab is still an empty state — both were accurate before Phase 6 merged and are not any more. `POST /payments/request` also returns a `payment_url` pointing at `/checkout/mock-pay`, a route the frontend does not have (404). | Medium-large, and **frontend only**: address selection, an order review step, redirect to `payment_url`, a callback/return route, an order confirmation page, and an order list + detail under the account. The backend contract is verified working — see the verification notes below. |
-| 2 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
-| 3 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
+| 1 | **The mock payment provider cannot be paid twice for one order.** `MockPaymentProvider.request_payment` returns a deterministic `authority` of `MOCK-{order_number}`, but `payments.authority` is `unique=True` — so a second `POST /payments/request` for the same order raises an IntegrityError and the endpoint 500s. Real ZarinPal is unaffected: it mints a fresh authority per request. | The retry button on a `pending_payment` order works against ZarinPal but fails against the mock provider, showing the generic server-error sentence. Reproduced on the local stack: cancel a mock payment, then press «پرداخت سفارش». | Tiny, backend-only: make the mock authority unique per attempt (e.g. append a short random suffix or the attempt count). Worth doing because the mock provider is exactly what dev and staging use to test the retry path. |
+| 2 | **`OrderRead` exposes no `created_at`.** The model has the column; the schema does not return it. | The order history and the order page show no dates at all — the order number is the only chronological cue, and the backend's newest-first ordering is the only thing keeping the list sensible. Nothing is invented to fill the gap. | Trivial, backend-only: add `created_at` to `OrderRead`. Purely additive, no existing consumer breaks. |
+
+| 3 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
+| 4 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
 
 ## Infrastructure findings — backend-side, not solvable from the browser
 
