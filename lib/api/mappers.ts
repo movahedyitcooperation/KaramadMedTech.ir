@@ -1,14 +1,28 @@
+import type { Address, CustomerProfile } from "@/lib/types/account";
 import type { AdminProduct, AdminProductImage, AdminProductSpec } from "@/lib/types/admin";
+import type { Cart, CartLine } from "@/lib/types/cart";
 import type { Category } from "@/lib/types/category";
-import type { Product, ProductImage, ProductSpec } from "@/lib/types/product";
+import type {
+  FacetValue,
+  Product,
+  ProductFacets,
+  ProductImage,
+  ProductSpec,
+} from "@/lib/types/product";
 import type { ShippingSetting, SiteSettings } from "@/lib/types/settings";
 import type {
+  ApiAddress,
+  ApiCart,
+  ApiCartItem,
   ApiCategoryBase,
+  ApiFacetValue,
+  ApiProductFacets,
   ApiCategoryRead,
   ApiProduct,
   ApiProductImage,
   ApiProductSpec,
   ApiSiteSettings,
+  ApiUser,
 } from "@/lib/api/types";
 
 const DEFAULT_BACKEND_PUBLIC_ORIGIN = "http://localhost:8000";
@@ -93,6 +107,22 @@ export function mapProduct(raw: ApiProduct): Product {
     // received" with no re-sort of their own.
     images: raw.images.map(mapProductImage),
     specs: raw.specs.map(mapProductSpec),
+  };
+}
+
+function mapFacetValue(raw: ApiFacetValue): FacetValue {
+  // A brand facet has no separate label — its value IS the display name.
+  return { value: raw.value, label: raw.label ?? raw.value, count: raw.count };
+}
+
+export function mapFacets(raw: ApiProductFacets): ProductFacets {
+  return {
+    brands: raw.brands.map(mapFacetValue),
+    categories: raw.categories.map(mapFacetValue),
+    subcategories: raw.subcategories.map(mapFacetValue),
+    inStock: raw.in_stock,
+    priceMin: raw.price_min,
+    priceMax: raw.price_max,
   };
 }
 
@@ -228,5 +258,76 @@ export function categoryFormToPayload(values: {
     parent_id: values.parentId || null,
     sort_order: values.sortOrder,
     is_active: values.isActive,
+  };
+}
+
+// --- cart -------------------------------------------------------------------
+
+/**
+ * CartItemRead.image is nullable (a product with no ProductImage rows yet) and
+ * goes through resolveImageUrl for the same reason product images do: an
+ * admin-uploaded /api/v1/uploads/... path resolves against the backend origin,
+ * not this app's. CartLine.image is a non-nullable string, so a product
+ * without an image falls back to the shared placeholder rather than rendering
+ * a broken <Image src="">.
+ */
+const CART_IMAGE_FALLBACK = "/images/placeholders/diagnostic-1.svg";
+
+function mapCartItem(raw: ApiCartItem): CartLine {
+  return {
+    productId: raw.product_id,
+    slug: raw.slug,
+    name: raw.name,
+    image: raw.image ? resolveImageUrl(raw.image) : CART_IMAGE_FALLBACK,
+    unitPrice: raw.unit_price,
+    qty: raw.qty,
+    stock: raw.stock,
+  };
+}
+
+export function mapCart(raw: ApiCart): Cart {
+  return { id: raw.id, items: raw.items.map(mapCartItem) };
+}
+
+// --- account ----------------------------------------------------------------
+
+export function mapCustomerProfile(raw: ApiUser): CustomerProfile {
+  return { id: raw.id, phone: raw.phone, email: raw.email, fullName: raw.full_name };
+}
+
+export function mapAddress(raw: ApiAddress): Address {
+  return {
+    id: raw.id,
+    title: raw.title,
+    fullName: raw.full_name,
+    phone: raw.phone,
+    province: raw.province,
+    city: raw.city,
+    addressLine: raw.address_line,
+    postalCode: raw.postal_code,
+    isDefault: raw.is_default,
+  };
+}
+
+/** camelCase form values -> the backend's AddressCreate/AddressUpdate shape. */
+export function addressFormToPayload(values: {
+  title: string;
+  fullName: string;
+  phone: string;
+  province: string;
+  city: string;
+  addressLine: string;
+  postalCode: string;
+  isDefault: boolean;
+}) {
+  return {
+    title: values.title,
+    full_name: values.fullName,
+    phone: values.phone,
+    province: values.province,
+    city: values.city,
+    address_line: values.addressLine,
+    postal_code: values.postalCode || null,
+    is_default: values.isDefault,
   };
 }

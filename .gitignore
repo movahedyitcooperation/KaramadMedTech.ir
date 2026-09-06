@@ -45,6 +45,8 @@ backend/.venv/
 *.pyc
 backend/.env
 backend/uploads/
+# local-only PostgreSQL data directory created by backend/devdb.sh
+backend/.pgdata/
 
 # typescript
 *.tsbuildinfo

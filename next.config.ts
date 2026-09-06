@@ -9,6 +9,10 @@ const backendUrl = new URL(backendPublicOrigin);
 
 const nextConfig: NextConfig = {
   images: {
+    // AVIF first, WebP second, original last. AVIF typically saves another
+    // 20-30% over WebP on photographs; the optimizer only spends the encode
+    // on widths that are actually requested, and caches the result.
+    formats: ["image/avif", "image/webp"],
     // Only local, self-authored placeholder SVGs (public/images/placeholders,
     // components/brand) go through next/image — safe to allow.
     dangerouslyAllowSVG: true,

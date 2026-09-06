@@ -1,24 +1,31 @@
 "use client";
 
-import { Phone } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 
+/**
+ * Reveals the shop's number in place rather than opening a panel: one tap
+ * swaps the label for the number, which is then selectable. The live dot is
+ * emerald-live — graphical use only, never carrying text.
+ *
+ * The number renders LTR with `unicode-bidi: plaintext`: a phone number is
+ * one of the three places (with SKU and postal code) that keeps Latin digits
+ * and Latin direction inside Persian copy.
+ */
 export function PhoneWidget({ phone }: { phone: string }) {
-  const [open, setOpen] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   return (
     <button
       type="button"
-      onClick={() => setOpen((o) => !o)}
-      aria-expanded={open}
-      className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-pill border border-bone/22 bg-bone/8 px-4 text-sm transition-colors duration-(--duration-state) hover:bg-bone/14"
+      onClick={() => setRevealed((o) => !o)}
+      aria-expanded={revealed}
+      className="j-hdr-ctl hidden items-center gap-2 rounded-pill px-3.5 py-2.5 text-sm lg:inline-flex"
     >
-      <span className="h-1.75 w-1.75 shrink-0 rounded-full bg-emerald-live" aria-hidden="true" />
-      <Phone size={16} aria-hidden="true" />
-      <span dir={open ? "ltr" : undefined} style={open ? { unicodeBidi: "plaintext" } : undefined}>
-        {open ? toPersianDigits(phone) : fa.header.phoneLabel}
+      <span aria-hidden="true" className="block size-1.75 shrink-0 rounded-full bg-emerald-live" />
+      <span dir="ltr" style={{ unicodeBidi: "plaintext" }}>
+        {revealed ? toPersianDigits(phone) : fa.header.phone}
       </span>
     </button>
   );

@@ -2,10 +2,16 @@
 
 Python 3.12 · FastAPI · SQLAlchemy 2.0 (async) · PostgreSQL · Alembic · uv
 
-Serves the Next.js storefront (in the parent directory of this repo) over a
-JSON REST API at `/api/v1/*`. Currently read-only: categories, products,
-settings. Auth, cart, orders, and payments are stub routers only — see
-`app/api/v1/{auth,cart,orders,payments}.py`.
+Serves the Next.js storefront (the parent directory of this one) over a JSON
+REST API at `/api/v1/*`.
+
+Live and registered on `api_router`: categories, products, settings, admin
+auth + product/category CRUD + uploads, customer OTP auth, cart (guest and
+authenticated), and account (profile + addresses). **Orders and payments are
+Phase 6 stubs** — `app/api/v1/{orders,payments}.py` exist as bare
+`APIRouter()`s and are deliberately *not* included in `router.py`. See
+`../docs/BACKEND-GAPS.md` for what the storefront does instead, and what each
+missing capability costs to build.
 
 ## Prerequisites
 
@@ -14,6 +20,26 @@ settings. Auth, cart, orders, and payments are stub routers only — see
   system-wide Python 3.12 install is required.
 - A reachable PostgreSQL 15+ instance for anything beyond `uv sync` or
   running the dev server without hitting the database.
+
+### No PostgreSQL installed?
+
+`devdb.sh` runs the PostgreSQL binaries bundled inside the `pgserver` pip
+package on a fixed local port, so the real stack — real Alembic migrations,
+real `JSONB`/`UUID` columns, the real seed script — can be exercised without
+installing a server:
+
+```bash
+pip install pgserver         # into the same venv as the app's deps
+./devdb.sh init              # once: initdb into ./.pgdata (gitignored)
+./devdb.sh start             # listens on 127.0.0.1:55432
+./devdb.sh status            # pg_isready
+./devdb.sh stop
+```
+
+Then point `DATABASE_URL` at it:
+`postgresql+asyncpg://postgres@127.0.0.1:55432/karamad_medtech`
+(create the database once with the bundled `psql`). Development only — the
+deployed stack uses a real PostgreSQL instance, see `../docs/DEPLOY.md`.
 
 ## Setup
 
@@ -32,6 +58,18 @@ uv run uvicorn app.main:app --reload --port 8000
 
 - API docs: http://localhost:8000/docs
 - Health check: http://localhost:8000/health
+
+## Tests
+
+```bash
+uv run pytest            # or ./.venv/Scripts/python -m pytest
+```
+
+`tests/test_search.py` covers the Persian normalisation rules as pure unit
+tests, plus integration tests for search, `is_featured` and the facet block
+against a real database. The DB-backed tests **skip** (they do not fail) when
+no database is reachable, so the suite is still useful on a machine that has
+not run `devdb.sh`.
 
 ## Project layout
 

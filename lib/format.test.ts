@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { formatJalali, formatToman, toPersianDigits } from "./format";
+import {
+  formatJalali,
+  formatRating,
+  formatToman,
+  parseFaDigits,
+  stars,
+  toPersianDigits,
+  toPersianNumber,
+} from "./format";
 
 describe("toPersianDigits", () => {
   it("converts each Latin digit to its Persian counterpart", () => {
@@ -32,5 +40,45 @@ describe("formatJalali", () => {
     expect(result).toContain("فروردین");
     expect(result).toContain("۰۹:۰۵");
     expect(result).not.toMatch(/[0-9]/);
+  });
+});
+
+describe("toPersianNumber", () => {
+  it("groups thousands without the currency label", () => {
+    expect(toPersianNumber(1250000)).toBe("۱٬۲۵۰٬۰۰۰");
+  });
+});
+
+describe("parseFaDigits", () => {
+  it("folds Persian digits back to Latin", () => {
+    expect(parseFaDigits("۰۹۱۲۱۲۳۴۵۶۷")).toBe("09121234567");
+  });
+
+  it("strips anything that is not a digit, so a typed separator is harmless", () => {
+    expect(parseFaDigits("۱٬۲۵۰٬۰۰۰ تومان")).toBe("1250000");
+  });
+
+  it("accepts a mixed-numeral string, which forms genuinely receive", () => {
+    expect(parseFaDigits("۰۹12۳")).toBe("09123");
+  });
+});
+
+describe("stars", () => {
+  it("rounds to the nearest whole star and always returns five glyphs", () => {
+    expect(stars(4.6)).toBe("★★★★★");
+    expect(stars(4.4)).toBe("★★★★☆");
+    expect(stars(0)).toBe("☆☆☆☆☆");
+  });
+
+  it("clamps out-of-range input rather than producing a short string", () => {
+    expect(stars(9)).toBe("★★★★★");
+    expect(stars(-3)).toBe("☆☆☆☆☆");
+  });
+});
+
+describe("formatRating", () => {
+  it("renders one decimal with the Persian decimal separator", () => {
+    expect(formatRating(4.6)).toBe("۴٫۶");
+    expect(formatRating(4)).toBe("۴٫۰");
   });
 });

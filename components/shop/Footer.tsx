@@ -1,84 +1,95 @@
-import { InstagramLogo, MapPin, Phone, TelegramLogo, YoutubeLogo } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { getTopLevelCategories } from "@/lib/db/categories";
 import { getSiteSettings } from "@/lib/db/settings";
-import { jalaliYear, toPersianDigits } from "@/lib/format";
+import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
+import { socialHref, telHref, waHref } from "@/lib/utils/links";
 
-const quickLinks = [
-  { label: fa.footer.links.about, href: "/" },
-  { label: fa.footer.links.blog, href: "/" },
-  { label: fa.footer.links.faq, href: "/" },
-  { label: fa.footer.links.trackOrder, href: "/" },
-];
-
-const customerServiceLinks = [
-  { label: fa.footer.links.shipping, href: "/" },
-  { label: fa.footer.links.payment, href: "/" },
-  { label: fa.footer.links.returns, href: "/" },
-  { label: fa.footer.links.terms, href: "/" },
-  { label: fa.footer.links.privacy, href: "/" },
-];
-
+/**
+ * Four columns on the emerald ground: the brand block with socials, the
+ * department list, the services list, and contact + licence badge slots.
+ *
+ * The socials are lettered chips rather than brand glyphs — Aparat has no
+ * Phosphor icon, and three real logos plus one improvised mark reads worse
+ * than four consistent word-chips.
+ *
+ * The نماد اعتماد / ساماندهی slots are placeholders on purpose: those badges
+ * are issued to the business and pasted in as vendor-hosted markup. Empty
+ * outlines say "this is where they go" without inventing a fake seal.
+ */
 export async function Footer() {
-  const settings = await getSiteSettings();
+  const [settings, categories] = await Promise.all([getSiteSettings(), getTopLevelCategories()]);
+
+  // Only the three the footer actually links, plus WhatsApp — `youtube`
+  // exists on the settings schema but the shop has no channel, and an empty
+  // chip is worse than no chip.
+  type SocialKind = "telegram" | "instagram" | "aparat" | "whatsapp";
+  const socials: { kind: SocialKind; href: string }[] = [
+    ...(["telegram", "instagram", "aparat"] as const)
+      .filter((k) => Boolean(settings.social[k]))
+      .map((k) => ({ kind: k as SocialKind, href: socialHref(k, settings.social[k] as string) })),
+    { kind: "whatsapp" as SocialKind, href: waHref(settings.contact) },
+  ];
+
+  const clinic = categories.find((c) => c.slug === "tajhizat-matb-clinic");
+  const serviceHrefs = [
+    clinic ? `/category/${clinic.slug}` : "/",
+    telHref(settings.contact.phone),
+    telHref(settings.contact.phone),
+    "#site-footer",
+  ];
 
   return (
-    <footer className="on-emerald bg-linear-to-b from-emerald-hi from-[-8%] via-emerald via-[22%] to-emerald-deep text-bone">
-      <div className="mx-auto max-w-7xl px-4 pb-8 pt-14 sm:px-8">
+    <footer
+      id="site-footer"
+      className="on-emerald mt-auto bg-linear-to-b from-emerald-hi from-[-8%] via-emerald via-[22%] to-emerald-deep text-bone"
+    >
+      <div className="mx-auto max-w-[1280px] px-5 pt-14 pb-8 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1.3fr]">
-          <div>
+          <div className="flex flex-col gap-4">
             <Logo tone="bone" />
-            <p className="mt-4 max-w-[36ch] text-14 leading-prose text-bone/70">{fa.footer.aboutText}</p>
-            <div className="mt-4 flex items-center gap-3">
-              {/* aria-labels are hardcoded here, matching the pre-existing
-                  behavior — one of the ~14 hardcoded-Persian sites this
-                  whole codebase has; the sweep into fa.ts is Stage 7 scope,
-                  not this restyle. */}
-              {settings.social.telegram && (
+            <p className="max-w-[36ch] text-sm leading-[1.9] text-bone/70">{fa.brand.blurb}</p>
+            <div className="flex gap-2">
+              {socials.map((s) => (
                 <a
-                  href={settings.social.telegram}
+                  key={s.kind}
+                  href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="تلگرام"
-                  className="flex h-10 w-10 items-center justify-center rounded-5 border border-bone/26 transition-colors duration-(--duration-state) hover:border-bone"
+                  aria-label={fa.footer.socialNames[s.kind]}
+                  className="grid size-10 place-items-center rounded-4 border border-bone/26 text-[11.5px] font-semibold text-bone transition-colors duration-(--duration-state) hover:border-bone"
                 >
-                  <TelegramLogo size={18} aria-hidden="true" />
+                  {fa.footer.socialNames[s.kind]}
                 </a>
-              )}
-              {settings.social.instagram && (
-                <a
-                  href={settings.social.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="اینستاگرام"
-                  className="flex h-10 w-10 items-center justify-center rounded-5 border border-bone/26 transition-colors duration-(--duration-state) hover:border-bone"
-                >
-                  <InstagramLogo size={18} aria-hidden="true" />
-                </a>
-              )}
-              {settings.social.aparat && (
-                <a
-                  href={settings.social.aparat}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="آپارات"
-                  className="flex h-10 w-10 items-center justify-center rounded-5 border border-bone/26 transition-colors duration-(--duration-state) hover:border-bone"
-                >
-                  <YoutubeLogo size={18} aria-hidden="true" />
-                </a>
-              )}
+              ))}
             </div>
           </div>
 
           <div>
-            <h3 className="mb-3.5 text-15 font-bold">{fa.footer.quickLinksTitle}</h3>
+            <div className="mb-3.5 text-15 font-bold">{fa.footer.categoriesHeading}</div>
             <ul className="flex flex-col gap-2.5">
-              {quickLinks.map((link) => (
+              {categories.slice(0, 4).map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/category/${c.slug}`}
+                    className="text-sm leading-relaxed text-bone/72 transition-colors duration-(--duration-state) hover:text-bone"
+                  >
+                    {c.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div className="mb-3.5 text-15 font-bold">{fa.footer.servicesHeading}</div>
+            <ul className="flex flex-col gap-2.5">
+              {fa.footer.serviceLinks.map((link, i) => (
                 <li key={link.label}>
                   <Link
-                    href={link.href}
-                    className="text-14 text-bone/72 transition-colors duration-(--duration-state) hover:text-bone"
+                    href={serviceHrefs[i]}
+                    className="text-sm leading-relaxed text-bone/72 transition-colors duration-(--duration-state) hover:text-bone"
                   >
                     {link.label}
                   </Link>
@@ -87,63 +98,33 @@ export async function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h3 className="mb-3.5 text-15 font-bold">{fa.footer.customerServiceTitle}</h3>
-            <ul className="flex flex-col gap-2.5">
-              {customerServiceLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-14 text-bone/72 transition-colors duration-(--duration-state) hover:text-bone"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-3.5 text-15 font-bold">{fa.footer.contactTitle}</h3>
+          <div className="flex flex-col gap-4">
+            <div className="text-15 font-bold">{fa.footer.contactHeading}</div>
             <a
-              href={`tel:${settings.contact.phone}`}
+              href={telHref(settings.contact.phone)}
               dir="ltr"
               style={{ unicodeBidi: "plaintext" }}
-              className="block text-lg font-bold"
+              className="text-[19px] font-bold text-bone"
             >
               {toPersianDigits(settings.contact.phone)}
             </a>
-            <ul className="mt-3 flex flex-col gap-2.5 text-14 text-bone/72">
-              <li className="flex items-start gap-2">
-                <MapPin size={17} className="mt-0.5 shrink-0" aria-hidden="true" />
-                <span className="leading-prose">{settings.contact.address}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone size={17} className="shrink-0" aria-hidden="true" />
-                <span>{fa.footer.workingHours}</span>
-              </li>
-            </ul>
-            {/* Placeholder license badges — left exactly as before (3
-                generic dashed boxes, no real link) per the porting plan;
-                real license badges/links are out of scope for this pass. */}
-            <div className="mt-5 flex flex-wrap gap-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex h-16 w-16 items-center justify-center rounded-4 border border-dashed border-bone/24 text-center text-11 text-bone/55"
+            <div className="text-sm leading-[1.95] text-bone/72">{settings.contact.address}</div>
+            <div className="mt-1 flex gap-2.5">
+              {[fa.footer.enamad, fa.footer.samandehi].map((label) => (
+                <span
+                  key={label}
+                  className="grid h-16 w-22 place-items-center rounded-4 border border-bone/24 p-1.5 text-center text-[11px] leading-normal text-bone/55"
                 >
-                  نماد
-                </div>
+                  {label}
+                </span>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-bone/14 pt-5.5 text-13 text-bone/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>{fa.footer.rights(jalaliYear())}</p>
-          <Link href="/" className="hover:text-bone">
-            {fa.footer.links.returns}
-          </Link>
+        <div className="mt-10 flex flex-wrap justify-between gap-5 border-t border-bone/14 pt-5.5 text-13 leading-[1.8] text-bone/55">
+          <span>{fa.footer.copyright}</span>
+          <span>{fa.footer.returnPolicy}</span>
         </div>
       </div>
     </footer>

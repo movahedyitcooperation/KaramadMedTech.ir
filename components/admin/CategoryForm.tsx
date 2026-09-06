@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { createElement, useState, type FormEvent } from "react";
 import { createCategory, updateCategory } from "@/app/admin/(protected)/categories/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -40,8 +40,6 @@ export function CategoryForm({ mode, categoryId, initialCategory, parentOptions 
   function set<K extends keyof CategoryFormValues>(key: K, value: CategoryFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
-
-  const IconPreview = resolveIcon(values.icon);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -86,7 +84,7 @@ export function CategoryForm({ mode, categoryId, initialCategory, parentOptions 
           className="flex-1"
         />
         <span className="mb-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
-          <IconPreview size={22} aria-hidden="true" />
+          <IconPreview name={values.icon} />
         </span>
       </div>
 
@@ -136,4 +134,19 @@ export function CategoryForm({ mode, categoryId, initialCategory, parentOptions 
       </div>
     </form>
   );
+}
+
+/**
+ * Live preview of the Phosphor icon named in the field above.
+ *
+ * Defined at module scope, and resolving the name internally, because
+ * `const Icon = resolveIcon(name)` inside the form body reads to React (and
+ * to the linter) as a component created during render, which would reset its
+ * state on every keystroke.
+ */
+function IconPreview({ name }: { name: string }) {
+  // createElement, not `const Icon = resolveIcon(name); <Icon />` — the
+  // latter reads as declaring a component inside a render, which would
+  // remount it on every keystroke in the field above.
+  return createElement(resolveIcon(name), { size: 22, "aria-hidden": true });
 }

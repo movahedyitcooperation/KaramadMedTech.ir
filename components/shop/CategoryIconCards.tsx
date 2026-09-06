@@ -1,31 +1,42 @@
 import Link from "next/link";
+import { DepartmentMark } from "@/components/shop/DepartmentMark";
 import { fa } from "@/lib/i18n/fa";
 import type { Category } from "@/lib/types/category";
-import { resolveIcon } from "@/lib/utils/resolveIcon";
+import { resolveDepartment } from "@/lib/utils/department";
 
-export function CategoryIconCards({ categories }: { categories: Category[] }) {
+export interface CategoryRailItem {
+  category: Category;
+  productCount: number;
+}
+
+/**
+ * The home category rail — the ONLY place all six department colors appear
+ * together, and they appear there as a legend: this is where a shopper learns
+ * that cyan means تجهیزات تشخیصی. Every other surface shows at most one
+ * department color, and the shopping surface itself shows none.
+ */
+export function CategoryIconCards({ items }: { items: CategoryRailItem[] }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-ink-900">
-        <span className="h-4 w-1 rounded-full bg-coral-500" aria-hidden="true" />
-        {fa.home.specialOffersTitle}
-      </h2>
-      <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible lg:grid-cols-6">
-        {categories.map((cat) => {
-          const Icon = resolveIcon(cat.icon);
-          return (
-            <Link
-              key={cat.id}
-              href={`/category/${cat.slug}`}
-              className="flex w-24 shrink-0 flex-col items-center gap-2 rounded-card p-3 text-center transition-colors duration-200 hover:bg-brand-50 sm:w-auto"
-            >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-600">
-                <Icon size={26} aria-hidden="true" />
-              </span>
-              <span className="text-xs font-medium text-ink-900">{cat.name}</span>
-            </Link>
-          );
-        })}
+    <section
+      aria-label={fa.home.categoriesAria}
+      className="mx-auto max-w-[1280px] px-5 pt-16 lg:px-8"
+    >
+      <div className="grid grid-cols-2 gap-4.5 sm:grid-cols-3 lg:grid-cols-6">
+        {items.map(({ category, productCount }) => (
+          <Link
+            key={category.id}
+            href={`/category/${category.slug}`}
+            className="flex flex-col items-center rounded-4 px-2.5 py-4.5 transition-colors duration-(--duration-state) ease-out hover:bg-ink/[0.045]"
+          >
+            <DepartmentMark
+              department={resolveDepartment(category.slug)}
+              label={category.name}
+              size={76}
+              layout="stack"
+              meta={fa.home.countUnit(productCount)}
+            />
+          </Link>
+        ))}
       </div>
     </section>
   );

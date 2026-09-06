@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { fa } from "@/lib/i18n/fa";
 
@@ -36,7 +35,11 @@ export function AdminLoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg p-4">
-      <Card className="w-full max-w-sm p-6">
+      {/* Card.tsx is retired — the storefront has four named card
+          treatments instead, none of which fits an admin login. This one
+          surface is inlined rather than reintroducing a generic component
+          for a single caller. */}
+      <div className="w-full max-w-sm rounded-card border border-line bg-surface p-6 shadow-soft">
         <h1 className="text-center text-lg font-bold text-ink-900">{fa.admin.loginTitle}</h1>
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <Input
@@ -61,7 +64,7 @@ export function AdminLoginForm() {
             {loading ? fa.admin.loggingIn : fa.admin.loginButton}
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

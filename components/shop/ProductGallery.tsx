@@ -2,49 +2,68 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import type { ProductImage } from "@/lib/types/product";
 import { cn } from "@/lib/utils/cn";
 
+const IMAGE_FALLBACK = "/images/placeholders/diagnostic-1.svg";
+
+/**
+ * Main image plus, only when there is more than one, a thumbnail strip.
+ *
+ * A single-image product shows just the one image: padding it out to four
+ * identical clones reads as a rendering bug, not as a gallery. The main image
+ * keeps the hover zoom (`.j-zoom`) because inspecting the product closely is
+ * a real need here — it is the one zoom in the whole design.
+ */
 export function ProductGallery({
   images,
+  productName,
 }: {
   images: ProductImage[];
   productName: string;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const active = images[activeIndex] ?? images[0];
+  const [active, setActive] = useState(0);
+  const list: ProductImage[] =
+    images.length > 0 ? images : [{ url: IMAGE_FALLBACK, alt: productName, sortOrder: 0 }];
+  const main = list[Math.min(active, list.length - 1)];
 
   return (
-    <div>
-      <div className="relative aspect-square overflow-hidden rounded-card border border-line bg-brand-50">
-        {active && (
-          <Image
-            src={active.url}
-            alt={active.alt}
-            fill
-            priority
-            className="object-contain p-10 transition-transform duration-300 hover:scale-110"
-            sizes="(min-width: 1024px) 40vw, 90vw"
-          />
-        )}
+    <div className="flex flex-col gap-3.5">
+      <div className="j-zoom aspect-square overflow-hidden rounded-4 border border-ink/10 bg-surface">
+        <Image
+          src={main.url}
+          alt={main.alt || productName}
+          width={1385}
+          height={1385}
+          priority
+          className="block size-full bg-img-bg object-cover"
+          sizes="(min-width: 1024px) 50vw, 100vw"
+        />
       </div>
-      {images.length > 1 && (
-        <div className="mt-3 flex gap-2">
-          {images.map((img, i) => (
+
+      {list.length > 1 && (
+        <div className="flex gap-2.5">
+          {list.slice(0, 4).map((image, i) => (
             <button
-              key={i}
+              key={`${image.url}-${i}`}
               type="button"
-              onClick={() => setActiveIndex(i)}
-              aria-label={fa.product.galleryThumbnail(toPersianDigits(i + 1))}
-              aria-current={i === activeIndex}
+              onClick={() => setActive(i)}
+              aria-label={fa.pdp.thumb(i + 1)}
+              aria-current={i === active}
               className={cn(
-                "relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-input border bg-brand-50",
-                i === activeIndex ? "border-brand-600" : "border-line"
+                "size-19 cursor-pointer overflow-hidden rounded-3 border bg-img-bg p-0",
+                i === active ? "border-emerald" : "border-ink/14"
               )}
             >
-              <Image src={img.url} alt="" fill className="object-contain p-2" sizes="64px" />
+              <Image
+                src={image.url}
+                alt=""
+                width={152}
+                height={152}
+                loading="lazy"
+                className="block size-full object-cover"
+              />
             </button>
           ))}
         </div>

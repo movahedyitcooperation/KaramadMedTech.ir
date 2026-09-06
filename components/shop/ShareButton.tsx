@@ -1,35 +1,45 @@
 "use client";
 
-import { Share } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { fa } from "@/lib/i18n/fa";
+import { useToastStore } from "@/lib/stores/toast-store";
 
+/**
+ * Native share sheet where the browser has one, clipboard copy everywhere
+ * else. The confirmation goes through the same toast queue as every other
+ * acknowledgement rather than mutating the button's own label — the button
+ * is a persistent control, not a state readout.
+ */
 export function ShareButton({ productName }: { productName: string }) {
-  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const pushToast = useToastStore((s) => s.push);
 
   async function onShare() {
+    if (busy) return;
+    setBusy(true);
     const url = window.location.href;
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share({ title: productName, url });
-        return;
-      } catch {
-        // user cancelled the native share sheet — fall back to clipboard copy
+      } else {
+        await navigator.clipboard.writeText(url);
+        pushToast(fa.pdp.shared, "pdp-shared");
       }
+    } catch {
+      // The visitor dismissed the native sheet, or the clipboard is blocked
+      // (insecure context / denied permission). Neither is worth a message.
+    } finally {
+      setBusy(false);
     }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
     <button
       type="button"
       onClick={onShare}
-      className="flex h-10 cursor-pointer items-center gap-2 rounded-pill border border-line px-4 text-sm text-ink-900 hover:bg-bg"
+      className="cursor-pointer rounded-pill border border-ink/18 px-4 py-2.25 text-13 text-ink transition-colors duration-(--duration-state) hover:border-ink"
     >
-      <Share size={16} aria-hidden="true" />
-      {copied ? fa.product.shareCopied : fa.product.share}
+      {fa.pdp.share}
     </button>
   );
 }

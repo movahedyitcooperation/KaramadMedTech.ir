@@ -7,3 +7,8 @@ export interface CartLine {
   qty: number;
   stock: number;
 }
+
+export interface Cart {
+  id: string;
+  items: CartLine[];
+}
