@@ -332,6 +332,7 @@ export const fa = {
       titlePlaceholder: "خانه، مطب، …",
       fullName: "نام گیرنده",
       phone: "موبایل گیرنده",
+      phonePlaceholder: "۰۹۱۲۳۴۵۶۷۸۹",
       province: "استان",
       city: "شهر",
       line: "نشانی کامل",

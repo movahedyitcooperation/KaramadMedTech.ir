@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.customer_auth import get_current_customer
@@ -49,9 +49,26 @@ async def create_address(
     payload: AddressCreate, user: User = Depends(get_current_customer), db: AsyncSession = Depends(get_db)
 ):
     address = Address(user_id=user.id, **payload.model_dump())
+
+    # A customer's very first address becomes their default whether or not they
+    # ticked the box: an account with addresses but no default is a state
+    # nothing downstream (checkout, above all) can do anything sensible with.
+    existing = (
+        await db.execute(select(func.count()).select_from(Address).where(Address.user_id == user.id))
+    ).scalar_one()
+    if existing == 0:
+        address.is_default = True
+
     db.add(address)
-    if payload.is_default:
-        await _clear_other_defaults(db, user.id, keep_id=None)
+    # Flush BEFORE clearing the other defaults, then exclude this row by id.
+    # Doing it the other way round looks equivalent but is not: the UPDATE
+    # autoflushes the pending INSERT first, so a keep_id of None would clear
+    # is_default on the row we are in the middle of creating — which silently
+    # dropped `is_default: true` on every create.
+    await db.flush()
+    if address.is_default:
+        await _clear_other_defaults(db, user.id, keep_id=address.id)
+
     await db.commit()
     await db.refresh(address)
     return address

@@ -163,7 +163,7 @@ export function AccountAddresses({ addresses }: { addresses: Address[] }) {
               label={fa.account.addrForm.phone}
               value={values.phone}
               error={fieldErrors.phone}
-              placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+              placeholder={fa.account.addrForm.phonePlaceholder}
               numeric
               ltr
               onChange={(v) => set("phone", v)}
