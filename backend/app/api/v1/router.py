@@ -9,6 +9,8 @@ from app.api.v1 import (
     cart,
     categories,
     customer_auth,
+    orders,
+    payments,
     products,
     settings,
 )
@@ -22,10 +24,8 @@ api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(customer_auth.router, prefix="/auth", tags=["customer-auth"])
 api_router.include_router(cart.router, prefix="/cart", tags=["cart"])
 api_router.include_router(account.router, prefix="/account", tags=["account"])
+api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
+api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
 api_router.include_router(admin_products.router, prefix="/admin/products", tags=["admin"])
 api_router.include_router(admin_categories.router, prefix="/admin/categories", tags=["admin"])
 api_router.include_router(admin_uploads.router, prefix="/admin/uploads", tags=["admin"])
-
-# orders / payments intentionally still NOT imported or included here yet —
-# each already exists as a bare APIRouter() stub file in this package for a
-# future phase (Phase 6) to import and wire in. See app/api/v1/{orders,payments}.py.

@@ -33,5 +33,14 @@ class Settings(BaseSettings):
     OTP_MAX_REQUESTS_PER_IP_PER_HOUR: int = 20
     CUSTOMER_JWT_EXPIRE_DAYS: int = 30
 
+    # --- checkout & payment (Phase 6) ---------------------------------------
+    PAYMENT_PROVIDER: str = "mock"  # mock | zarinpal
+    ZARINPAL_MERCHANT_ID: str = ""
+    ZARINPAL_SANDBOX: bool = True
+    # Where ZarinPal redirects the customer's browser back to after payment —
+    # a backend route (it verifies server-side before the frontend ever sees
+    # the result), which then redirects on to the frontend's order page.
+    ZARINPAL_CALLBACK_URL: str = "http://localhost:8000/api/v1/payments/callback"
+
 
 settings = Settings()

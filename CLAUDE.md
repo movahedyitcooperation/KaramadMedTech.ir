@@ -296,9 +296,6 @@ Frontend (`.env.local`, gitignored — see `.env.example`):
 API_BASE_URL=http://localhost:8000/api/v1
 BACKEND_PUBLIC_ORIGIN=http://localhost:8000
 NEXT_PUBLIC_SITE_URL=https://karamadmedtech.ir
-PAYMENT_PROVIDER=mock|zarinpal
-ZARINPAL_MERCHANT_ID=
-ZARINPAL_SANDBOX=true
 ```
 `API_BASE_URL` is read server-side only, by `lib/api/client.ts`, defaulting
 to `http://localhost:8000/api/v1` when unset — every `lib/db/*.ts` call site
@@ -333,9 +330,18 @@ OTP_RESEND_COOLDOWN_SECONDS=120
 OTP_MAX_REQUESTS_PER_CONTACT_PER_HOUR=5
 OTP_MAX_REQUESTS_PER_IP_PER_HOUR=20
 CUSTOMER_JWT_EXPIRE_DAYS=30
+PAYMENT_PROVIDER=mock|zarinpal
+ZARINPAL_MERCHANT_ID=
+ZARINPAL_SANDBOX=true
+ZARINPAL_CALLBACK_URL=
 ```
 `SMS_PROVIDER`/`EMAIL_PROVIDER`/etc. live here, **not** the frontend's
-`.env.local` — OTP generation/verification is backend-only (see §6). The
+`.env.local` — OTP generation/verification is backend-only (see §6). Likewise
+`PAYMENT_PROVIDER`/`ZARINPAL_*` live here, not the frontend — the backend's
+`PaymentProvider` interface (`backend/app/core/payment.py`) owns the ZarinPal
+request/verify round trip and the callback route entirely; the frontend only
+ever calls `POST /api/v1/payments/request` and is redirected straight to
+ZarinPal's own hosted payment page, never touching a merchant credential. The
 frontend does not read any backend credential.
 
 In development, `SMS_PROVIDER=console`/`EMAIL_PROVIDER=console` print the

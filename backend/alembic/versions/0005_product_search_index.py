@@ -1,10 +1,14 @@
 """product search: pg_trgm extension + GIN index on the normalised haystack
 
-Revision ID: 0004
-Revises: 0003
+Revision ID: 0005
+Revises: 0004
 Create Date: 2026-09-06
 
-Hand-authored, same convention as 0001-0003.
+Hand-authored, same convention as 0001-0003. Renumbered from 0004 to 0005
+during the backend-sina/main merge: both branches independently authored a
+migration numbered 0004 off of 0003 (this one, and 0004_orders_payments.py).
+The orders/payments migration was already applied to dev DBs before the
+merge, so it keeps the 0004 slot and this one moves to 0005, chained after it.
 
 Why a trigram index and not tsvector: Postgres ships no Persian text-search
 configuration, so `to_tsvector('persian', ...)` is not available and
@@ -30,8 +34,8 @@ from alembic import op
 from app.core.search import NORMALISE_FROM, NORMALISE_TO
 
 # revision identifiers, used by Alembic.
-revision: str = "0004"
-down_revision: Union[str, None] = "0003"
+revision: str = "0005"
+down_revision: Union[str, None] = "0004"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
