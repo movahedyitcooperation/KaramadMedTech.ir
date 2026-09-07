@@ -6,6 +6,7 @@ import { HeaderSearch } from "@/components/shop/HeaderSearch";
 import { MegaMenuNav } from "@/components/shop/MegaMenuNav";
 import { MobileNavDrawer } from "@/components/shop/MobileNavDrawer";
 import { PhoneWidget } from "@/components/shop/PhoneWidget";
+import { SearchGlyph } from "@/components/ui/SearchGlyph";
 import { getCategoryTree } from "@/lib/db/categories";
 import { getContactSetting } from "@/lib/db/settings";
 import { fa } from "@/lib/i18n/fa";
@@ -49,7 +50,7 @@ export async function Header() {
             aria-label={fa.header.searchLabel}
             className="j-hdr-ctl grid size-11 place-items-center rounded-4 lg:hidden"
           >
-            <span aria-hidden="true" className="block size-4 rounded-full border-[1.5px]" />
+            <SearchGlyph className="size-[18px]" />
           </Link>
           <PhoneWidget phone={contact.phone} />
           <HeaderAuthStatus loggedIn={loggedIn} />
