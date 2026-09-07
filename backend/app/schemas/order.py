@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -43,3 +44,26 @@ class OrderListResult(BaseModel):
 
 class CheckoutRequest(BaseModel):
     address_id: uuid.UUID
+
+
+class AdminOrderRead(OrderRead):
+    """Everything OrderRead has, plus the fields only the admin panel needs:
+    which customer placed it (there's no ownership check to hide `user_id`
+    behind here) and when. `contact` isn't a column on Order — the endpoint
+    fills it in from a join against User, since an order snapshots the
+    shipping address but not the account's own phone/email."""
+
+    user_id: uuid.UUID
+    contact: str
+    created_at: datetime
+
+
+class AdminOrderListResult(BaseModel):
+    items: list[AdminOrderRead]
+    total: int
+    page: int
+    page_size: int
+
+
+class AdminOrderStatusUpdate(BaseModel):
+    status: str

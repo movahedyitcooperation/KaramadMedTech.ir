@@ -69,13 +69,39 @@ selected department), `in_stock`, and `price_min`/`price_max`.
 - **Opt-in.** Absent unless requested, so the home carousels and the PDP's
   related rail pay nothing for aggregates they never read.
 
+### ✅ Checkout, orders & payment — backend
+
+Was: `models/order.py`, `order_item.py`, `api/v1/orders.py` and `payments.py`
+existed as Phase 6 stubs, deliberately excluded from `api/v1/router.py`.
+
+Now: `POST /orders/` re-validates every cart line against live
+`is_active`/`stock`, prices from the live `unit_price` (never a cart
+snapshot), decrements stock via an atomic conditional `UPDATE … WHERE stock
+>= qty` (so two concurrent checkouts can't oversell), and snapshots
+product name/sku/price onto `OrderItem` at order time. `GET /orders/` and
+`GET /orders/{id}` are ownership-checked and paginated. A `PaymentProvider`
+interface (`app/core/payment.py`) has both a `mock` (auto-approves, dev
+default) and a real `zarinpal` implementation — `POST /payments/request` +
+`GET /payments/callback`, the latter idempotent on ZarinPal's own
+`authority` so a repeated callback call can't double-verify or double-mark
+an order paid. `GET/PATCH /admin/orders/` gives the admin panel visibility
+into every customer's orders and a status lifecycle
+(`pending_payment → paid → processing → shipped → delivered`, or
+`→ cancelled` from any non-terminal status, which restocks the order's
+items).
+
+Remaining gap, now frontend-only: the storefront cart still shows the
+designed "not live yet" terminal card instead of a real checkout button, and
+the account's **سفارش‌ها** tab is still the designed empty state — neither
+has been wired to the endpoints above yet. That's a normal-sized frontend
+task now, not a backend one.
+
 ## Still open, ranked by value of adding it
 
 | # | Gap | Frontend behaviour now | Cost to add |
 |---|---|---|---|
-| 1 | **No checkout, orders or payment.** `models/order.py`, `order_item.py`, `api/v1/orders.py` and `payments.py` exist as Phase 6 stubs and are deliberately *not* included in `api/v1/router.py`. | The funnel is complete and correct **up to the cart**. The cart summary computes subtotal, shipping (flat `cost`, waived at `free_over`) and total from live `unit_price` plus `GET /settings/`, and is followed by a designed terminal card: the order is finalised by WhatsApp or phone from `settings.contact`. No fake checkout button, no stubbed endpoint, no client-held order state. The account's **سفارش‌ها** tab is a designed empty state that explains this. | Large (orders, order items, ZarinPal, stock decrement, invoice numbering). The cart summary is laid out so a real checkout step drops in below it without a rewrite. |
-| 2 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
-| 3 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
+| 1 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
+| 2 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
 
 ## Infrastructure findings — backend-side, not solvable from the browser
 

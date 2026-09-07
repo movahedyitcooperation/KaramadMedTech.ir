@@ -1,5 +1,12 @@
 import type { Address, CustomerProfile } from "@/lib/types/account";
-import type { AdminProduct, AdminProductImage, AdminProductSpec } from "@/lib/types/admin";
+import type {
+  AdminOrder,
+  AdminOrderItem,
+  AdminProduct,
+  AdminProductImage,
+  AdminProductSpec,
+  OrderStatus,
+} from "@/lib/types/admin";
 import type { Cart, CartLine } from "@/lib/types/cart";
 import type { Category } from "@/lib/types/category";
 import type {
@@ -12,10 +19,12 @@ import type {
 import type { ShippingSetting, SiteSettings } from "@/lib/types/settings";
 import type {
   ApiAddress,
+  ApiAdminOrder,
   ApiCart,
   ApiCartItem,
   ApiCategoryBase,
   ApiFacetValue,
+  ApiOrderItem,
   ApiProductFacets,
   ApiCategoryRead,
   ApiProduct,
@@ -200,6 +209,43 @@ export function mapAdminProduct(raw: ApiProduct): AdminProduct {
     ratingCount: raw.rating_count,
     images: raw.images.map(mapAdminProductImage),
     specs: raw.specs.map(mapAdminProductSpec),
+  };
+}
+
+// --- admin orders (Phase 6 checkout + admin order visibility) --------------
+
+function mapAdminOrderItem(raw: ApiOrderItem): AdminOrderItem {
+  return {
+    productId: raw.product_id,
+    productName: raw.product_name,
+    productSku: raw.product_sku,
+    unitPrice: raw.unit_price,
+    qty: raw.qty,
+  };
+}
+
+export function mapAdminOrder(raw: ApiAdminOrder): AdminOrder {
+  return {
+    id: raw.id,
+    orderNumber: raw.order_number,
+    addressTitle: raw.address_title,
+    addressFullName: raw.address_full_name,
+    addressPhone: raw.address_phone,
+    addressProvince: raw.address_province,
+    addressCity: raw.address_city,
+    addressLine: raw.address_line,
+    addressPostalCode: raw.address_postal_code,
+    subtotal: raw.subtotal,
+    shippingCost: raw.shipping_cost,
+    total: raw.total,
+    // The backend's `status` column is a free-text string, not a DB enum
+    // (see admin_orders.py's own transition table) — cast rather than
+    // validate, matching ApiShippingSetting.mode's existing convention.
+    status: raw.status as OrderStatus,
+    items: raw.items.map(mapAdminOrderItem),
+    userId: raw.user_id,
+    contact: raw.contact,
+    createdAt: raw.created_at,
   };
 }
 

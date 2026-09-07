@@ -1,4 +1,4 @@
-import { Package, Tag } from "@phosphor-icons/react/dist/ssr";
+import { Package, Receipt, Tag } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { fa } from "@/lib/i18n/fa";
@@ -25,6 +25,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Tag size={18} aria-hidden="true" />
             {fa.admin.sidebarCategories}
+          </Link>
+          <Link
+            href="/admin/orders"
+            className="flex items-center gap-2 rounded-input px-3 py-2 text-sm text-ink-900 hover:bg-bg"
+          >
+            <Receipt size={18} aria-hidden="true" />
+            {fa.admin.sidebarOrders}
           </Link>
         </nav>
         <div className="px-3 pt-4">

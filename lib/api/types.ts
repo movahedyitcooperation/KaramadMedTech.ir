@@ -179,3 +179,45 @@ export interface ApiAddress {
   postal_code: string | null;
   is_default: boolean;
 }
+
+// --- orders (backend/app/schemas/order.py) ----------------------------------
+//
+// Admin-scoped for now. The customer-facing GET /orders/ endpoints exist on
+// the backend too, but the account's سفارش‌ها tab isn't wired to them yet —
+// still the designed empty state docs/BACKEND-GAPS.md describes.
+
+export interface ApiOrderItem {
+  product_id: string | null;
+  product_name: string;
+  product_sku: string;
+  unit_price: number;
+  qty: number;
+}
+
+export interface ApiAdminOrder {
+  id: string;
+  order_number: string;
+  address_title: string;
+  address_full_name: string;
+  address_phone: string;
+  address_province: string;
+  address_city: string;
+  address_line: string;
+  address_postal_code: string | null;
+  subtotal: number;
+  shipping_cost: number;
+  total: number;
+  status: string;
+  items: ApiOrderItem[];
+  user_id: string;
+  contact: string;
+  created_at: string;
+}
+
+/** GET /admin/orders/ returns this. */
+export interface ApiAdminOrderListResult {
+  items: ApiAdminOrder[];
+  total: number;
+  page: number;
+  page_size: number;
+}

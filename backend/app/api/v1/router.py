@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1 import (
     account,
     admin_categories,
+    admin_orders,
     admin_products,
     admin_uploads,
     auth,
@@ -29,3 +30,4 @@ api_router.include_router(payments.router, prefix="/payments", tags=["payments"]
 api_router.include_router(admin_products.router, prefix="/admin/products", tags=["admin"])
 api_router.include_router(admin_categories.router, prefix="/admin/categories", tags=["admin"])
 api_router.include_router(admin_uploads.router, prefix="/admin/uploads", tags=["admin"])
+api_router.include_router(admin_orders.router, prefix="/admin/orders", tags=["admin"])

@@ -42,6 +42,45 @@ export interface ProductFormValues {
   specs: AdminProductSpec[];
 }
 
+export interface AdminOrderItem {
+  productId: string | null;
+  productName: string;
+  productSku: string;
+  unitPrice: number;
+  qty: number;
+}
+
+export const ORDER_STATUSES = [
+  "pending_payment",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export interface AdminOrder {
+  id: string;
+  orderNumber: string;
+  addressTitle: string;
+  addressFullName: string;
+  addressPhone: string;
+  addressProvince: string;
+  addressCity: string;
+  addressLine: string;
+  addressPostalCode: string | null;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  status: OrderStatus;
+  items: AdminOrderItem[];
+  userId: string;
+  contact: string;
+  createdAt: string;
+}
+
 export interface CategoryFormValues {
   slug: string;
   name: string;
