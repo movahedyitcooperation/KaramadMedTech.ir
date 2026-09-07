@@ -33,6 +33,7 @@ class OrderRead(BaseModel):
     total: int
     status: str
     items: list[OrderItemRead]
+    created_at: datetime
 
 
 class OrderListResult(BaseModel):
@@ -47,15 +48,14 @@ class CheckoutRequest(BaseModel):
 
 
 class AdminOrderRead(OrderRead):
-    """Everything OrderRead has, plus the fields only the admin panel needs:
-    which customer placed it (there's no ownership check to hide `user_id`
-    behind here) and when. `contact` isn't a column on Order — the endpoint
-    fills it in from a join against User, since an order snapshots the
-    shipping address but not the account's own phone/email."""
+    """Everything OrderRead has (created_at included) plus the field only the
+    admin panel needs: which customer placed it — there's no ownership check
+    to hide `user_id` behind here. `contact` isn't a column on Order — the
+    endpoint fills it in from a join against User, since an order snapshots
+    the shipping address but not the account's own phone/email."""
 
     user_id: uuid.UUID
     contact: str
-    created_at: datetime
 
 
 class AdminOrderListResult(BaseModel):

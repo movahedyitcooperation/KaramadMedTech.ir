@@ -121,7 +121,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         <div className="absolute inset-0 bg-[linear-gradient(270deg,rgb(8_20_15/0.82)_0%,rgb(8_20_15/0.6)_40%,rgb(8_20_15/0.26)_70%,rgb(8_20_15/0.08)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-[1280px] flex-col justify-center px-5 pt-12 pb-[158px] lg:px-8">
+      <div className="relative mx-auto flex w-full max-w-[1280px] flex-col justify-center px-5 pt-12 pb-[112px] lg:px-8">
         {/* Re-keyed per slide so the reconciler re-creates the column and the
          * .km-slidein children settle in again, once, per slide change. */}
         <div key={index} className="km-slidein max-w-[640px]">
@@ -155,7 +155,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
       {/* Pinned to the section's own bottom edge so the controls hold one
        * fixed spot however tall a given slide's headline runs. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-[88px] mx-auto w-full max-w-[1280px] px-5 lg:px-8">
+      <div className="pointer-events-none absolute inset-x-0 bottom-[40px] mx-auto w-full max-w-[1280px] px-5 lg:px-8">
         <div className="pointer-events-auto flex max-w-[640px] items-center justify-between gap-4">
           <div className="flex gap-2">
             {slides.map((s, i) => (

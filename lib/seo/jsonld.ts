@@ -1,3 +1,4 @@
+import { fa } from "@/lib/i18n/fa";
 import type { Product } from "@/lib/types/product";
 
 export function buildProductJsonLd(product: Product, url: string) {
@@ -30,7 +31,10 @@ export function buildProductJsonLd(product: Product, url: string) {
   };
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://karamadmedtech.ir";
+/** Absolute site origin. Exported so app/layout.tsx can set metadataBase
+ * from the same value — a canonical URL and a JSON-LD @id disagreeing about
+ * the origin is worse than either being wrong alone. */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://karamadmedtech.ir";
 
 export function absoluteUrl(path: string): string {
   return `${SITE_URL.replace(/\/+$/, "")}${path}`;
@@ -40,7 +44,7 @@ export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "تجهیزات پزشکی کارآمد",
+    name: fa.brand.fullName,
     url: SITE_URL,
   };
 }
@@ -49,7 +53,7 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "تجهیزات پزشکی کارآمد",
+    name: fa.brand.fullName,
     url: SITE_URL,
     inLanguage: "fa-IR",
   };

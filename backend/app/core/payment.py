@@ -1,5 +1,6 @@
 import asyncio
 import json
+import secrets
 import urllib.request
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -39,10 +40,17 @@ class PaymentProvider(ABC):
 class MockPaymentProvider(PaymentProvider):
     """Dev-only — auto-approves every payment, matching SMS/Email's console
     mode (see core/sms.py, core/email.py). `authority` is a fabricated but
-    unique-enough string; verification always succeeds."""
+    unique-enough string; verification always succeeds.
+
+    A random suffix is required, not cosmetic: `payments.authority` is
+    `unique=True`, and a deterministic `MOCK-{order_number}` collides on a
+    second `POST /payments/request` for the same order — e.g. retrying after
+    a cancelled attempt — raising an IntegrityError the endpoint has no
+    handler for. Real ZarinPal doesn't have this problem since it mints a
+    fresh authority per request; the mock provider now matches that."""
 
     async def request_payment(self, amount: int, order_number: str, description: str) -> PaymentRequestResult:
-        authority = f"MOCK-{order_number}"
+        authority = f"MOCK-{order_number}-{secrets.token_hex(4)}"
         return PaymentRequestResult(
             authority=authority,
             payment_url=f"{settings.FRONTEND_ORIGIN}/checkout/mock-pay?authority={authority}",

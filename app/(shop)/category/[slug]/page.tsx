@@ -10,12 +10,13 @@ import { Panel } from "@/components/ui/Panel";
 import { Pagination } from "@/components/ui/Pagination";
 import { ScreenTransition } from "@/components/ui/ScreenTransition";
 import { getAllCategories, getCategoryBySlug } from "@/lib/db/categories";
-import { getProductsByCategory, type ProductListFilters } from "@/lib/db/products";
+import { getProductsByCategory } from "@/lib/db/products";
 import { getContactSetting } from "@/lib/db/settings";
 import { fa } from "@/lib/i18n/fa";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import type { Category } from "@/lib/types/category";
 import { resolveDepartment } from "@/lib/utils/department";
+import { buildListingHref, parseListingParams } from "@/lib/utils/listing-params";
 import { telHref } from "@/lib/utils/links";
 
 const PAGE_SIZE = 9;
@@ -25,42 +26,6 @@ interface CategoryPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function toArray(value: string | string[] | undefined): string[] {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
-}
-
-/**
- * Every filter is read from the URL and handed to the backend — nothing is
- * filtered in JS. An out-of-range or unknown value falls back to the default
- * rather than being forwarded, so a hand-edited URL can't 422 the API.
- */
-function parseFilters(
-  sp: Record<string, string | string[] | undefined>,
-): ProductListFilters & { page: number } {
-  const num = (v: string | string[] | undefined) => {
-    const raw = typeof v === "string" ? Number(v) : NaN;
-    return Number.isFinite(raw) && raw >= 0 ? raw : undefined;
-  };
-  const sortRaw = typeof sp.sort === "string" ? sp.sort : "newest";
-  const sorts = ["newest", "cheapest", "expensive", "rating"] as const;
-  const sort = (sorts as readonly string[]).includes(sortRaw)
-    ? (sortRaw as ProductListFilters["sort"])
-    : "newest";
-
-  return {
-    // Carried in when a shopper narrows a search to one department from the
-    // search page's sidebar — the query has to survive that jump.
-    q: typeof sp.q === "string" ? sp.q : undefined,
-    priceMin: num(sp.priceMin),
-    priceMax: num(sp.priceMax),
-    brands: toArray(sp.brand),
-    inStockOnly: sp.inStockOnly === "1",
-    sort,
-    page: Math.max(1, Number(typeof sp.page === "string" ? sp.page : 1) || 1),
-    pageSize: PAGE_SIZE,
-  };
-}
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -84,7 +49,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
   const sp = await searchParams;
-  const filters = parseFilters(sp);
+  const filters = parseListingParams(sp, { pageSize: PAGE_SIZE, includeFacets: true });
 
   const [category, allCategories] = await Promise.all([
     getCategoryBySlug(slug),
@@ -106,11 +71,32 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   // sub-category, and the department total. This replaced a brand query plus
   // one COUNT per sub-category — an N+1 that grew with the tree.
   const [result, contact] = await Promise.all([
-    getProductsByCategory(slug, { ...filters, includeFacets: true }),
+    getProductsByCategory(slug, filters),
     getContactSetting(),
   ]);
 
   const facets = result.facets;
+
+  // Stable ends for the price slider: while a price filter is active its own
+  // bounds would follow the handles, so they are re-read from the same query
+  // without it. No price filter means the main facets are already the bounds.
+  const priceActive = filters.priceMin != null || filters.priceMax != null;
+  const boundsFacets = priceActive
+    ? (
+        await getProductsByCategory(slug, {
+          ...filters,
+          priceMin: undefined,
+          priceMax: undefined,
+          page: 1,
+          pageSize: 1,
+        })
+      ).facets
+    : facets;
+  const priceBounds =
+    boundsFacets?.priceMin != null && boundsFacets.priceMax != null
+      ? { min: boundsFacets.priceMin, max: boundsFacets.priceMax }
+      : null;
+
   const subcategoryCounts = new Map(
     (facets?.subcategories ?? []).map((s) => [s.value, s.count])
   );
@@ -121,18 +107,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
   const department = resolveDepartment(root.slug);
-
-  function buildPageHref(page: number) {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(sp)) {
-      if (key === "page") continue;
-      if (Array.isArray(value)) value.forEach((v) => params.append(key, v));
-      else if (value) params.set(key, value);
-    }
-    if (page > 1) params.set("page", String(page));
-    const qs = params.toString();
-    return `/category/${slug}${qs ? `?${qs}` : ""}`;
-  }
 
   return (
     // Keyed on the category, not the URL: changing a filter or a page stays
@@ -233,6 +207,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               ]}
               departmentSlug={root.slug}
               brands={(facets?.brands ?? []).map((b) => ({ name: b.value, count: b.count }))}
+              priceBounds={priceBounds}
               total={result.total}
             />
 
@@ -271,7 +246,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                       <Pagination
                         page={result.page}
                         totalPages={totalPages}
-                        buildHref={buildPageHref}
+                        buildHref={(page) => buildListingHref(`/category/${slug}`, sp, {}, page)}
                       />
                     </div>
                   )}

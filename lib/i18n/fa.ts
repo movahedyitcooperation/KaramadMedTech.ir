@@ -73,7 +73,6 @@ export const fa = {
     title: "دسته‌بندی‌ها",
     close: "بستن",
     search: "جست‌وجوی محصولات",
-    finder: "پیدا کردن محصول با دسته و قیمت",
     call: "تماس تلفنی",
   },
 
@@ -247,10 +246,92 @@ export const fa = {
     dash: "—",
     freeShipHint: (remaining: number) =>
       `با ${formatToman(remaining)} خرید بیشتر، ارسال رایگان می‌شود.`,
-    terminalTitle: "پرداخت آنلاین به‌زودی",
-    terminalBody:
-      "در این مرحله سفارش را تلفنی یا در واتس‌اپ نهایی می‌کنیم: سبد شما را می‌بینیم، موجودی و زمان ارسال را تأیید می‌کنیم و فاکتور رسمی صادر می‌شود.",
-    terminalWhatsapp: "ثبت سفارش در واتس‌اپ",
+    checkout: "ادامه و پرداخت",
+    checkoutLoginNote: "برای تکمیل سفارش وارد حساب خود می‌شوید.",
+    helpTitle: "کمک می‌خواهید؟",
+    helpBody:
+      "اگر درباره انتخاب کالا، موجودی یا زمان ارسال سؤالی دارید، پیش از پرداخت با ما تماس بگیرید. فاکتور رسمی صادر می‌شود.",
+    helpWhatsapp: "پرسش در واتس‌اپ",
+  },
+
+  checkout: {
+    title: "تکمیل سفارش",
+    breadcrumbAria: "مسیر",
+    breadcrumb: "تکمیل سفارش",
+    addressHeading: "آدرس تحویل",
+    addressPickOne: "آدرس تحویل را انتخاب کنید.",
+    noAddressTitle: "هنوز آدرسی ثبت نکرده‌اید",
+    noAddressBody: "برای ادامه، نشانی تحویل سفارش را در حساب خود ثبت کنید.",
+    noAddressCta: "ثبت آدرس",
+    manageAddresses: "مدیریت آدرس‌ها",
+    summaryHeading: "خلاصه سفارش",
+    itemsHeading: "کالاهای سفارش",
+    place: "ثبت سفارش و پرداخت",
+    placing: "در حال ثبت سفارش…",
+    redirecting: "در حال انتقال به درگاه پرداخت…",
+    emptyCartTitle: "سبد خرید شما خالی است",
+    emptyCartBody: "برای تکمیل سفارش ابتدا کالایی به سبد اضافه کنید.",
+    emptyCartCta: "دیدن محصولات",
+    securityNote:
+      "پرداخت در درگاه بانکی انجام می‌شود و اطلاعات کارت شما هرگز در این سایت وارد نمی‌شود.",
+  },
+
+  mockPay: {
+    title: "درگاه پرداخت آزمایشی",
+    body:
+      "این صفحه جای درگاه بانکی را در حالت توسعه می‌گیرد. در تنظیمات سرور PAYMENT_PROVIDER روی mock است.",
+    approve: "پرداخت موفق",
+    cancel: "انصراف از پرداخت",
+    missingAuthority: "شناسه پرداخت در نشانی صفحه نیست.",
+  },
+
+  order: {
+    title: (number: string) => `سفارش ${number}`,
+    numberLabel: "شماره سفارش",
+    statusLabel: "وضعیت",
+    itemsHeading: "کالاهای سفارش",
+    addressHeading: "آدرس تحویل",
+    summaryHeading: "جمع سفارش",
+    subtotal: "جمع کالاها",
+    shipping: "هزینه ارسال",
+    free: "رایگان",
+    payable: "مبلغ قابل پرداخت",
+    unitPrice: "قیمت واحد:",
+    qty: (n: number) => `${toPersianDigits(n)} عدد`,
+    sku: "کد کالا:",
+    payNow: "پرداخت سفارش",
+    paying: "در حال انتقال…",
+    backToOrders: "سفارش‌های من",
+    notFoundTitle: "این سفارش پیدا نشد",
+    notFoundBody: "ممکن است نشانی اشتباه باشد یا این سفارش متعلق به حساب دیگری باشد.",
+    // Payment outcomes, as reported by the backend's redirect. The result is
+    // always the server's verdict after server-side verification — the
+    // browser never decides that a payment succeeded.
+    paidTitle: "پرداخت انجام شد",
+    paidBody: "سفارش شما ثبت و پرداخت شد. جزئیات را برایتان پیامک می‌کنیم.",
+    failedTitle: "پرداخت ناموفق بود",
+    failedBody: "مبلغی از حساب شما کم نشده است. می‌توانید دوباره تلاش کنید.",
+    cancelledTitle: "پرداخت لغو شد",
+    cancelledBody: "سفارش شما ثبت شده و در انتظار پرداخت است.",
+    awaitingPaymentBody: "این سفارش هنوز پرداخت نشده است.",
+  },
+
+  orderStatus: {
+    pending_payment: "در انتظار پرداخت",
+    paid: "پرداخت‌شده",
+    processing: "در حال آماده‌سازی",
+    shipped: "ارسال‌شده",
+    delivered: "تحویل‌شده",
+    cancelled: "لغو‌شده",
+    unknown: "نامشخص",
+  },
+
+  orders: {
+    heading: "سفارش‌های من",
+    count: (n: number) => `${toPersianDigits(n)} سفارش`,
+    itemCount: (n: number) => `${toPersianDigits(n)} کالا`,
+    view: "مشاهده سفارش",
+    payNow: "پرداخت",
   },
 
   login: {
@@ -297,7 +378,19 @@ export const fa = {
       `کد وارد‌شده درست نیست. ${toPersianDigits(left)} تلاش دیگر دارید.`,
     product_not_found: "این کالا دیگر در فروشگاه نیست.",
     cart_item_not_found: "این کالا در سبد شما نبود.",
+    // Order and payment codes (backend/app/api/v1/{orders,payments}.py).
+    // "Address not found" and "Order not found" arrive as FastAPI's plain
+    // string detail rather than a {code} object, so the sentence itself is
+    // the key — see lib/api/client.ts's parseErrorBody.
+    cart_empty: "سبد خرید شما خالی است.",
+    product_unavailable: "یکی از کالاهای سبد دیگر موجود نیست. سبد را بازبینی کنید.",
+    insufficient_stock: "موجودی یکی از کالاهای سبد کافی نیست. تعداد را کم کنید و دوباره تلاش کنید.",
+    order_not_payable: "این سفارش قابل پرداخت نیست؛ وضعیت آن تغییر کرده است.",
+    payment_request_failed: "ارتباط با درگاه پرداخت برقرار نشد. چند لحظه بعد دوباره تلاش کنید.",
+    "Address not found": "این آدرس پیدا نشد. آدرس دیگری انتخاب کنید.",
+    "Order not found": "این سفارش پیدا نشد.",
     generic: "انجام نشد. یک لحظه بعد دوباره تلاش کنید.",
+    serverError: "مشکلی در سرور پیش آمد. چند لحظه بعد دوباره تلاش کنید یا با ما تماس بگیرید.",
     network: "ارتباط با سرور برقرار نشد. اتصال را بررسی کنید.",
   },
 
@@ -332,6 +425,7 @@ export const fa = {
       titlePlaceholder: "خانه، مطب، …",
       fullName: "نام گیرنده",
       phone: "موبایل گیرنده",
+      phonePlaceholder: "۰۹۱۲۳۴۵۶۷۸۹",
       province: "استان",
       city: "شهر",
       line: "نشانی کامل",
@@ -347,7 +441,7 @@ export const fa = {
     },
     ordersEmptyTitle: "هنوز سفارشی ثبت نشده است",
     ordersEmptyBody:
-      "ثبت سفارش آنلاین به‌زودی فعال می‌شود. سفارش‌هایی که تلفنی یا در واتس‌اپ نهایی کرده‌اید، پس از فعال شدن این بخش اینجا نمایش داده می‌شوند.",
+      "هر سفارشی که از طریق سایت ثبت کنید، همراه با وضعیت پرداخت و ارسال، اینجا نگهداری می‌شود. سفارش‌هایی که تلفنی یا در واتس‌اپ نهایی می‌کنید در این فهرست نمی‌آیند.",
     ordersEmptyCta: "دیدن محصولات",
   },
 
@@ -422,6 +516,17 @@ export const fa = {
     returnSoon: "صفحه شرایط بازگشت در نسخه بعد اضافه می‌شود.",
   },
 
+  // Shown for any URL that matches no route at all — as opposed to
+  // fa.pdp.notFound / fa.category.notFound, which cover a real route whose
+  // slug the API did not recognise.
+  notFound: {
+    title: "این صفحه پیدا نشد",
+    body: "ممکن است نشانی را اشتباه وارد کرده باشید یا این صفحه جابه‌جا شده باشد. از دسته‌بندی‌ها شروع کنید یا نام کالا را جست‌وجو کنید.",
+    home: "صفحه اصلی",
+    search: "جست‌وجوی کالا",
+    metaTitle: "صفحه پیدا نشد | تجهیزات پزشکی کارآمد",
+  },
+
   meta: {
     homeTitle: "تجهیزات پزشکی کارآمد | فروش تخصصی تجهیزات مطب، کلینیک و مراقبت در منزل",
     homeDesc:
@@ -431,6 +536,9 @@ export const fa = {
     cartTitle: "سبد خرید | تجهیزات پزشکی کارآمد",
     loginTitle: "ورود به حساب | تجهیزات پزشکی کارآمد",
     accountTitle: "حساب من | تجهیزات پزشکی کارآمد",
+    checkoutTitle: "تکمیل سفارش | تجهیزات پزشکی کارآمد",
+    orderTitle: (number: string) => `سفارش ${number} | تجهیزات پزشکی کارآمد`,
+    mockPayTitle: "درگاه پرداخت آزمایشی",
   },
 
   admin: {

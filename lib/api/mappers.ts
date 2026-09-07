@@ -8,6 +8,7 @@ import type {
   OrderStatus,
 } from "@/lib/types/admin";
 import type { Cart, CartLine } from "@/lib/types/cart";
+import type { Order, OrderItem, OrderListResult } from "@/lib/types/order";
 import type { Category } from "@/lib/types/category";
 import type {
   FacetValue,
@@ -24,6 +25,8 @@ import type {
   ApiCartItem,
   ApiCategoryBase,
   ApiFacetValue,
+  ApiOrder,
+  ApiOrderListResult,
   ApiOrderItem,
   ApiProductFacets,
   ApiCategoryRead,
@@ -375,5 +378,50 @@ export function addressFormToPayload(values: {
     address_line: values.addressLine,
     postal_code: values.postalCode || null,
     is_default: values.isDefault,
+  };
+}
+
+// --- orders -----------------------------------------------------------------
+
+function mapOrderItem(raw: ApiOrderItem): OrderItem {
+  return {
+    productId: raw.product_id,
+    productName: raw.product_name,
+    productSku: raw.product_sku,
+    unitPrice: raw.unit_price,
+    qty: raw.qty,
+  };
+}
+
+export function mapOrder(raw: ApiOrder): Order {
+  return {
+    id: raw.id,
+    orderNumber: raw.order_number,
+    // Grouped into one object rather than eight flat address_* fields: the UI
+    // always renders them together, and the flat shape is a wire detail.
+    address: {
+      title: raw.address_title,
+      fullName: raw.address_full_name,
+      phone: raw.address_phone,
+      province: raw.address_province,
+      city: raw.address_city,
+      line: raw.address_line,
+      postalCode: raw.address_postal_code,
+    },
+    subtotal: raw.subtotal,
+    shippingCost: raw.shipping_cost,
+    total: raw.total,
+    status: raw.status,
+    items: raw.items.map(mapOrderItem),
+    createdAt: raw.created_at,
+  };
+}
+
+export function mapOrderList(raw: ApiOrderListResult): OrderListResult {
+  return {
+    items: raw.items.map(mapOrder),
+    total: raw.total,
+    page: raw.page,
+    pageSize: raw.page_size,
   };
 }

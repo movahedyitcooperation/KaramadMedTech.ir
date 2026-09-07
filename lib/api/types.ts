@@ -180,13 +180,13 @@ export interface ApiAddress {
   is_default: boolean;
 }
 
-// --- orders (backend/app/schemas/order.py) ----------------------------------
+// --- orders & payments (backend/app/schemas/{order,payment}.py) -------------
 //
-// Admin-scoped for now. The customer-facing GET /orders/ endpoints exist on
-// the backend too, but the account's سفارش‌ها tab isn't wired to them yet —
-// still the designed empty state docs/BACKEND-GAPS.md describes.
+// The order snapshots its address and every line's name/sku/price at checkout
+// time, so a later product edit or price change never rewrites history.
 
 export interface ApiOrderItem {
+  /** Null once the product row is gone; the snapshot fields still stand. */
   product_id: string | null;
   product_name: string;
   product_sku: string;
@@ -194,7 +194,7 @@ export interface ApiOrderItem {
   qty: number;
 }
 
-export interface ApiAdminOrder {
+export interface ApiOrder {
   id: string;
   order_number: string;
   address_title: string;
@@ -209,9 +209,26 @@ export interface ApiAdminOrder {
   total: number;
   status: string;
   items: ApiOrderItem[];
+  created_at: string;
+}
+
+/** GET /orders/ (customer, ownership-scoped) returns this. */
+export interface ApiOrderListResult {
+  items: ApiOrder[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+// --- admin orders (backend/app/schemas/order.py's AdminOrderRead) ----------
+//
+// Everything ApiOrder has, plus who placed it — an admin isn't scoped to
+// "my orders" the way the customer endpoint is, so the response has to say
+// whose order this is.
+
+export interface ApiAdminOrder extends ApiOrder {
   user_id: string;
   contact: string;
-  created_at: string;
 }
 
 /** GET /admin/orders/ returns this. */
@@ -220,4 +237,9 @@ export interface ApiAdminOrderListResult {
   total: number;
   page: number;
   page_size: number;
+}
+
+export interface ApiPaymentRequestResponse {
+  /** Where to send the shopper: the real gateway, or the dev mock page. */
+  payment_url: string;
 }

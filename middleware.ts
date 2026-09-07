@@ -4,6 +4,7 @@ const ADMIN_COOKIE_NAME = "admin_token";
 const CUSTOMER_COOKIE_NAME = "customer_token";
 const GUEST_CART_COOKIE_NAME = "guest_cart_token";
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
+const CUSTOMER_PREFIXES = ["/account", "/checkout", "/orders"];
 
 function isSafeNextPath(value: string | null): value is string {
   return !!value && value.startsWith("/") && !value.startsWith("//");
@@ -29,8 +30,12 @@ export function middleware(request: NextRequest) {
     return withGuestCartCookie(request, NextResponse.redirect(loginUrl));
   }
 
-  // 2. Customer account gate.
-  if (pathname.startsWith("/account") && !request.cookies.has(CUSTOMER_COOKIE_NAME)) {
+  // 2. Customer gate — the account, and the two screens that only exist for
+  // someone who has one: checkout and an order. `next` carries them back to
+  // where they were headed after the OTP, so a login never costs a shopper
+  // their place in the funnel. Each of these pages re-checks the session
+  // itself; this only saves a wasted render and a nicer redirect.
+  if (CUSTOMER_PREFIXES.some((prefix) => pathname.startsWith(prefix)) && !request.cookies.has(CUSTOMER_COOKIE_NAME)) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return withGuestCartCookie(request, NextResponse.redirect(loginUrl));

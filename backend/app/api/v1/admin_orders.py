@@ -45,12 +45,10 @@ def _contact(phone: str | None, email: str | None) -> str:
 
 
 def _to_admin_read(order: Order, contact: str) -> AdminOrderRead:
-    return AdminOrderRead(
-        **OrderRead.model_validate(order).model_dump(),
-        user_id=order.user_id,
-        contact=contact,
-        created_at=order.created_at,
-    )
+    # OrderRead.model_dump() now includes created_at (see schemas/order.py),
+    # so it's not repeated here — passing it twice would raise "got multiple
+    # values for keyword argument".
+    return AdminOrderRead(**OrderRead.model_validate(order).model_dump(), user_id=order.user_id, contact=contact)
 
 
 @router.get("/", response_model=AdminOrderListResult)

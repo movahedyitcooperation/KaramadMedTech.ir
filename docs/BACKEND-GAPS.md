@@ -88,13 +88,54 @@ an order paid. `GET/PATCH /admin/orders/` gives the admin panel visibility
 into every customer's orders and a status lifecycle
 (`pending_payment → paid → processing → shipped → delivered`, or
 `→ cancelled` from any non-terminal status, which restocks the order's
-items).
+items). `OrderRead.created_at` and a unique-per-attempt mock authority
+(`MOCK-{order_number}-{n}`, not the original branch's deterministic
+`MOCK-{order_number}`) were both fixed while merging in the storefront UI
+below, which is what actually exercised them.
 
-Remaining gap, now frontend-only: the storefront cart still shows the
-designed "not live yet" terminal card instead of a real checkout button, and
-the account's **سفارش‌ها** tab is still the designed empty state — neither
-has been wired to the endpoints above yet. That's a normal-sized frontend
-task now, not a backend one.
+### ✅ Checkout, payment and order history — the storefront UI
+
+Was: the backend's Phase 6 endpoints existed and worked, but nothing in the
+storefront called them. The cart ended in a «پرداخت آنلاین به‌زودی» card, the
+account's **سفارش‌ها** tab was an empty state that could never fill, and the
+`payment_url` the mock provider returns pointed at `/checkout/mock-pay` — a
+route the frontend did not have, so a mock checkout 404'd.
+
+Now: the funnel runs end to end, entirely against the existing endpoints. No
+backend file was changed to build it.
+
+- `/checkout` — address selection plus an order preview. The totals shown are
+  computed here for display only; `POST /orders/` recomputes subtotal,
+  shipping and total from live product rows, and the order carries the
+  backend's figures.
+- **Order creation and payment initiation are two calls, deliberately not
+  merged.** `POST /orders/` is the point of no return: it decrements stock and
+  empties the cart. `POST /payments/request` only asks for a URL. If the
+  gateway request fails, the order survives in `pending_payment` and is
+  payable from its own page — merging them would let a gateway hiccup lose the
+  basket.
+- `/checkout/mock-pay` — the dev stand-in for the bank, matching
+  `MockPaymentProvider`'s `payment_url`. Its two buttons are plain links to
+  the backend's public callback with `Status=OK`/`NOK`, exactly what ZarinPal
+  would call. It `notFound()`s outside development, so a production deploy
+  cannot expose a one-click "mark my order paid" route.
+- `/orders/[id]` — the destination of the backend's post-payment redirect. It
+  renders the `?payment=success|failed|cancelled` verdict as a banner **next
+  to the order's own status badge**, so a stale or hand-typed query string
+  cannot make an unpaid order look paid. A `pending_payment` order offers a
+  retry.
+- `/account?tab=orders` — the real list, from `GET /orders/`.
+- `/orders` (no id) forwards to that tab; `/checkout` and `/orders` joined
+  `/account` in middleware's customer gate, carrying `next` so a login never
+  costs a shopper their place in the funnel.
+
+Two backend bugs this UI work exposed, both fixed in the same pass (not left
+open below): the mock payment provider used a deterministic
+`MOCK-{order_number}` authority against a `unique=True` column, so retrying a
+cancelled mock payment 500'd on the second `POST /payments/request` — fixed
+by making the mock authority unique per attempt. And `OrderRead` had no
+`created_at`, so the order history and order page had no dates to show —
+fixed by adding it (both `OrderRead` and the admin variant inherit it now).
 
 ## Still open, ranked by value of adding it
 

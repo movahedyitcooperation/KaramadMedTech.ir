@@ -9,6 +9,7 @@ import { cartCount, cartSubtotal, getCart } from "@/lib/db/cart";
 import { getSiteSettings } from "@/lib/db/settings";
 import { formatToman } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
+import { isLoggedIn } from "@/lib/session";
 import { telHref, waHref } from "@/lib/utils/links";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CartPage() {
-  const [cart, settings] = await Promise.all([getCart(), getSiteSettings()]);
+  const [cart, settings, loggedIn] = await Promise.all([getCart(), getSiteSettings(), isLoggedIn()]);
 
   const items = cart.items;
   const count = cartCount(cart);
@@ -120,22 +121,37 @@ export default async function CartPage() {
                 </div>
               </div>
 
-              {/* The funnel is complete and correct up to here. Orders,
-               * checkout and payment are Phase 6 stubs that aren't even
-               * registered on the API router, so there is no checkout button
-               * that would post nowhere — the shop says how an order is
-               * actually finalised today. This card is laid out so a real
-               * checkout step drops in below the summary without a rewrite. */}
+              {/* Checkout is a real screen now, so the primary action is
+               * the CTA rather than a phone number. The link is deliberately
+               * plain — /checkout re-reads the cart and re-checks the login
+               * server-side, so nothing here needs to guard it. A visitor
+               * without a customer_token is bounced to /login by
+               * middleware.ts and returns straight to checkout. */}
+              <Link
+                href="/checkout"
+                className="rounded-4 bg-ink p-4 text-center text-base font-bold text-surface transition-colors hover:bg-emerald"
+              >
+                {fa.cart.checkout}
+              </Link>
+              {/* Only worth saying to someone who will actually be
+               * interrupted by a login — a signed-in shopper goes straight
+               * through. */}
+              {!loggedIn && (
+                <p className="-mt-1 text-center text-13 leading-[1.85] text-ink/55">
+                  {fa.cart.checkoutLoginNote}
+                </p>
+              )}
+
               <HighlightCard className="flex flex-col gap-3.5">
                 <strong className="text-[16.5px] leading-relaxed font-bold">
-                  {fa.cart.terminalTitle}
+                  {fa.cart.helpTitle}
                 </strong>
-                <p className="text-14 leading-[1.9] text-bone/78">{fa.cart.terminalBody}</p>
+                <p className="text-14 leading-[1.9] text-bone/78">{fa.cart.helpBody}</p>
                 <a
                   href={waHref(settings.contact)}
                   className="rounded-4 bg-bone p-3.75 text-center text-[15.5px] font-bold text-ink"
                 >
-                  {fa.cart.terminalWhatsapp}
+                  {fa.cart.helpWhatsapp}
                 </a>
                 <a
                   href={telHref(settings.contact.phone)}
