@@ -76,6 +76,27 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   ]);
 
   const facets = result.facets;
+
+  // Stable ends for the price slider: while a price filter is active its own
+  // bounds would follow the handles, so they are re-read from the same query
+  // without it. No price filter means the main facets are already the bounds.
+  const priceActive = filters.priceMin != null || filters.priceMax != null;
+  const boundsFacets = priceActive
+    ? (
+        await getProductsByCategory(slug, {
+          ...filters,
+          priceMin: undefined,
+          priceMax: undefined,
+          page: 1,
+          pageSize: 1,
+        })
+      ).facets
+    : facets;
+  const priceBounds =
+    boundsFacets?.priceMin != null && boundsFacets.priceMax != null
+      ? { min: boundsFacets.priceMin, max: boundsFacets.priceMax }
+      : null;
+
   const subcategoryCounts = new Map(
     (facets?.subcategories ?? []).map((s) => [s.value, s.count])
   );
@@ -186,6 +207,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               ]}
               departmentSlug={root.slug}
               brands={(facets?.brands ?? []).map((b) => ({ name: b.value, count: b.count }))}
+              priceBounds={priceBounds}
               total={result.total}
             />
 

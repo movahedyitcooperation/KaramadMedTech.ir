@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { CategoryIconCards } from "@/components/shop/CategoryIconCards";
 import { HeroSlider } from "@/components/shop/HeroSlider";
-import { HomeFinder } from "@/components/shop/HomeFinder";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
 import { ServiceCards } from "@/components/shop/ServiceCards";
 import { TrustBadges } from "@/components/shop/TrustBadges";
@@ -48,7 +47,6 @@ export default async function HomePage() {
   return (
     <ScreenTransition screenKey="home">
       <HeroSlider slides={settings.heroSlides} />
-      <HomeFinder categories={categories} />
       <CategoryIconCards items={railItems} />
 
       <ProductCarousel

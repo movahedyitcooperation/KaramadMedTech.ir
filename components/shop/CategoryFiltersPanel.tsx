@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { parseFaDigits, toPersianDigits, toPersianNumber } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import { useFiltersSheet } from "@/components/shop/FiltersSheetContext";
+import { PriceRangeSlider } from "@/components/shop/PriceRangeSlider";
 import { resolveDepartment } from "@/lib/utils/department";
 import { cn } from "@/lib/utils/cn";
 
@@ -29,6 +30,10 @@ interface CategoryFiltersPanelProps {
    * page, where results span every department and no single hue applies. */
   departmentSlug: string | null;
   brands: { name: string; count: number }[];
+  /** Price span for the current query with the price filter itself removed,
+   * so the slider's ends stay put while its handles move. Null falls the
+   * price filter back to a plain min/max pair. */
+  priceBounds: { min: number; max: number } | null;
   total: number;
 }
 
@@ -47,6 +52,7 @@ export function CategoryFiltersPanel({
   scopeLinks,
   departmentSlug,
   brands,
+  priceBounds,
   total,
 }: CategoryFiltersPanelProps) {
   const { open, setOpen } = useFiltersSheet();
@@ -83,6 +89,21 @@ export function CategoryFiltersPanel({
       else p.delete(key);
     });
   }
+
+  /** Both handles land in one navigation — the slider reports each end as a
+   * number, or null when it is resting on the track end and no bound applies. */
+  function commitPriceRange(nextMin: number | null, nextMax: number | null) {
+    apply((p) => {
+      if (nextMin != null) p.set("priceMin", String(nextMin));
+      else p.delete("priceMin");
+      if (nextMax != null) p.set("priceMax", String(nextMax));
+      else p.delete("priceMax");
+    });
+  }
+
+  const priceValueMin = priceMin ? Number(priceMin) : null;
+  const priceValueMax = priceMax ? Number(priceMax) : null;
+  const hasPriceRange = priceBounds != null && priceBounds.max > priceBounds.min;
 
   const inputClass =
     "min-w-0 flex-1 rounded-3 border border-ink/18 bg-white px-3 py-2.5 text-sm text-ink";
@@ -136,35 +157,46 @@ export function CategoryFiltersPanel({
 
       <div className="border-t border-ink/10 pt-[22px]">
         <div className="mb-3 text-14 font-bold">{fa.category.priceHeading}</div>
-        <div className="flex items-center gap-2.5">
-          <input
-            type="text"
-            inputMode="numeric"
-            aria-label={fa.category.priceMinAria}
-            placeholder={fa.category.from}
-            key={`min-${priceMin}`}
-            defaultValue={priceMin ? toPersianDigits(priceMin) : ""}
-            onBlur={(e) => commitPrice("priceMin", e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitPrice("priceMin", e.currentTarget.value);
-            }}
-            className={inputClass}
+        {hasPriceRange ? (
+          <PriceRangeSlider
+            key={`${priceMin}|${priceMax}|${priceBounds.min}|${priceBounds.max}`}
+            boundMin={priceBounds.min}
+            boundMax={priceBounds.max}
+            valueMin={priceValueMin}
+            valueMax={priceValueMax}
+            onCommit={commitPriceRange}
           />
-          <span className="text-ink/35">—</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            aria-label={fa.category.priceMaxAria}
-            placeholder={fa.category.to}
-            key={`max-${priceMax}`}
-            defaultValue={priceMax ? toPersianDigits(priceMax) : ""}
-            onBlur={(e) => commitPrice("priceMax", e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitPrice("priceMax", e.currentTarget.value);
-            }}
-            className={inputClass}
-          />
-        </div>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <input
+              type="text"
+              inputMode="numeric"
+              aria-label={fa.category.priceMinAria}
+              placeholder={fa.category.from}
+              key={`min-${priceMin}`}
+              defaultValue={priceMin ? toPersianDigits(priceMin) : ""}
+              onBlur={(e) => commitPrice("priceMin", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitPrice("priceMin", e.currentTarget.value);
+              }}
+              className={inputClass}
+            />
+            <span className="text-ink/35">—</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              aria-label={fa.category.priceMaxAria}
+              placeholder={fa.category.to}
+              key={`max-${priceMax}`}
+              defaultValue={priceMax ? toPersianDigits(priceMax) : ""}
+              onBlur={(e) => commitPrice("priceMax", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitPrice("priceMax", e.currentTarget.value);
+              }}
+              className={inputClass}
+            />
+          </div>
+        )}
       </div>
 
       {brands.length > 0 && (

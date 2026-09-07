@@ -81,6 +81,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const facets = result.facets;
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
+  // The price slider needs ends that don't move as its own handles move, so
+  // when a price filter is active the bounds come from the same query with
+  // that filter lifted. With no price filter the main facets already are
+  // those bounds — no second request.
+  const priceActive = filters.priceMin != null || filters.priceMax != null;
+  const boundsFacets = priceActive
+    ? (
+        await searchProducts(query, {
+          ...filters,
+          priceMin: undefined,
+          priceMax: undefined,
+          page: 1,
+          pageSize: 1,
+        })
+      ).facets
+    : facets;
+  const priceBounds =
+    boundsFacets?.priceMin != null && boundsFacets.priceMax != null
+      ? { min: boundsFacets.priceMin, max: boundsFacets.priceMax }
+      : null;
+
   const buildHref = (overrides: Record<string, string | null> = {}, page?: number) =>
     buildListingHref("/search", sp, overrides, page);
 
@@ -161,6 +182,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 ]}
                 departmentSlug={null}
                 brands={(facets?.brands ?? []).map((b) => ({ name: b.value, count: b.count }))}
+                priceBounds={priceBounds}
                 total={result.total}
               />
 

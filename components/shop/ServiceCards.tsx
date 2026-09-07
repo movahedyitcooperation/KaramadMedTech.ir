@@ -21,7 +21,7 @@ export function ServiceCards({
   clinicCategorySlug: string | null;
 }) {
   const hrefs = [
-    clinicCategorySlug ? `/category/${clinicCategorySlug}` : "#finder",
+    clinicCategorySlug ? `/category/${clinicCategorySlug}` : "/search",
     telHref(contact.phone),
     telHref(contact.phone),
     "#site-footer",

@@ -50,8 +50,13 @@ export function HeaderSearch({
       role="search"
       onSubmit={submit}
       className={cn(
-        "flex items-center gap-2.5 rounded-pill ps-4 pe-1.5",
-        onEmerald ? "j-hdr-finder" : "border border-ink/18 bg-white",
+        // The focused field announces itself by firming up this border,
+        // instead of the site-wide emerald focus ring — that ring's green
+        // glow was too loud on a control you are only ever typing into.
+        "flex items-center gap-2.5 rounded-pill ps-4 pe-1.5 transition-colors duration-(--duration-state)",
+        onEmerald
+          ? "j-hdr-finder focus-within:border-bone/50"
+          : "border border-ink/18 bg-white focus-within:border-ink/45",
         className
       )}
     >
@@ -71,7 +76,9 @@ export function HeaderSearch({
         aria-label={fa.header.searchLabel}
         autoFocus={autoFocus}
         className={cn(
-          "min-w-0 flex-1 bg-transparent py-3 text-start text-15 focus:outline-none",
+          // focus:outline-none alone leaves the global :focus-visible rule's
+          // green box-shadow behind; both have to go.
+          "min-w-0 flex-1 bg-transparent py-3 text-start text-15 focus-visible:shadow-none focus-visible:outline-none",
           onEmerald ? "text-bone placeholder:text-bone/60" : "text-ink placeholder:text-ink/45"
         )}
       />
