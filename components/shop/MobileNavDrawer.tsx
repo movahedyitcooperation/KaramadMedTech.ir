@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DepartmentMark } from "@/components/shop/DepartmentMark";
 import { Button } from "@/components/ui/Button";
+import { SearchGlyph } from "@/components/ui/SearchGlyph";
 import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import type { Category } from "@/lib/types/category";
@@ -134,7 +135,7 @@ export function MobileNavDrawer({
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 rounded-4 border border-ink/14 bg-page px-4 py-3.5 text-start text-15 text-ink/72"
             >
-              <span aria-hidden="true" className="block size-[15px] shrink-0 rounded-full border-[1.5px]" />
+              <SearchGlyph className="size-[18px]" />
               <span>{fa.mobileNav.search}</span>
             </Link>
             <Link href={loggedIn ? "/account" : "/login"} onClick={() => setOpen(false)}>

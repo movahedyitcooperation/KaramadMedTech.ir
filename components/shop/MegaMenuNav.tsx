@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { DepartmentMark } from "@/components/shop/DepartmentMark";
 import { fa } from "@/lib/i18n/fa";
 import type { Category } from "@/lib/types/category";
 import { resolveDepartment } from "@/lib/utils/department";
@@ -12,30 +13,19 @@ interface CategoryWithChildren extends Category {
 }
 
 /**
- * Department glyph for the nav strip.
- *
- * The nav sits on --emerald-deep, where the owner's dark-green category icon
- * would not read at all, so this is the one place a department is marked by a
- * geometric bone shape instead of its icon. The shape differs per department
- * and always sits beside the department's name, so the "never color alone"
- * rule still holds — there is simply no color here to begin with.
- */
-const GLYPH_SHAPE: Record<string, string> = {
-  diagnostics: "rounded-full",
-  consumables: "rounded-[3px]",
-  rehab: "rounded-[4px]",
-  homecare: "rounded-[12px]",
-  clinic: "rounded-[2px]",
-  accessories: "rounded-[6px]",
-};
-
-/**
  * The nav strip plus its one-row department panel.
  *
  * A 15-product catalog with a two-level tree does not need a marketplace
  * mega-menu: the panel is one tidy row — "all of this department" plus its
  * handful of sub-categories — dropping ~56px under the nav rather than ~320px
  * of mostly-empty surface.
+ *
+ * Each entry is marked by the owner's own department icon, the same artwork
+ * the home rail uses. The nav sits on --emerald-deep, where that dark-green
+ * line art would vanish, so it rides a light `tone="plain"` disc — the exact
+ * framing the owner's reference icons have — rather than being recolored to
+ * bone. No department hue appears here at all, which keeps the "never color
+ * alone" rule trivially satisfied.
  */
 export function MegaMenuNav({ categories }: { categories: CategoryWithChildren[] }) {
   const [openSlug, setOpenSlug] = useState<string | null>(null);
@@ -62,18 +52,17 @@ export function MegaMenuNav({ categories }: { categories: CategoryWithChildren[]
               onFocus={() => setOpenSlug(cat.slug)}
               aria-expanded={openSlug === cat.slug}
               className={cn(
-                "flex items-center gap-2.5 px-4 py-3.5 text-sm font-medium text-bone transition-colors duration-(--duration-state)",
+                "flex items-center px-2.5 py-2.5 text-sm font-medium text-bone transition-colors duration-(--duration-state) xl:px-4",
                 openSlug === cat.slug ? "bg-bone/14" : "bg-transparent"
               )}
             >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "block size-[13px] shrink-0 border-[1.5px] border-bone/60",
-                  GLYPH_SHAPE[dept?.key ?? ""] ?? "rounded-[4px]"
-                )}
+              <DepartmentMark
+                department={dept}
+                label={cat.name}
+                size={28}
+                tone="plain"
+                className="gap-1.5 xl:gap-2.5"
               />
-              <span>{cat.name}</span>
             </Link>
           );
         })}

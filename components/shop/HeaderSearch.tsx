@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { SearchGlyph } from "@/components/ui/SearchGlyph";
 import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
 
@@ -53,20 +54,16 @@ export function HeaderSearch({
         // The focused field announces itself by firming up this border,
         // instead of the site-wide emerald focus ring — that ring's green
         // glow was too loud on a control you are only ever typing into.
-        "flex items-center gap-2.5 rounded-pill ps-4 pe-1.5 transition-colors duration-(--duration-state)",
+        // `km-search` is what lets the magnifying glass sweep on hover and
+        // on focus-within — the reach, not the typing (app/globals.css).
+        "km-search flex items-center gap-2.5 rounded-pill ps-4 pe-1.5 transition-colors duration-(--duration-state)",
         onEmerald
           ? "j-hdr-finder focus-within:border-bone/50"
           : "border border-ink/18 bg-white focus-within:border-ink/45",
         className
       )}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "block size-[15px] shrink-0 rounded-full border-[1.5px]",
-          onEmerald ? "border-current" : "border-ink/45"
-        )}
-      />
+      <SearchGlyph className={onEmerald ? undefined : "text-ink/45"} />
       <input
         key={activeQuery}
         type="search"
