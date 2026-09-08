@@ -137,12 +137,38 @@ by making the mock authority unique per attempt. And `OrderRead` had no
 `created_at`, so the order history and order page had no dates to show —
 fixed by adding it (both `OrderRead` and the admin variant inherit it now).
 
+### ✅ Review submission & moderation — backend
+
+Was: `models/review.py` was a Phase 7 stub; `rating_avg`/`rating_count` were
+display-only seeded values with nothing behind them.
+
+Now: `POST /reviews/` accepts a public, unauthenticated submission (reviewer
+name, optional phone collected for the shop's own follow-up and never
+displayed, a 1–5 rating, body text), lands as `status="pending"`, and is
+rate-limited per IP (`REVIEW_MAX_SUBMISSIONS_PER_IP_PER_HOUR`, mirroring
+OTP's own per-contact/per-IP pattern). `GET /reviews/?product_id=` is public
+and returns `approved` rows only — never by a caller-passed filter, by
+construction, since the route has no `?status=` param at all. `GET/PATCH
+/admin/reviews/` gives the admin panel a moderation queue (filterable by
+status); approving or rejecting a review recomputes the product's
+`rating_avg`/`rating_count` from scratch off every currently-`approved` row
+for that product, so a moderator flip-flopping a review's status can never
+drift the aggregate out of sync with what's actually approved.
+
+Remaining gap, now frontend-only: `RatingRow.tsx`'s own comment ("there is no
+review system... a count would imply reviews that don't exist") is stale —
+there's a real review system now. The PDP's **نظرات** tab is still the
+designed empty state pointing to WhatsApp instead of a submission form, and
+the product card/PDP rating still renders the shop's seeded "expert
+assessment" framing rather than a real review count. Wiring the storefront to
+these endpoints (a review form, the نظرات list, and updating the rating copy
+once real reviews exist for a product) is a frontend task, not a backend one.
+
 ## Still open, ranked by value of adding it
 
 | # | Gap | Frontend behaviour now | Cost to add |
 |---|---|---|---|
-| 1 | **No review submission.** `models/review.py` is a Phase 7 stub; `rating_avg`/`rating_count` are display-only seeded values. | Stars and the score render on cards and the PDP, described in words as the shop's own assessment («امتیاز کارشناسی ۴٫۶ از ۵»). The review **count** is not shown anywhere, because it would imply reviews that do not exist. The **نظرات** tab is a designed empty state inviting the note by WhatsApp — not a form that posts nowhere. There is no rating filter in the sidebar, because there is no rating filter param. | Medium (submission, moderation, recompute of `rating_avg`). |
-| 2 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
+| 1 | **No wishlist, coupons, comparison or stock reservation.** | مقایسه and ذخیره stay visible, disabled, and labelled «به‌زودی». They are not wired to anything. | Out of scope for v1. |
 
 ## Infrastructure findings — backend-side, not solvable from the browser
 

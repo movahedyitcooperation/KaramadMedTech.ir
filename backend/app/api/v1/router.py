@@ -5,6 +5,7 @@ from app.api.v1 import (
     admin_categories,
     admin_orders,
     admin_products,
+    admin_reviews,
     admin_uploads,
     auth,
     cart,
@@ -13,6 +14,7 @@ from app.api.v1 import (
     orders,
     payments,
     products,
+    reviews,
     settings,
 )
 
@@ -31,3 +33,5 @@ api_router.include_router(admin_products.router, prefix="/admin/products", tags=
 api_router.include_router(admin_categories.router, prefix="/admin/categories", tags=["admin"])
 api_router.include_router(admin_uploads.router, prefix="/admin/uploads", tags=["admin"])
 api_router.include_router(admin_orders.router, prefix="/admin/orders", tags=["admin"])
+api_router.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
+api_router.include_router(admin_reviews.router, prefix="/admin/reviews", tags=["admin"])

@@ -337,6 +337,7 @@ PAYMENT_PROVIDER=mock|zarinpal
 ZARINPAL_MERCHANT_ID=
 ZARINPAL_SANDBOX=true
 ZARINPAL_CALLBACK_URL=
+REVIEW_MAX_SUBMISSIONS_PER_IP_PER_HOUR=5
 ```
 `SMS_PROVIDER`/`EMAIL_PROVIDER`/etc. live here, **not** the frontend's
 `.env.local` — OTP generation/verification is backend-only (see §6). Likewise

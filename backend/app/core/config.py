@@ -42,5 +42,10 @@ class Settings(BaseSettings):
     # the result), which then redirects on to the frontend's order page.
     ZARINPAL_CALLBACK_URL: str = "http://localhost:8000/api/v1/payments/callback"
 
+    # --- reviews (Phase 7) ---------------------------------------------------
+    # Public, unauthenticated submission — the only spam guard is a per-IP
+    # rate limit, mirroring OTP's own per-IP cap (customer_auth.py).
+    REVIEW_MAX_SUBMISSIONS_PER_IP_PER_HOUR: int = 5
+
 
 settings = Settings()

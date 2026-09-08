@@ -1,9 +1,6 @@
-# Import every REAL (non-stub) model module here so that Base.metadata is
-# fully populated wherever `app.models` is imported — this is what makes
-# Alembic autogenerate (and our hand-authored migration) see all tables.
-#
-# Stub models (review) have no class yet — nothing to import until that
-# phase defines it. Add its import here once it does.
+# Import every REAL model module here so that Base.metadata is fully
+# populated wherever `app.models` is imported — this is what makes Alembic
+# autogenerate (and our hand-authored migrations) see all tables.
 from app.models.address import Address  # noqa: F401
 from app.models.admin_user import AdminUser  # noqa: F401
 from app.models.base import Base  # noqa: F401
@@ -17,5 +14,6 @@ from app.models.payment import Payment  # noqa: F401
 from app.models.product import Product  # noqa: F401
 from app.models.product_image import ProductImage  # noqa: F401
 from app.models.product_spec import ProductSpec  # noqa: F401
+from app.models.review import Review  # noqa: F401
 from app.models.settings import Setting  # noqa: F401
 from app.models.user import User  # noqa: F401
