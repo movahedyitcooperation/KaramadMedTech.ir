@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
     // 20-30% over WebP on photographs; the optimizer only spends the encode
     // on widths that are actually requested, and caches the result.
     formats: ["image/avif", "image/webp"],
+    // Next 16 pins the optimizer to quality 75 unless the allowed values are
+    // listed here, and a request for anything else is rejected outright. 75
+    // stays the default every product image uses; 90 exists for the hero,
+    // which is the one full-bleed photograph on the site — at 75 it landed
+    // at 0.11 bits/px, low enough to smear the fine detail in a clinic
+    // photo. See components/shop/HeroSlider.tsx.
+    qualities: [75, 90],
     // Only local, self-authored placeholder SVGs (public/images/placeholders,
     // components/brand) go through next/image — safe to allow.
     dangerouslyAllowSVG: true,

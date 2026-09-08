@@ -14,9 +14,21 @@ import { cn } from "@/lib/utils/cn";
  * photograph can't come from the API. Falling back by index keeps a
  * newly-added fourth slide from rendering with no background at all.
  *
- * Sources are 1600px WebP (~35-120 KB each, down from 0.5-1.4 MB PNG/JPEG).
+ * Sources are the full-resolution originals encoded to WebP at quality 92
+ * (1672x941 and 1376x768). Those files are read by the image optimizer and
+ * never by a browser, so their weight costs a visitor nothing; what it buys
+ * is one lossy generation instead of two — the AVIF that actually ships is
+ * encoded from full-detail input rather than from an already-squeezed
+ * 0.2 bit/px WebP, which is what used to sit here.
+ *
  * next/image re-encodes to AVIF where the browser accepts it and serves a
  * width matched to the viewport, so a phone never downloads the desktop file.
+ *
+ * Sharpness ceiling: the photographs themselves are only 1672x941 and
+ * 1376x768 — the largest that exists for them. This section is full-bleed,
+ * so a 1440-1920px viewport at DPR 2 asks for 2880-3840px and the browser
+ * has to stretch. next/image never upscales past the source, so closing that
+ * last gap needs re-generated art at >=2880px wide, not a code change.
  */
 const SLIDE_IMAGES = [
   { src: "/images/hero/hero-1.webp", position: "22% 50%" },
@@ -104,9 +116,13 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               fill
               priority={i === 0}
               // Full-bleed: the rendered width IS the viewport width, so the
-              // optimizer picks a 640px variant for a phone and a 1600px one
-              // for a wide desktop.
+              // optimizer picks a 750px variant for a phone (2x on a 375px
+              // screen) and the full-size source for a wide desktop.
               sizes="100vw"
+              // 75 (Next's default) put this photograph at 0.11 bits/px,
+              // low enough to smear the fine detail in a clinic scene. One
+              // image per page view — the extra few KB is worth it.
+              quality={90}
               style={{
                 objectPosition: img.position,
                 opacity: index === i ? 1 : 0,
