@@ -172,12 +172,24 @@ once real reviews exist for a product) is a frontend task, not a backend one.
 
 ## Infrastructure findings — backend-side, not solvable from the browser
 
-1. **`/api/v1/uploads/` sends no cache headers.** The Nginx config gzips text
-   but sets no `expires` on the uploads `StaticFiles` mount, so an
-   admin-uploaded product image is re-downloaded on every navigation. Add
-   `expires 1y; add_header Cache-Control "public, immutable";` — the
-   content-addressed UUID filenames make that safe.
-2. **Uploads are stored verbatim, up to 5 MB, with no resize or format
+### ✅ `/api/v1/uploads/` cache headers
+
+Was: no `Cache-Control` at all, so an admin-uploaded product image was
+re-downloaded on every storefront navigation.
+
+Now: `app/core/static.py`'s `CacheableStaticFiles` (a small `StaticFiles`
+subclass overriding `file_response`) sets `Cache-Control: public,
+max-age=31536000, immutable` on every response through the `/api/v1/uploads/`
+mount — a backend-code fix rather than an Nginx config change, so it holds in
+local dev too, not just behind production's reverse proxy. Safe specifically
+because `admin_uploads.py` names every upload with a content-addressed UUID
+filename that's never reused or overwritten in place. Conditional requests
+(`If-None-Match` → `304`) still work — verified directly against a real
+uploaded file.
+
+### Still open
+
+1. **Uploads are stored verbatim, up to 5 MB, with no resize or format
    conversion** (`admin_uploads.py`). A 4 MB PNG of an autoclave destroys LCP
    on an Iranian mobile connection. Add a Pillow step on upload: cap the long
    edge (~1600px), emit WebP plus a JPEG fallback at 3–4 widths, and return the
@@ -189,6 +201,10 @@ once real reviews exist for a product) is a frontend task, not a backend one.
    The storefront's own hero art is already pre-optimised at build time
    (1600px WebP sources, ~35–120 KB each) precisely so the optimizer starts
    from something sane; admin uploads should get the same treatment.
+
+   Not yet built: adding this needs Pillow, a new dependency not in
+   CLAUDE.md's stack table — flagged for approval per §9's "don't add
+   dependencies without asking," not started without it.
 
 ## Schema limits noted, not worked around
 
