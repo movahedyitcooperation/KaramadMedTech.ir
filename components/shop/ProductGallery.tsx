@@ -6,7 +6,10 @@ import { fa } from "@/lib/i18n/fa";
 import type { ProductImage } from "@/lib/types/product";
 import { cn } from "@/lib/utils/cn";
 
-const IMAGE_FALLBACK = "/images/placeholders/diagnostic-1.svg";
+// Deliberately neutral: a placeholder must not depict a product it is not.
+// Keying this off the department would mean threading the category tree
+// through every card, and a rehab placeholder is still a placeholder.
+const IMAGE_FALLBACK = "/images/placeholders/product.svg";
 
 /**
  * Main image plus, only when there is more than one, a thumbnail strip.

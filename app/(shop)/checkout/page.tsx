@@ -50,7 +50,7 @@ export default async function CheckoutPage() {
     <ScreenTransition screenKey="checkout">
       <div className="mx-auto max-w-[1280px] px-5 pt-8 pb-20 lg:px-8">
         <h1 className="mb-2 text-h1-flat font-extrabold tracking-[-0.015em]">{fa.checkout.title}</h1>
-        <nav aria-label={fa.checkout.breadcrumbAria} className="mb-7 text-sm text-ink/55">
+        <nav aria-label={fa.checkout.breadcrumbAria} className="mb-7 text-sm text-ink/68">
           <Link href="/cart" className="transition-colors hover:text-emerald-live">
             {fa.cart.title}
           </Link>
@@ -90,7 +90,7 @@ export default async function CheckoutPage() {
               <CheckoutForm addresses={addresses} />
               <Link
                 href="/account?tab=addresses"
-                className="self-start text-sm text-ink/60 underline-offset-4 transition-colors hover:text-emerald-live hover:underline"
+                className="self-start text-sm text-ink/70 underline-offset-4 transition-colors hover:text-emerald-live hover:underline"
               >
                 {fa.checkout.manageAddresses}
               </Link>
@@ -125,7 +125,7 @@ export default async function CheckoutPage() {
                       />
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <span className="text-sm leading-[1.7] font-semibold">{line.name}</span>
-                        <span className="text-13 text-ink/58">
+                        <span className="text-13 text-ink/70">
                           {fa.order.qty(line.qty)} × {formatToman(line.unitPrice)}
                         </span>
                       </div>

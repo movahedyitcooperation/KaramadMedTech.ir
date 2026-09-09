@@ -11,9 +11,14 @@ import { fa } from "@/lib/i18n/fa";
 export function TrustBadges() {
   return (
     <section
-      aria-label={fa.home.trustAria}
+      aria-labelledby="km-trust-heading"
       className="on-emerald mt-20 bg-linear-to-b from-emerald-hi to-emerald to-60% text-bone"
     >
+      <div className="mx-auto max-w-[1280px] px-5 pt-9 lg:px-8">
+        <h2 id="km-trust-heading" className="text-h2 font-extrabold tracking-[-0.01em]">
+          {fa.home.trustAria}
+        </h2>
+      </div>
       <div className="mx-auto grid max-w-[1280px] grid-cols-2 px-5 sm:grid-cols-3 lg:grid-cols-6 lg:px-8">
         {fa.trust.map((item) => (
           <div

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import { parseFaDigits, toPersianDigits, toPersianNumber } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
@@ -55,7 +56,14 @@ export function CategoryFiltersPanel({
   priceBounds,
   total,
 }: CategoryFiltersPanelProps) {
-  const { open, setOpen } = useFiltersSheet();
+  const { open, setOpen, isSheet } = useFiltersSheet();
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Opening the sheet moves focus into it, so Escape and the close
+  // button are reachable without tabbing the whole page first.
+  useEffect(() => {
+    if (open && isSheet) closeRef.current?.focus();
+  }, [open, isSheet]);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -112,12 +120,19 @@ export function CategoryFiltersPanel({
     <aside
       data-open={String(open)}
       aria-label={fa.category.filtersHeading}
+      // Below lg this panel is a fixed sheet parked off-screen. Without
+      // `inert` its 14 controls stayed in the tab order and the a11y tree,
+      // so a keyboard user tabbing past the grid fell into filters they
+      // could not see. Gated on isSheet because the same element is the
+      // static desktop sidebar from 1024px up.
+      inert={isSheet && !open}
       className="km-filters flex flex-col gap-6 rounded-6 border border-ink/9 bg-surface p-[22px]"
     >
       <div className="sticky -top-[22px] z-1 -mb-2 flex items-center justify-between gap-3 border-b border-ink/10 bg-surface pt-1.5 pb-3 lg:hidden">
         <strong className="text-[17px] font-bold">{fa.category.filtersHeading}</strong>
         <button
           type="button"
+          ref={closeRef}
           onClick={() => setOpen(false)}
           aria-label={fa.category.closeFilters}
           className="size-9.5 cursor-pointer rounded-4 border border-ink/16 text-lg text-ink"
@@ -147,7 +162,7 @@ export function CategoryFiltersPanel({
               }
             >
               <span>{scope.name}</span>
-              <span className={cn("text-12", !scope.active && "text-ink/60")}>
+              <span className={cn("text-12", !scope.active && "text-ink/70")}>
                 {toPersianNumber(scope.count)}
               </span>
             </Link>
@@ -226,7 +241,7 @@ export function CategoryFiltersPanel({
                 <span dir="ltr" className="flex-1 text-start">
                   {brand.name}
                 </span>
-                <span className="text-12 text-ink/60">{toPersianNumber(brand.count)}</span>
+                <span className="text-12 text-ink/70">{toPersianNumber(brand.count)}</span>
               </label>
             ))}
           </div>

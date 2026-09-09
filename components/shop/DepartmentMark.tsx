@@ -19,6 +19,10 @@ interface DepartmentMarkProps {
   tone?: "tint" | "plain";
   /** Rendered under the label in "stack" layout — the «۵ کالا» count line. */
   meta?: ReactNode;
+  /** Loads the icon eagerly. next/image lazy-loads by default, which is
+   * right for the nav strip and the drawer but wrong beside a category
+   * page's <h1>, where the chip rendered empty until the icon arrived. */
+  priority?: boolean;
   className?: string;
 }
 
@@ -44,6 +48,7 @@ export function DepartmentMark({
   layout = "inline",
   tone = "tint",
   meta,
+  priority = false,
   className,
 }: DepartmentMarkProps) {
   const stacked = layout === "stack";
@@ -90,6 +95,7 @@ export function DepartmentMark({
             alt=""
             width={iconSize}
             height={iconSize}
+            priority={priority}
             aria-hidden="true"
           />
         )}

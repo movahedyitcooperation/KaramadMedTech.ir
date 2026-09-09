@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { fetchCartAction } from "@/app/(shop)/cart/actions";
-import { Button } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/Button";
 import { formatToman, toPersianDigits, toPersianNumber } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
 import type { Cart } from "@/lib/types/cart";
+import { cn } from "@/lib/utils/cn";
 
 /** Non-directional: a cart glyph never flips in RTL. */
 function CartIcon() {
@@ -117,13 +118,13 @@ export function CartDropdown({ count }: CartDropdownProps) {
       >
         <div className="mb-3.5 flex items-baseline justify-between">
           <strong className="text-base font-bold">{fa.cartDrawer.title}</strong>
-          <span className="text-13 text-ink/55">
+          <span className="text-13 text-ink/68">
             {toPersianNumber(count)} {fa.cartDrawer.unit}
           </span>
         </div>
 
         {count === 0 ? (
-          <p className="m-0 py-5 text-15 leading-[1.8] text-ink/62">{fa.cartDrawer.empty}</p>
+          <p className="m-0 py-5 text-15 leading-[1.8] text-ink/72">{fa.cartDrawer.empty}</p>
         ) : cart === null ? (
           <div className="km-shimmer flex flex-col gap-3.5 py-2">
             {[0, 1].map((i) => (
@@ -145,7 +146,7 @@ export function CartDropdown({ count }: CartDropdownProps) {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm leading-relaxed">{line.name}</div>
-                    <div className="mt-0.5 text-13 text-ink/55">
+                    <div className="mt-0.5 text-13 text-ink/68">
                       {toPersianNumber(line.qty)} × {formatToman(line.unitPrice)}
                     </div>
                   </div>
@@ -153,14 +154,18 @@ export function CartDropdown({ count }: CartDropdownProps) {
               ))}
             </div>
             <div className="mt-3.5 flex items-baseline justify-between border-t border-ink/10 pt-4 pb-3.5">
-              <span className="text-sm text-ink/60">{fa.cartDrawer.subtotal}</span>
+              <span className="text-sm text-ink/70">{fa.cartDrawer.subtotal}</span>
               <strong className="text-[17px] font-bold">{formatToman(subtotal)}</strong>
             </div>
           </div>
         )}
 
-        <Link href="/cart" onClick={() => setOpen(false)} className="block">
-          <Button className="w-full rounded-4 py-3.5 font-semibold">{fa.cartDrawer.view}</Button>
+        <Link
+          href="/cart"
+          onClick={() => setOpen(false)}
+          className={cn(buttonVariants(), "w-full rounded-4 py-3.5 font-semibold")}
+        >
+          {fa.cartDrawer.view}
         </Link>
       </div>
     </div>

@@ -63,7 +63,7 @@ export function HeaderSearch({
         className
       )}
     >
-      <SearchGlyph className={onEmerald ? undefined : "text-ink/45"} />
+      <SearchGlyph className={onEmerald ? undefined : "text-ink/55"} />
       <input
         key={activeQuery}
         type="search"
@@ -76,7 +76,7 @@ export function HeaderSearch({
           // focus:outline-none alone leaves the global :focus-visible rule's
           // green box-shadow behind; both have to go.
           "min-w-0 flex-1 bg-transparent py-3 text-start text-15 focus-visible:shadow-none focus-visible:outline-none",
-          onEmerald ? "text-bone placeholder:text-bone/60" : "text-ink placeholder:text-ink/45"
+          onEmerald ? "text-bone placeholder:text-bone/60" : "text-ink placeholder:text-ink/65"
         )}
       />
       <button

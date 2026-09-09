@@ -54,7 +54,7 @@ export function AccountProfileForm({ profile }: { profile: CustomerProfile }) {
         <ReadOnlyField label={fa.account.email} value={profile.email} />
       </div>
 
-      <p className="text-12 leading-[1.85] text-ink/50">{fa.account.identityNote}</p>
+      <p className="text-12 leading-[1.85] text-ink/68">{fa.account.identityNote}</p>
 
       <div aria-live="polite" className="min-h-5 text-13 text-danger">
         {error}
@@ -75,7 +75,7 @@ export function AccountProfileForm({ profile }: { profile: CustomerProfile }) {
 function ReadOnlyField({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-1.75">
-      <span className="text-sm text-ink/55">{label}</span>
+      <span className="text-sm text-ink/68">{label}</span>
       {/* Latin digits, LTR — a phone number is one of the three places that
        * keeps Latin numerals inside Persian copy (with SKU and postal code). */}
       <span dir="ltr" className="text-base font-semibold" style={{ unicodeBidi: "plaintext" }}>

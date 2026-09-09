@@ -113,7 +113,7 @@ export async function Footer() {
               {[fa.footer.enamad, fa.footer.samandehi].map((label) => (
                 <span
                   key={label}
-                  className="grid h-16 w-22 place-items-center rounded-4 border border-bone/24 p-1.5 text-center text-[11px] leading-normal text-bone/55"
+                  className="grid h-16 w-22 place-items-center rounded-4 border border-bone/24 p-1.5 text-center text-[11px] leading-normal text-bone/65"
                 >
                   {label}
                 </span>
@@ -122,7 +122,7 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap justify-between gap-5 border-t border-bone/14 pt-5.5 text-13 leading-[1.8] text-bone/55">
+        <div className="mt-10 flex flex-wrap justify-between gap-5 border-t border-bone/14 pt-5.5 text-13 leading-[1.8] text-bone/65">
           <span>{fa.footer.copyright}</span>
           <span>{fa.footer.returnPolicy}</span>
         </div>

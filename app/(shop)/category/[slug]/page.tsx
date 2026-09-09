@@ -157,7 +157,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <div className="mb-7 flex flex-wrap items-end justify-between gap-6">
             <div>
               <div className="flex items-center gap-3.5">
-                <DepartmentMark department={department} label="" size={40} />
+                <DepartmentMark department={department} label="" size={40} priority />
                 <h1 className="text-h1-flat font-extrabold tracking-[-0.015em]">{category.name}</h1>
               </div>
               <p aria-live="polite" className="mt-3 text-15 leading-[1.75] text-ink/70">

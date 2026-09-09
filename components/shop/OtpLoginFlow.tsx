@@ -154,7 +154,7 @@ export function OtpLoginFlow({ nextPath }: { nextPath: string }) {
                 {pending ? fa.login.requesting : fa.login.request}
               </Button>
 
-              <p className="mt-4.5 text-12 leading-[1.85] text-ink/50">{fa.login.twoIdentities}</p>
+              <p className="mt-4.5 text-12 leading-[1.85] text-ink/68">{fa.login.twoIdentities}</p>
             </div>
           ) : (
             <div>
@@ -217,7 +217,7 @@ export function OtpLoginFlow({ nextPath }: { nextPath: string }) {
                 {pending ? fa.login.verifying : fa.login.verify}
               </Button>
 
-              <div className="mt-4.5 flex items-center justify-between gap-3 text-13 text-ink/60">
+              <div className="mt-4.5 flex items-center justify-between gap-3 text-13 text-ink/70">
                 <span>
                   {secondsLeft > 0 ? fa.login.resendIn(mmss(secondsLeft)) : fa.login.resendPrompt}
                 </span>

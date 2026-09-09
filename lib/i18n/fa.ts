@@ -44,6 +44,7 @@ export const fa = {
   },
 
   header: {
+    skipToContent: "رفتن به محتوای اصلی",
     searchPlaceholder: "نام کالا، برند یا کد کالا را بنویسید",
     searchLabel: "جست‌وجوی محصولات",
     searchSubmit: "جست‌وجو",
@@ -534,6 +535,16 @@ export const fa = {
     removed: "کالا از سبد حذف شد.",
     aboutSoon: "صفحه درباره ما در نسخه بعد اضافه می‌شود.",
     returnSoon: "صفحه شرایط بازگشت در نسخه بعد اضافه می‌شود.",
+  },
+
+  // The (shop) segment's not-found panel serves BOTH a missing product
+  // slug and a missing category slug, so it must not claim to know which
+  // one the visitor was after — pairing fa.pdp.notFound with
+  // fa.category.notFound told them the product wasn't found AND the
+  // category wasn't found, in the same panel.
+  shopNotFound: {
+    title: "این صفحه پیدا نشد",
+    body: "کالا یا دسته‌بندی مورد نظر در دسترس نیست — ممکن است نشانی اشتباه باشد یا این مورد از فروش خارج شده باشد. از دسته‌بندی‌ها شروع کنید.",
   },
 
   // Shown for any URL that matches no route at all — as opposed to

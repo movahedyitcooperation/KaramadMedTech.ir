@@ -7,7 +7,10 @@ import { fa } from "@/lib/i18n/fa";
 import type { Product } from "@/lib/types/product";
 import { cn } from "@/lib/utils/cn";
 
-const IMAGE_FALLBACK = "/images/placeholders/diagnostic-1.svg";
+// Deliberately neutral: a placeholder must not depict a product it is not.
+// Keying this off the department would mean threading the category tree
+// through every card, and a rehab placeholder is still a placeholder.
+const IMAGE_FALLBACK = "/images/placeholders/product.svg";
 
 export type ProductCardVariant = "full" | "featured" | "mini";
 
@@ -108,12 +111,17 @@ export function ProductCard({
           )}
         </div>
 
-        <Link
-          href={href}
-          className="j-line-clamp-2 min-h-[52.5px] text-start text-15 leading-[1.75] text-ink transition-colors duration-(--duration-state) hover:text-emerald-live"
-        >
-          {product.name}
-        </Link>
+        {/* A real heading, so a screen-reader user can skim a shelf by
+          * product name — a grid of 9 cards used to contribute nothing at
+          * all to the document outline. Weight and size are unchanged. */}
+        <h3 className="m-0 text-15 leading-[1.75] font-normal">
+          <Link
+            href={href}
+            className="j-line-clamp-2 block min-h-[52.5px] text-start text-ink transition-colors duration-(--duration-state) hover:text-emerald-live"
+          >
+            {product.name}
+          </Link>
+        </h3>
 
         <RatingRow value={product.ratingAvg} />
 
@@ -122,7 +130,7 @@ export function ProductCard({
         ) : (
           <div className="flex flex-wrap items-baseline gap-2.5">
             {onSale && (
-              <span className="text-13 text-ink/42 line-through">
+              <span className="text-13 text-ink/65 line-through">
                 {formatToman(product.compareAtPrice as number)}
               </span>
             )}

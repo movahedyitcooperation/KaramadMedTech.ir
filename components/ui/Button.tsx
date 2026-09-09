@@ -3,7 +3,10 @@ import { CircleNotch } from "@phosphor-icons/react/dist/ssr";
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-const buttonVariants = cva(
+/** Exported so a <Link> can wear the button's look WITHOUT a <button>
+ * nested inside it — that is invalid HTML and gives one action two tab
+ * stops. Use `buttonVariants({ variant, size })` on the Link itself. */
+export const buttonVariants = cva(
   // rounded-pill lives in the BASE, not a variant — every button in this
   // design is a pill; a one-off square control overrides with
   // className="rounded-3" (twMerge resolves the rounded-* group correctly).

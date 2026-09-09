@@ -78,7 +78,7 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
       <div className="mx-auto max-w-[1280px] px-5 pt-8 pb-22 lg:px-8">
         <Link
           href="/account?tab=orders"
-          className="mb-5 inline-block text-sm text-ink/60 transition-colors hover:text-emerald-live"
+          className="mb-5 inline-block text-sm text-ink/70 transition-colors hover:text-emerald-live"
         >
           ← {fa.order.backToOrders}
         </Link>
@@ -88,7 +88,7 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
             {fa.order.title(order.orderNumber)}
           </h1>
           <OrderStatusBadge status={order.status} />
-          <span className="text-sm text-ink/55">{formatJalali(order.createdAt)}</span>
+          <span className="text-sm text-ink/68">{formatJalali(order.createdAt)}</span>
         </div>
 
         {outcome && (
@@ -124,13 +124,13 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
                       <span className="text-base leading-[1.7] font-semibold">
                         {item.productName}
                       </span>
-                      <span className="text-13 text-ink/55">
+                      <span className="text-13 text-ink/68">
                         {fa.order.sku}{" "}
                         <span dir="ltr" className="inline-block">
                           {item.productSku}
                         </span>
                       </span>
-                      <span className="text-sm text-ink/62">
+                      <span className="text-sm text-ink/72">
                         {fa.order.qty(item.qty)} × {formatToman(item.unitPrice)}
                       </span>
                     </div>
@@ -149,7 +149,7 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
               <p className="text-15 leading-[1.95] text-ink/78">
                 {addr.province}، {addr.city}، {addr.line}
               </p>
-              <p className="mt-1.5 text-sm leading-[1.85] text-ink/58">
+              <p className="mt-1.5 text-sm leading-[1.85] text-ink/70">
                 {addr.fullName} —{" "}
                 <span dir="ltr" className="inline-block">
                   {toPersianDigits(addr.phone)}

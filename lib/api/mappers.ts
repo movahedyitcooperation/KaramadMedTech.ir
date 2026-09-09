@@ -320,7 +320,7 @@ export function categoryFormToPayload(values: {
  * without an image falls back to the shared placeholder rather than rendering
  * a broken <Image src="">.
  */
-const CART_IMAGE_FALLBACK = "/images/placeholders/diagnostic-1.svg";
+const CART_IMAGE_FALLBACK = "/images/placeholders/product.svg";
 
 function mapCartItem(raw: ApiCartItem): CartLine {
   return {

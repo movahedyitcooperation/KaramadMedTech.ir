@@ -31,7 +31,7 @@ export function AccountOrders({ orders }: { orders: Order[] }) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <p className="text-15 text-ink/60">{fa.orders.count(orders.length)}</p>
+      <p className="text-15 text-ink/70">{fa.orders.count(orders.length)}</p>
       {orders.map((order) => {
         const itemCount = order.items.reduce((sum, item) => sum + item.qty, 0);
         return (
@@ -46,7 +46,7 @@ export function AccountOrders({ orders }: { orders: Order[] }) {
                 </strong>
                 <OrderStatusBadge status={order.status} />
               </div>
-              <span className="text-sm text-ink/58">
+              <span className="text-sm text-ink/70">
                 {fa.orders.itemCount(itemCount)} — {formatJalali(order.createdAt)}
               </span>
             </div>

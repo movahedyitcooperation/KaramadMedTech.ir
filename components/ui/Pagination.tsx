@@ -16,6 +16,10 @@ interface PaginationProps {
  *
  * The arrows are literal characters rather than icons because they must point
  * the RTL way: → goes to the previous (earlier) page, ← to the next one.
+ *
+ * At either end the arrow renders as a <span>, not a dimmed <Link>:
+ * `pointer-events-none` stops the mouse but not the keyboard, so the old
+ * markup let a keyboard user Tab to «صفحه قبلی» on page 1 and press Enter.
  */
 export function Pagination({ page, totalPages, buildHref }: PaginationProps) {
   if (totalPages <= 1) return null;
@@ -29,14 +33,19 @@ export function Pagination({ page, totalPages, buildHref }: PaginationProps) {
 
   return (
     <nav aria-label={fa.category.pagerAria} className="flex items-center justify-center gap-2">
-      <Link
-        href={buildHref(Math.max(1, page - 1))}
-        aria-label={fa.category.prevPage}
-        aria-disabled={page === 1}
-        className={cn(chip(false), page === 1 && "pointer-events-none opacity-40")}
-      >
-        →
-      </Link>
+      {page === 1 ? (
+        <span aria-hidden="true" className={cn(chip(false), "opacity-40")}>
+          →
+        </span>
+      ) : (
+        <Link
+          href={buildHref(page - 1)}
+          aria-label={fa.category.prevPage}
+          className={chip(false)}
+        >
+          →
+        </Link>
+      )}
       {pages.map((p) => (
         <Link
           key={p}
@@ -47,14 +56,19 @@ export function Pagination({ page, totalPages, buildHref }: PaginationProps) {
           {toPersianDigits(p)}
         </Link>
       ))}
-      <Link
-        href={buildHref(Math.min(totalPages, page + 1))}
-        aria-label={fa.category.nextPage}
-        aria-disabled={page === totalPages}
-        className={cn(chip(false), page === totalPages && "pointer-events-none opacity-40")}
-      >
-        ←
-      </Link>
+      {page === totalPages ? (
+        <span aria-hidden="true" className={cn(chip(false), "opacity-40")}>
+          ←
+        </span>
+      ) : (
+        <Link
+          href={buildHref(page + 1)}
+          aria-label={fa.category.nextPage}
+          className={chip(false)}
+        >
+          ←
+        </Link>
+      )}
     </nav>
   );
 }

@@ -92,7 +92,7 @@ export function CheckoutForm({ addresses }: { addresses: Address[] }) {
               <span className="text-15 leading-[1.9] text-ink/75">
                 {address.province}، {address.city}، {address.addressLine}
               </span>
-              <span className="text-sm leading-[1.8] text-ink/55">
+              <span className="text-sm leading-[1.8] text-ink/68">
                 {address.fullName} —{" "}
                 <span dir="ltr" className="inline-block">
                   {toPersianDigits(address.phone)}
@@ -120,7 +120,7 @@ export function CheckoutForm({ addresses }: { addresses: Address[] }) {
         {leaving ? fa.checkout.redirecting : pending ? fa.checkout.placing : fa.checkout.place}
       </Button>
 
-      <p className="text-12 leading-[1.85] text-ink/55">{fa.checkout.securityNote}</p>
+      <p className="text-12 leading-[1.85] text-ink/68">{fa.checkout.securityNote}</p>
     </div>
   );
 }

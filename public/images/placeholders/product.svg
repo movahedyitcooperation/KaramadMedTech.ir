@@ -1,0 +1,6 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="تصویر این کالا هنوز ثبت نشده است">
+  <rect width="400" height="400" rx="24" fill="#EFF4F8"/>
+  <rect x="110" y="130" width="180" height="140" rx="12" fill="#F7F6F1" stroke="#17211D" stroke-opacity="0.18" stroke-width="3"/>
+  <circle cx="152" cy="172" r="13" fill="#17211D" fill-opacity="0.22"/>
+  <path d="M126 246l46-52 34 38 24-26 44 48" fill="none" stroke="#17211D" stroke-opacity="0.28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

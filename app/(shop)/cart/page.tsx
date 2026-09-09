@@ -36,7 +36,7 @@ export default async function CartPage() {
     <ScreenTransition screenKey="cart">
       <div className="mx-auto max-w-[1280px] px-5 pt-8 pb-20 lg:px-8">
         <h1 className="mb-2 text-h1-flat font-extrabold tracking-[-0.015em]">{fa.cart.title}</h1>
-        <p aria-live="polite" className="mb-7 text-15 leading-[1.75] text-ink/60">
+        <p aria-live="polite" className="mb-7 text-15 leading-[1.75] text-ink/70">
           <span key={`cc-${count}`} className="km-note inline-block">
             {fa.cart.count(count)}
           </span>
@@ -86,7 +86,7 @@ export default async function CartPage() {
                     >
                       {line.name}
                     </Link>
-                    <div className="text-sm leading-[1.7] text-ink/58">
+                    <div className="text-sm leading-[1.7] text-ink/70">
                       {fa.cart.unitPrice} {formatToman(line.unitPrice)}
                     </div>
                     <CartLineControls
@@ -137,7 +137,7 @@ export default async function CartPage() {
                * interrupted by a login — a signed-in shopper goes straight
                * through. */}
               {!loggedIn && (
-                <p className="-mt-1 text-center text-13 leading-[1.85] text-ink/55">
+                <p className="-mt-1 text-center text-13 leading-[1.85] text-ink/68">
                   {fa.cart.checkoutLoginNote}
                 </p>
               )}

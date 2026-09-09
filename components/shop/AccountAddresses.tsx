@@ -76,7 +76,7 @@ export function AccountAddresses({ addresses }: { addresses: Address[] }) {
   return (
     <div className="flex flex-col gap-3.5">
       {addresses.length === 0 && !formOpen && (
-        <p className="text-15 leading-[1.9] text-ink/62">{fa.account.addressesEmpty}</p>
+        <p className="text-15 leading-[1.9] text-ink/72">{fa.account.addressesEmpty}</p>
       )}
 
       {addresses.map((address) => (
@@ -108,7 +108,7 @@ export function AccountAddresses({ addresses }: { addresses: Address[] }) {
             {address.province}، {address.city}، {address.addressLine}
           </div>
 
-          <div className="text-sm leading-[1.8] text-ink/55">
+          <div className="text-sm leading-[1.8] text-ink/68">
             {address.fullName} —{" "}
             <span dir="ltr" className="inline-block">
               {toPersianDigits(address.phone)}

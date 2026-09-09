@@ -1,4 +1,5 @@
 import { formatRating, stars } from "@/lib/format";
+import { fa } from "@/lib/i18n/fa";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -16,7 +17,11 @@ export function RatingRow({ value, className }: { value: number; className?: str
       <span aria-hidden="true" className="tracking-[0.05em] text-emerald">
         {stars(value)}
       </span>
-      <span>{formatRating(value)}</span>
+      <span aria-hidden="true">{formatRating(value)}</span>
+      {/* The stars are decorative and the numeral alone reads as a bare
+       * number with no scale, so the same sentence the PDP prints in words
+       * is what a screen reader gets here. */}
+      <span className="sr-only">{fa.pdp.ratingLine(formatRating(value))}</span>
     </div>
   );
 }

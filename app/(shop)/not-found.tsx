@@ -11,8 +11,8 @@ export default function ShopNotFound() {
   return (
     <div className="mx-auto max-w-[1280px] px-5 py-20 lg:px-8">
       <Panel
-        title={fa.pdp.notFound}
-        body={fa.category.notFound}
+        title={fa.shopNotFound.title}
+        body={fa.shopNotFound.body}
         actions={
           <Link
             href="/"

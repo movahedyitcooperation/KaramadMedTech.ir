@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DepartmentMark } from "@/components/shop/DepartmentMark";
-import { Button } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/Button";
 import { SearchGlyph } from "@/components/ui/SearchGlyph";
 import { toPersianDigits } from "@/lib/format";
 import { fa } from "@/lib/i18n/fa";
@@ -138,10 +138,12 @@ export function MobileNavDrawer({
               <SearchGlyph className="size-[18px]" />
               <span>{fa.mobileNav.search}</span>
             </Link>
-            <Link href={loggedIn ? "/account" : "/login"} onClick={() => setOpen(false)}>
-              <Button className="w-full rounded-4 py-3.5 font-semibold">
-                {loggedIn ? fa.header.account : fa.header.login}
-              </Button>
+            <Link
+              href={loggedIn ? "/account" : "/login"}
+              onClick={() => setOpen(false)}
+              className={cn(buttonVariants(), "w-full rounded-4 py-3.5 font-semibold")}
+            >
+              {loggedIn ? fa.header.account : fa.header.login}
             </Link>
             <a
               href={telHref(contact.phone)}
@@ -149,7 +151,7 @@ export function MobileNavDrawer({
             >
               {fa.mobileNav.call}
             </a>
-            <span dir="ltr" className="text-center text-13 text-ink/55">
+            <span dir="ltr" className="text-center text-13 text-ink/68">
               {toPersianDigits(contact.phone)}
             </span>
           </div>

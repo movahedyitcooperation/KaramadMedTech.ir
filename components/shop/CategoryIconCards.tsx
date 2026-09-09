@@ -23,7 +23,8 @@ export interface CategoryRailItem {
  *   lg and up  the expandable row: every card is `flex: 1 1 0`, the card
  *              under the pointer animates `flex-grow` to 2.6 against its
  *              neighbours' 0.78 (~40% of the row) and only then reveals its
- *              name and blurb over the photograph.
+ *              name and blurb over the photograph. The reveal IS the
+ *              interaction — do not surface the card title at rest here.
  *   sm .. lg   a two-up grid with that overlay pinned open.
  *   under sm   a scroll-snap carousel driven by a strip of pill chips: the
  *              card carries a small number+name badge, the blurb sits in a
@@ -44,9 +45,19 @@ export interface CategoryRailItem {
 export function CategoryIconCards({ items }: { items: CategoryRailItem[] }) {
   return (
     <section
-      aria-label={fa.home.categoriesAria}
+      aria-labelledby="km-category-rail-heading"
       className="mx-auto max-w-[1280px] px-5 pt-16 lg:px-8"
     >
+      {/* Names the section in the document outline, which used to hold
+       * three headings for the whole homepage. This heading is deliberately
+       * the ONLY text the rail shows at rest — the cards themselves stay
+       * bare photographs until hovered. */}
+      <h2
+        id="km-category-rail-heading"
+        className="mb-6 text-h2 font-extrabold tracking-[-0.01em]"
+      >
+        {fa.home.categoriesAria}
+      </h2>
       {/* Phone: a two-part composition — the vertical index on the physical
         * LEFT, the selected category on the right. `.km-cat-stage` is
         * `flex-direction: row-reverse` under sm precisely because the page is

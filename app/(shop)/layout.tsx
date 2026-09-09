@@ -1,4 +1,5 @@
 import { Footer } from "@/components/shop/Footer";
+import { SkipLink } from "@/components/ui/SkipLink";
 import { Header } from "@/components/shop/Header";
 import { WhatsAppFab } from "@/components/shop/WhatsAppFab";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
@@ -16,8 +17,11 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
           __html: JSON.stringify([organizationJsonLd(), websiteJsonLd()]),
         }}
       />
+      <SkipLink />
       <Header />
-      <main className="flex-1">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
       <Footer />
       <WhatsAppFab />
     </>

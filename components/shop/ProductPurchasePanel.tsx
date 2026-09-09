@@ -61,7 +61,7 @@ export function ProductPurchasePanel({
     <div className="flex flex-col gap-4.5 rounded-6 border border-ink/10 bg-surface p-6">
       <div className="flex flex-wrap items-baseline gap-3">
         {onSale && (
-          <span className="text-15 text-ink/42 line-through">
+          <span className="text-15 text-ink/65 line-through">
             {formatToman(product.compareAtPrice as number)}
           </span>
         )}

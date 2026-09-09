@@ -82,7 +82,7 @@ export function CartLineControls({
         </button>
       </div>
 
-      <span className="text-13 text-ink/50">{fa.cart.stockHint(stock)}</span>
+      <span className="text-13 text-ink/68">{fa.cart.stockHint(stock)}</span>
 
       <button
         type="button"

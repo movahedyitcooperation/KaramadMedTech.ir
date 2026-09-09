@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { fa } from "@/lib/i18n/fa";
 
 /**
@@ -15,12 +22,49 @@ import { fa } from "@/lib/i18n/fa";
 const FiltersSheetContext = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
+  /** True only while the panel is actually a sheet (below lg). The SAME
+   * element is the static desktop sidebar from 1024px up, so `inert` has to
+   * be gated on this — an unconditional `inert={!open}` would make the
+   * desktop filters unreachable. Mirrors the 1023px breakpoint that
+   * `.km-filters` uses in globals.css. */
+  isSheet: boolean;
 } | null>(null);
 
 export function FiltersSheetProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  // Starts false so the server-rendered desktop sidebar is never inert; the
+  // effect corrects it on the client before the visitor can Tab anywhere.
+  const [isSheet, setIsSheet] = useState(false);
+  const openerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsSheet(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Escape closes the sheet and focus goes back to whatever opened it —
+  // the same contract MobileNavDrawer already honours.
+  useEffect(() => {
+    if (!open) return;
+    openerRef.current = document.activeElement as HTMLElement | null;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = original;
+      openerRef.current?.focus?.();
+    };
+  }, [open]);
+
   return (
-    <FiltersSheetContext.Provider value={{ open, setOpen }}>
+    <FiltersSheetContext.Provider value={{ open, setOpen, isSheet }}>
       {children}
       {open && (
         // Scrim for the sheet; .km-fbackdrop hides it from lg upwards, where

@@ -152,16 +152,19 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               {slide.highlight}
             </p>
           )}
-          <div className="mt-8 flex flex-wrap gap-3">
+          {/* On a phone the two CTAs stack; sizing them to their own text
+            * left one narrow and one wide with misaligned inline-start
+            * edges. They only sit side by side once there is room. */}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href={slide.ctaHref}
-              className="rounded-4 bg-bone px-7 py-4 text-base font-bold text-ink transition-colors duration-(--duration-state) ease-out hover:bg-white"
+              className="rounded-4 bg-bone px-7 py-4 text-center text-base font-bold text-ink transition-colors duration-(--duration-state) ease-out hover:bg-white sm:text-start"
             >
               {slide.ctaLabel}
             </Link>
             <a
               href="#site-footer"
-              className="rounded-4 border border-bone/44 px-7 py-4 text-base text-bone transition-colors duration-(--duration-state) ease-out hover:border-bone"
+              className="rounded-4 border border-bone/44 px-7 py-4 text-center text-base text-bone transition-colors duration-(--duration-state) ease-out hover:border-bone sm:text-start"
             >
               {fa.hero.consult}
             </a>
@@ -181,20 +184,27 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                 onClick={() => go(i)}
                 aria-label={fa.hero.dot(i + 1)}
                 aria-current={index === i ? "true" : "false"}
-                className={cn(
-                  "relative h-1 w-[30px] cursor-pointer overflow-hidden rounded-pill transition-colors duration-(--duration-state)",
-                  index === i ? "bg-bone/50" : "bg-bone/26"
-                )}
+                /* The visible bar stays 30x4; the BUTTON is 44px tall so
+                 * the touch target clears the minimum. A 4px-high control
+                 * was effectively unhittable on a phone. */
+                className="group flex h-11 w-[30px] cursor-pointer items-center"
               >
                 <span
-                  // Re-keyed per slide so the fill animation restarts each cycle.
-                  key={index === i ? `t${index}` : "f"}
-                  data-paused={String(paused)}
                   className={cn(
-                    "absolute inset-0 origin-right rounded-[inherit] bg-bone",
-                    index === i ? "km-hero-progress" : "scale-x-0"
+                    "relative block h-1 w-full overflow-hidden rounded-pill transition-colors duration-(--duration-state)",
+                    index === i ? "bg-bone/50" : "bg-bone/26"
                   )}
-                />
+                >
+                  <span
+                    // Re-keyed per slide so the fill animation restarts each cycle.
+                    key={index === i ? `t${index}` : "f"}
+                    data-paused={String(paused)}
+                    className={cn(
+                      "absolute inset-0 origin-right rounded-[inherit] bg-bone",
+                      index === i ? "km-hero-progress" : "scale-x-0"
+                    )}
+                  />
+                </span>
               </button>
             ))}
           </div>

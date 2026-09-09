@@ -12,7 +12,10 @@ export async function WhatsAppFab() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={fa.wa.aria}
-      className="km-fab fixed bottom-6 end-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-live-deep text-surface shadow-fab transition-shadow duration-(--duration-state) hover:shadow-fab-lift"
+      /* start-6, not end-6: the page is RTL, so `end` is the PHYSICAL LEFT
+       * — exactly where the home rail parks its emerald category index on a
+       * phone, and the FAB was sitting on top of it. */
+      className="km-fab fixed bottom-6 start-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-live-deep text-surface shadow-fab transition-shadow duration-(--duration-state) hover:shadow-fab-lift"
     >
       <WhatsappLogo size={28} weight="fill" aria-hidden="true" />
     </a>
