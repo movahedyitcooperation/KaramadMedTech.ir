@@ -184,6 +184,7 @@
   --duration-state: 200ms; /* routine state — hover, color, focus ring */
   --duration-panel: 320ms; /* overlay, drawer, route change */
   --duration-hero: 560ms; /* the one authored hero entrance */
+  --duration-expand: 460ms; /* the home rail card widening under the pointer */
 }
 
 @layer base {
@@ -530,6 +531,209 @@
   .j-hero-arrow:active {
     transform: translateY(1px) scale(0.97);
     transition-duration: 60ms;
+  }
+
+  /* ---- The home category rail -----------------------------------------
+   * One card design at every width — a photograph with the category name
+   * and blurb laid over its bottom — and one element, .km-cat-row, that
+   * changes MODE around it. That is what keeps the phone and the desktop
+   * two views of the same showcase rather than two components: there is a
+   * single set of images and links in the DOM, and only one presentation
+   * is ever live.
+   *
+   *   under sm   a scroll-snap carousel: one card at a time, the next
+   *              peeking past the screen edge so the swipe is
+   *              discoverable. Overlay pinned open.
+   *   sm .. lg   a two-up grid. Overlay pinned open.
+   *   lg and up  the expandable row: six equal cards, the one under the
+   *              pointer grows to ~40% while the others give way, and only
+   *              then does its overlay appear.
+   *
+   * The scrim ink is rgb(8 20 15), the same near-black the hero's scrim
+   * uses — the two places in this design where text sits on a photograph.
+   * It covers the whole card and ramps out by 88%, so the top of every
+   * photograph stays clear and the copy still lands on the dark end. */
+  .km-cat-overlay {
+    background: linear-gradient(
+      to top,
+      rgb(8 20 15 / 0.9) 0%,
+      rgb(8 20 15 / 0.72) 30%,
+      rgb(8 20 15 / 0.3) 62%,
+      transparent 88%
+    );
+  }
+
+  /* Touch feedback: a phone has no hover, so the press itself is the only
+   * acknowledgement the card can give before the route changes. */
+  .km-cat-card:active {
+    transform: scale(0.992);
+    transition: transform var(--duration-tick) var(--ease-out);
+  }
+
+  /* ---- under sm: the phone composition ----
+   * A two-part stage: the vertical index down the PHYSICAL left, the
+   * selected category's card on the right. `row-reverse` is what pins the
+   * index left on an RTL page — in a plain RTL row the first child lands on
+   * the right, and the index must stay first in the DOM because it is read
+   * first and labels what follows. */
+  .km-cat-stage {
+    display: flex;
+    flex-direction: row-reverse;
+    /* stretch, not flex-start: the emerald panel and the picture beside it
+     * are meant to read as one balanced pair, so whichever is taller sets
+     * the height and the other fills it. The floor stops a short index from
+     * squashing the picture on a wide phone. */
+    align-items: stretch;
+    min-height: 300px;
+    gap: 12px;
+  }
+
+  /* The index is a static list, not a scroller — six short rows at every
+   * phone width, so nothing needs to scroll and the page keeps its whole
+   * vertical rhythm. */
+  .km-cat-chips {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+  .km-cat-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The carousel is now a COLUMN inside the stage rather than a full-bleed
+   * strip, so the edge bleed is gone and one card fills the column exactly.
+   * The swipe is still native scroll-snap. */
+  .km-cat-row {
+    display: flex;
+    min-width: 0; /* a flex child must be allowed to shrink below its content */
+    flex: 1 1 auto;
+    gap: 14px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain; /* a fling must not turn into a page swipe */
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .km-cat-row::-webkit-scrollbar {
+    display: none;
+  }
+  .km-cat-card {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+  }
+
+  /* ---- sm .. lg: the two-up grid ---- */
+  @media (min-width: 640px) {
+    /* `contents` removes the stage from layout entirely, so from here up
+     * the rail is laid out exactly as it was before the phone
+     * composition existed — grid and desktop row untouched. */
+    .km-cat-stage {
+      display: contents;
+    }
+    .km-cat-row {
+      flex: initial;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow: visible;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+    .km-cat-card {
+      flex: initial;
+      scroll-snap-align: none;
+    }
+  }
+
+  /* ---- lg and up: the expandable row (unchanged) ----
+   * Every card is `flex: 1 1 0`, so the row divides its width by grow
+   * factor alone, and flex-grow is an animatable <number>: hovering the ROW
+   * shrinks every card, hovering a CARD overrides it upward, and the
+   * difference is what animates. No JS, no state, no measuring. 2.6 against
+   * 0.78 x 5 puts the hovered card at 2.6/6.5 = 40% and each neighbour at
+   * 12%. :focus-within / :focus-visible mirror :hover exactly, so tabbing
+   * the row expands and reveals the same way pointing at it does. */
+  @media (min-width: 1024px) {
+    .km-cat-row {
+      display: flex;
+      height: 400px;
+      gap: 12px;
+    }
+    .km-cat-card {
+      flex: 1 1 0;
+      min-width: 0; /* without this a flex item refuses to shrink below its
+                     * content and the row overflows its container */
+      transition: flex-grow var(--duration-expand) var(--ease-out);
+    }
+    .km-cat-row:hover .km-cat-card,
+    .km-cat-row:focus-within .km-cat-card {
+      flex-grow: 0.78;
+    }
+    .km-cat-row .km-cat-card:hover,
+    .km-cat-row .km-cat-card:focus-visible {
+      flex-grow: 2.6;
+    }
+    .km-cat-card:active {
+      transform: none;
+    }
+
+    .km-cat-photo {
+      transition: transform var(--duration-expand) var(--ease-out);
+    }
+    .km-cat-card:hover .km-cat-photo,
+    .km-cat-card:focus-visible .km-cat-photo {
+      transform: scale(1.05);
+    }
+
+    /* Hidden at rest above lg — opacity AND visibility, so the copy is not a
+     * hover target of its own while the card is closed. It is still in the
+     * DOM and still in the link's accessible name throughout. */
+    .km-cat-overlay {
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity var(--duration-panel) var(--ease-out),
+        visibility 0s linear var(--duration-panel);
+    }
+    .km-cat-card:hover .km-cat-overlay,
+    .km-cat-card:focus-visible .km-cat-overlay {
+      opacity: 1;
+      visibility: visible;
+      /* the copy arrives after the card has made room for it, not during */
+      transition-delay: 120ms, 0s;
+    }
+
+    /* The copy block settles up as it arrives, and is a fixed width so the
+     * sentences do not reflow line by line while the card is still growing. */
+    .km-cat-copy {
+      transform: translateY(10px);
+      transition: transform var(--duration-panel) var(--ease-out) 120ms;
+    }
+    .km-cat-card:hover .km-cat-copy,
+    .km-cat-card:focus-visible .km-cat-copy {
+      transform: none;
+    }
+  }
+
+  /* Reduced motion: the reveal stays — it is the only way to read the name —
+   * but nothing moves in space, the width change is instant, and the
+   * carousel jumps between cards rather than gliding. */
+  @media (prefers-reduced-motion: reduce) {
+    .km-cat-row,
+    .km-cat-chips {
+      scroll-behavior: auto;
+    }
+    .km-cat-card,
+    .km-cat-photo,
+    .km-cat-copy {
+      transition: none !important;
+    }
+    .km-cat-card:hover .km-cat-photo,
+    .km-cat-card:focus-visible .km-cat-photo,
+    .km-cat-card:active,
+    .km-cat-copy {
+      transform: none !important;
+    }
   }
 
   /* The PDP's main image and the mini card's photo: a calm zoom is a real

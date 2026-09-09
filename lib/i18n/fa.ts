@@ -112,6 +112,26 @@ export const fa = {
   home: {
     categoriesAria: "دسته‌بندی‌ها",
     countUnit: (n: number) => `${toPersianDigits(n)} کالا`,
+    /* The blurb the home rail reveals over a category's photograph. Keyed by
+     * the English department key (lib/utils/department.ts), the same key the
+     * icon and photo assets use — the real category slugs are Persian
+     * transliterations and department.ts is the only place that translation
+     * happens. The backend's Category carries no description field, so this
+     * copy lives here with the rest of the Persian strings. */
+    categoryBlurb: {
+      diagnostics:
+        "ابزارها و دستگاه‌های تخصصی برای اندازه‌گیری، پایش و بررسی وضعیت سلامت. مناسب برای استفاده در منزل، مطب و مراکز درمانی.",
+      consumables:
+        "مجموعه‌ای از محصولات مصرفی و بهداشتی مورد نیاز برای مراقبت و حفظ سلامت. شامل اقلام یک‌بارمصرف، محصولات بهداشتی و ملزومات مراقبتی.",
+      rehab:
+        "محصولات تخصصی برای حمایت از اندام‌ها، بهبود حرکت و تسهیل فرآیند توانبخشی. مناسب برای مراقبت‌های ارتوپدی، دوران نقاهت و استفاده روزمره.",
+      homecare:
+        "تجهیزات و محصولات کاربردی برای مراقبت و پایش سلامت در محیط خانه. راهکارهایی مناسب برای مراقبت آسان‌تر و ایمن‌تر از بیماران و سالمندان.",
+      clinic:
+        "تجهیزات و ملزومات مورد نیاز برای تجهیز و راه‌اندازی مطب‌ها و مراکز درمانی. محصولاتی کاربردی برای معاینه، درمان و ارائه خدمات حرفه‌ای پزشکی.",
+      accessories:
+        "انواع لوازم جانبی و قطعات مورد نیاز برای استفاده بهتر از تجهیزات پزشکی. محصولات کاربردی برای تکمیل، نگهداری و افزایش کارایی تجهیزات.",
+    } as Record<string, string>,
     newestHeading: "جدیدترین محصولات",
     newestAria: "جدیدترین محصولات",
     allProducts: "همه محصولات",
