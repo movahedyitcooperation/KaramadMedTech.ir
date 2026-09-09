@@ -101,7 +101,11 @@ export function CartDropdown({ count }: CartDropdownProps) {
         className="inline-flex cursor-pointer items-center gap-2.5 rounded-pill bg-bone px-4.5 py-2.5 text-sm font-semibold text-ink transition-colors duration-(--duration-state) hover:bg-surface active:translate-y-px active:scale-[0.985]"
       >
         <CartIcon />
-        <span className="km-cart-label">{fa.header.cart}</span>
+        {/* Icon-only under `sm`, matching the search and menu controls it sits
+         * between — the word costs 54px of a 335px row, which is most of the
+         * header's overflow on a phone. `aria-label` on the button already
+         * carries the accessible name, so nothing is lost to a screen reader. */}
+        <span className="km-cart-label hidden sm:inline">{fa.header.cart}</span>
         {count > 0 && (
           // Keyed by count so the reconciler re-creates it on every change
           // and the tick fires each time the cart gains or loses a unit.

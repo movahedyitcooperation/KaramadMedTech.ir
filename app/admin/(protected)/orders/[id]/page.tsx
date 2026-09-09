@@ -49,7 +49,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
           <section className="rounded-card border border-line bg-surface shadow-soft">
             <h2 className="p-5 pb-0 text-sm font-semibold text-ink-900">{fa.admin.orders.sectionItems}</h2>
-            <div className="overflow-x-auto p-5">
+            <div className="relative overflow-x-auto p-5">
               <table className="w-full text-start text-sm">
                 <thead>
                   <tr className="border-b border-line">

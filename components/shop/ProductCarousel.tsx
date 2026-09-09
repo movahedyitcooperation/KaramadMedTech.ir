@@ -34,7 +34,7 @@ export function ProductCarousel({
         <h2 className="text-h2 font-extrabold tracking-[-0.01em]">{title}</h2>
         {action}
       </div>
-      <div className="km-scroll km-stagger grid snap-x snap-mandatory grid-flow-col auto-cols-[minmax(246px,1fr)] gap-4.5 overflow-x-auto pb-2.5">
+      <div className="km-scroll km-stagger relative grid snap-x snap-mandatory grid-flow-col auto-cols-[minmax(246px,1fr)] gap-4.5 overflow-x-auto pb-2.5">
         {products.map((p) => (
           <div key={p.id} className="grid snap-start">
             <ProductCard product={p} variant={variant} />

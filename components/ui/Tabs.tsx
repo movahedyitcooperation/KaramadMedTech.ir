@@ -37,7 +37,7 @@ export function Tabs({ items, defaultId }: { items: TabItem[]; defaultId?: strin
 
   return (
     <div>
-      <div role="tablist" className="no-scrollbar flex gap-2 overflow-x-auto border-b border-line">
+      <div role="tablist" className="no-scrollbar relative flex gap-2 overflow-x-auto border-b border-line">
         {items.map((item, index) => {
           const selected = item.id === active;
           return (

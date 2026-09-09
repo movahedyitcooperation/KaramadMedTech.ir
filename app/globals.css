@@ -43,6 +43,12 @@
 @theme {
   --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
 
+  /* One breakpoint below Tailwind's `sm`, for the small phones (320-359px)
+   * where the header's brand lockup and its three controls genuinely cannot
+   * both keep their full-size treatment. Nothing else in the design uses it:
+   * it exists so that band can tighten deliberately instead of overflowing. */
+  --breakpoint-xs: 360px;
+
   /* Design system v2 ("emerald + almond") — see CLAUDE.md §3 for the
    * rationale behind every decision here (ink-only CTAs, department
    * spectrum usage rules, the four card treatments, the motion thesis).
@@ -604,6 +610,13 @@
    * The swipe is still native scroll-snap. */
   .km-cat-row {
     display: flex;
+    /* A scroll container must also be a containing block. An absolutely
+     * positioned descendant is not clipped by an overflow:auto ancestor
+     * unless that ancestor is its containing block, so without this any
+     * abspos child (an sr-only label, a badge) escapes the clip, rides out
+     * with the scrolled content and expands the DOCUMENT's scrollable width.
+     * On an RTL page that shows up as a wide empty band to pan into. */
+    position: relative;
     min-width: 0; /* a flex child must be allowed to shrink below its content */
     flex: 1 1 auto;
     gap: 14px;

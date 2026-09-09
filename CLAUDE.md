@@ -184,6 +184,36 @@ should appear anywhere else in the codebase.
   `public/images/categories/photo/` — see the README there; they are a
   different asset set from the line-art icons in
   `public/images/categories/`.
+- **Every scroll container must be `position: relative`.** An absolutely
+  positioned box is NOT clipped by an ancestor with `overflow: auto/hidden`
+  unless that ancestor is its containing block, so an abspos descendant of a
+  `static` scroller escapes the clip, rides out with the scrolled content and
+  expands the *document's* scrollable width — while `body.scrollWidth` stays
+  clean, because the escapee resolves against `<body>` itself. On this RTL
+  page that surfaced as a wide empty band the whole page could be panned into
+  on a phone: `RatingRow`'s `sr-only` span, inside the home product carousel,
+  landed 1510px outside the viewport and made `documentElement.scrollWidth`
+  1885 against a 375px screen. `ProductCarousel`, the PDP's related-products
+  rail, `.km-cat-row`, `Tabs`' tablist and the admin tables all carry
+  `relative` for this reason, and `RatingRow` carries it so its own span is
+  contained wherever the component is used. When checking for overflow,
+  measure `documentElement.scrollWidth`, not only `body.scrollWidth` — and
+  never "fix" a recurrence with `overflow-x: hidden` on `body`, which leaves
+  the overflow present and still pannable by touch.
+- **Breakpoints are Tailwind's defaults plus one**: `--breakpoint-xs: 360px`,
+  which exists solely for the header band on small phones. Do not reach for
+  `xs:`/`max-xs:` elsewhere without a reason as concrete as that one.
+- **The header row must always have a flexible member.** Below `lg` the
+  search field is `hidden`, so the row is just the brand lockup and the
+  control cluster; when both were `shrink-0` their combined min width
+  (364px) overflowed every viewport under ~404px, and on an RTL page that
+  overflow runs LEFT — the browser widens the layout viewport leftward and
+  the whole page reads as shoved aside with an empty band next to it. The
+  lockup is now the flexible one (`min-w-0`, text column `min-w-0` +
+  `truncate`); the controls keep `shrink-0` because 44px is the touch-target
+  floor. The cart trigger is icon-only under `sm` (its `aria-label` carries
+  the name), and under `xs` the brand tagline drops and the gutter narrows to
+  `px-4`, which is what keeps «کارآمد» itself clear of the ellipsis at 320px.
 - **Radius**: `2–10px` for cards/panels/inputs (`--radius-1`…`-7`), never
   pill except buttons (`--radius-pill`, in `Button`'s base class, not a
   variant — every button in this design is a pill).

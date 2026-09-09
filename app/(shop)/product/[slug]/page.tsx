@@ -196,7 +196,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <h2 className="mb-5.5 text-2xl font-extrabold tracking-[-0.01em]">
               {fa.pdp.relatedHeading}
             </h2>
-            <div className="km-scroll grid snap-x snap-mandatory grid-flow-col auto-cols-[minmax(232px,1fr)] gap-4.5 overflow-x-auto pb-2.5">
+            <div className="km-scroll relative grid snap-x snap-mandatory grid-flow-col auto-cols-[minmax(232px,1fr)] gap-4.5 overflow-x-auto pb-2.5">
               {related.map((item) => (
                 <div key={item.id} className="grid snap-start">
                   <ProductCard product={item} variant="mini" />

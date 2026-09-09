@@ -48,15 +48,28 @@ export function Logo({ variant = "full", tone = "ink", className }: LogoProps) {
 
   const isBone = tone === "bone";
   return (
-    <div className={cn("inline-flex items-center gap-3", className)}>
+    <div className={cn("inline-flex min-w-0 items-center gap-3", className)}>
       <LogoMark tone={tone} />
-      <div className="flex flex-col items-start leading-[1.15]">
+      {/* min-w-0 + truncate: a flex item refuses to shrink below its content
+       * unless told to, and this column is what absorbs the slack when the
+       * header row runs out of width. Under 360px the tagline drops out
+       * entirely, which buys back the 22px that keeps «کارآمد» itself from
+       * ever reaching the ellipsis on a 320px phone. */}
+      <div className="flex min-w-0 flex-col items-start leading-[1.15]">
         <span
-          className={cn("text-[23px] font-extrabold tracking-[-0.01em]", isBone ? "text-bone" : "text-ink")}
+          className={cn(
+            "max-w-full truncate text-[23px] font-extrabold tracking-[-0.01em]",
+            isBone ? "text-bone" : "text-ink"
+          )}
         >
           {fa.brand.name}
         </span>
-        <span className={cn("text-12", isBone ? "text-bone/62" : "text-ink/60")}>
+        <span
+          className={cn(
+            "max-w-full truncate text-12 max-xs:hidden",
+            isBone ? "text-bone/62" : "text-ink/60"
+          )}
+        >
           {fa.brand.tagline}
         </span>
       </div>

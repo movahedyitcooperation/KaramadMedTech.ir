@@ -37,8 +37,19 @@ export async function Header() {
 
   return (
     <header className="on-emerald sticky top-0 z-40 bg-linear-to-b from-emerald-hi to-emerald to-72% text-bone">
-      <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-5 py-4 sm:gap-6 lg:px-8">
-        <Link href="/" aria-label={fa.brand.homeAria} className="shrink-0">
+      {/* Below `lg` the search field is hidden, which used to leave this row
+       * with no flexible member at all — brand lockup and control cluster
+       * were both `shrink-0`, so their combined min width (364px) simply
+       * overflowed any viewport under ~404px. On an RTL page that overflow
+       * runs LEFT, so the browser widened the layout viewport leftward and
+       * the page appeared shoved to one side with an empty band beside it.
+       * The lockup is now the row's flexible member (`min-w-0`, no
+       * `shrink-0`): the controls keep their 44px touch targets and the
+       * brand gives way instead of the viewport. The `max-xs:` rules below
+       * mean it never actually has to on a real phone — they are the
+       * belt, this is the braces. */}
+      <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-5 py-4 max-xs:px-4 sm:gap-6 lg:px-8">
+        <Link href="/" aria-label={fa.brand.homeAria} className="min-w-0">
           <Logo tone="bone" />
         </Link>
 

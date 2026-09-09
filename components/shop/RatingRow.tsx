@@ -13,7 +13,14 @@ import { cn } from "@/lib/utils/cn";
  */
 export function RatingRow({ value, className }: { value: number; className?: string }) {
   return (
-    <div className={cn("flex items-center gap-[7px] text-13 text-ink/70", className)}>
+    // `relative` is load-bearing, not cosmetic: the sr-only span below is
+    // position:absolute, and an absolutely positioned box is NOT clipped by an
+    // ancestor with overflow:auto/hidden unless that ancestor is its containing
+    // block. Without a positioned ancestor here the span resolved against
+    // <body>, rode out with the card inside the horizontal product carousel,
+    // and landed ~1500px outside the viewport — inflating the document's
+    // scrollable width and giving the RTL page a huge empty band to pan into.
+    <div className={cn("relative flex items-center gap-[7px] text-13 text-ink/70", className)}>
       <span aria-hidden="true" className="tracking-[0.05em] text-emerald">
         {stars(value)}
       </span>

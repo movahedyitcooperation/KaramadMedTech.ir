@@ -31,7 +31,7 @@ export function DataTable<T>({ columns, rows, rowKey, emptyLabel }: DataTablePro
   }
 
   return (
-    <div className="overflow-x-auto rounded-card border border-line bg-surface shadow-soft">
+    <div className="relative overflow-x-auto rounded-card border border-line bg-surface shadow-soft">
       <table className="w-full text-start text-sm">
         <thead>
           <tr className="border-b border-line bg-bg">
