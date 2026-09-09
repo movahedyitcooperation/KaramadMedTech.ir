@@ -124,7 +124,15 @@ should appear anywhere else in the codebase.
   "where the site is speaking rather than listing" — PDP key specs, the
   cart's help card, the mega-menu panel),
   `components/ui/RuleBox.tsx` (one box divided by hairlines — service
-  cells, trust badges — reads as a set, not individual cards), and the
+  cells, trust badges — reads as a set, not individual cards; the four
+  service cells add `.km-service` on top of it, the design's ONE
+  hover-answering treatment outside the category rail — a shallow emerald
+  wash from the bottom edge, a 2px rule on the cell's inline-start divider
+  beside the title, and the Phosphor icon plus title going from resting
+  `--emerald` to `--emerald-live`/`--emerald-live-deep`. No lift, no
+  shadow, no scale: the band sits between two product carousels and must
+  not compete with them. `:focus-within` mirrors `:hover` exactly, since
+  the CTA link is the cell's only click target), and the
   product card (its own component, hairline border + full-bleed photo, no
   shadow, no image zoom, border darkens on hover only), and the home
   category card (`CategoryIconCards`: the owner's own category photograph,

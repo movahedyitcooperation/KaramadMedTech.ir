@@ -736,6 +736,78 @@
     }
   }
 
+  /* ---- The four service cells -----------------------------------------
+   * Still a RuleBox — one box divided by hairlines, not four floating
+   * cards — but the cell now answers the pointer instead of sitting inert.
+   * Three things move together and none of them alone: a very shallow
+   * emerald wash rises from the bottom edge, a 2px rule appears on the
+   * cell's inline-start divider beside the title, and the icon plus title
+   * shift from resting green to the live green. That is the whole
+   * interaction; there is no lift, no shadow and no scale, because this
+   * band sits between two product carousels and must not compete with
+   * them.
+   *
+   * :focus-within is not decoration here — the CTA link is the cell's only
+   * click target, so tabbing to it has to light the same cell the mouse
+   * would, or the keyboard reads a bare link with no context.
+   *
+   * ::before carries the wash at z-index -1 under an `isolation: isolate`
+   * stacking context, so it paints over the cell's own --surface fill and
+   * under every child without any child needing a z-index of its own. */
+  .km-service {
+    position: relative;
+    isolation: isolate;
+  }
+  .km-service::before,
+  .km-service::after {
+    content: "";
+    position: absolute;
+    opacity: 0;
+    transition: opacity var(--duration-state) var(--ease-out);
+  }
+  .km-service::before {
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      rgb(28 138 105 / 0.075) 0%,
+      rgb(28 138 105 / 0.03) 38%,
+      transparent 78%
+    );
+  }
+  /* The indicator sits ON the divider at the reading edge (inline-start is
+   * the RIGHT edge on this page), starting at the cell's own top padding so
+   * it spans the icon and the title exactly. */
+  .km-service::after {
+    inset-inline-start: 0;
+    inset-block-start: 1.75rem;
+    width: 2px;
+    height: 4rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-emerald-live);
+    transform: scaleY(0.2);
+    transform-origin: top;
+    transition:
+      opacity var(--duration-state) var(--ease-out),
+      transform var(--duration-state) var(--ease-out);
+  }
+  .km-service:hover::before,
+  .km-service:focus-within::before,
+  .km-service:hover::after,
+  .km-service:focus-within::after {
+    opacity: 1;
+  }
+  .km-service:hover::after,
+  .km-service:focus-within::after {
+    transform: scaleY(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .km-service::after {
+      transform: none;
+    }
+  }
+
   /* The PDP's main image and the mini card's photo: a calm zoom is a real
    * affordance for inspecting a product, so it stays here — and ONLY here.
    * Ordinary product cards deliberately have no zoom; their border darkening
