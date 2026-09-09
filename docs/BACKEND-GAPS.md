@@ -187,24 +187,37 @@ filename that's never reused or overwritten in place. Conditional requests
 (`If-None-Match` → `304`) still work — verified directly against a real
 uploaded file.
 
-### Still open
+### ✅ Upload resize & re-encode
 
-1. **Uploads are stored verbatim, up to 5 MB, with no resize or format
-   conversion** (`admin_uploads.py`). A 4 MB PNG of an autoclave destroys LCP
-   on an Iranian mobile connection. Add a Pillow step on upload: cap the long
-   edge (~1600px), emit WebP plus a JPEG fallback at 3–4 widths, and return the
-   variant URLs on `ProductImage`.
+Was: uploads were stored verbatim, up to 5 MB, with no resize or format
+conversion. A 4 MB PNG of an autoclave destroys LCP on an Iranian mobile
+connection.
 
-   Mitigated for now by `next/image`, which resizes and re-encodes to
-   AVIF/WebP on demand — but that moves the cost to the Node process rather
-   than removing it, and the first request for each variant pays the encode.
-   The storefront's own hero art is already pre-optimised at build time
-   (1600px WebP sources, ~35–120 KB each) precisely so the optimizer starts
-   from something sane; admin uploads should get the same treatment.
+Now: `admin_uploads.py`'s `_process_image` (Pillow, approved as a new
+dependency per §9 — the only one in this codebase) re-encodes every accepted
+upload to a single size-capped WebP: long edge clamped to 1600px (matching
+the storefront's own pre-optimised hero art), quality 82, alpha preserved
+for a transparent PNG rather than flattened onto a background it never had.
+Runs via `asyncio.to_thread` so the CPU-bound decode/resize/encode never
+blocks the event loop.
 
-   Not yet built: adding this needs Pillow, a new dependency not in
-   CLAUDE.md's stack table — flagged for approval per §9's "don't add
-   dependencies without asking," not started without it.
+**Deliberately a single re-encoded original, not a multi-width variant set**
+(`ProductImage` unchanged, still one `url` per image) — `next/image` already
+resizes and re-encodes to AVIF/WebP on demand per viewport; what it lacked
+was a sane *starting point*, not more variants to choose from. A raw 4 MB
+phone photo is now `next/image` working from a WebP source under 1600px
+instead. This fix has zero effect on the frontend or `ProductImage`'s shape —
+no coordination needed with whoever picks up the storefront next.
+
+This is also a real content-verification step, not just optimization:
+`Image.open(...).load()` inside a `try` means the Content-Type header (which
+is caller-supplied and unverified) is no longer trusted on its own — a file
+that claims `image/png` but isn't a decodable image now gets a `415`, and
+Pillow's own `Image.MAX_IMAGE_PIXELS` guard (left at its default) rejects a
+decompression-bomb-sized image before it gets near a resize. Verified: a
+3200×2400 PNG uploaded through the real endpoint came back as a 1600×1200
+WebP; a corrupt file with a spoofed `image/png` header was rejected; alpha
+survived a transparent PNG round-trip. 8 new tests cover all of this.
 
 ## Schema limits noted, not worked around
 
