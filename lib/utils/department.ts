@@ -18,6 +18,12 @@ export interface Department {
    * asset — always English, since department.ts is the sole translation
    * layer between these keys and the real (Persian-transliterated) slugs. */
   iconSrc: string;
+  /** Matches public/images/categories/photo/<key>.webp, the owner-supplied
+   * category photograph that fills the home rail's card. Same English-key
+   * convention as `iconSrc`, for the same reason. A photo is not a
+   * department *colour*, so unlike `tint`/`deep` this may be read outside
+   * DepartmentMark. */
+  photoSrc: string;
 }
 
 const DEPARTMENTS: Record<DepartmentKey, Department> = {
@@ -26,36 +32,42 @@ const DEPARTMENTS: Record<DepartmentKey, Department> = {
     tint: "var(--color-dept-diagnostics)",
     deep: "var(--color-dept-diagnostics-deep)",
     iconSrc: "/images/categories/diagnostics.webp",
+    photoSrc: "/images/categories/photo/diagnostics.webp",
   },
   consumables: {
     key: "consumables",
     tint: "var(--color-dept-consumables)",
     deep: "var(--color-dept-consumables-deep)",
     iconSrc: "/images/categories/consumables.webp",
+    photoSrc: "/images/categories/photo/consumables.webp",
   },
   rehab: {
     key: "rehab",
     tint: "var(--color-dept-rehab)",
     deep: "var(--color-dept-rehab-deep)",
     iconSrc: "/images/categories/rehab.webp",
+    photoSrc: "/images/categories/photo/rehab.webp",
   },
   homecare: {
     key: "homecare",
     tint: "var(--color-dept-homecare)",
     deep: "var(--color-dept-homecare-deep)",
     iconSrc: "/images/categories/homecare.webp",
+    photoSrc: "/images/categories/photo/homecare.webp",
   },
   clinic: {
     key: "clinic",
     tint: "var(--color-dept-clinic)",
     deep: "var(--color-dept-clinic-deep)",
     iconSrc: "/images/categories/clinic.webp",
+    photoSrc: "/images/categories/photo/clinic.webp",
   },
   accessories: {
     key: "accessories",
     tint: "var(--color-dept-accessories)",
     deep: "var(--color-dept-accessories-deep)",
     iconSrc: "/images/categories/accessories.webp",
+    photoSrc: "/images/categories/photo/accessories.webp",
   },
 };
 

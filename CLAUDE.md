@@ -110,11 +110,14 @@ should appear anywhere else in the codebase.
   `components/shop/DepartmentMark.tsx`, the *only* sanctioned way to render
   one): a department hue must **never** appear without its icon and label —
   color is always the third cue, never the only one. Only **one** department
-  color is ever visible on a given category/product page; the home category
-  rail is the only place all six appear together, as a legend. **No
-  department color on the shopping surface itself** — product cards, prices,
+  color is ever visible on a given category/product page. The home category
+  rail used to be the one place all six appeared together as a legend; it is
+  now six photographs with their names over them, and carries no department
+  color at all — so a shopper meets a department hue for the first time on
+  the category page itself. **No department color on the shopping surface
+  itself** — product cards, prices,
   ratings, add-to-cart buttons and badges use ink/danger/warn only.
-- **Four distinct card treatments, not one generic `<Card>`** (`Card.tsx`
+- **Five distinct card treatments, not one generic `<Card>`** (`Card.tsx`
   is retired): `components/ui/Panel.tsx` (hairline surface, for
   empty/terminal states — dashed border + a letterhead watermark),
   `components/ui/HighlightCard.tsx` (emerald ground, reversed text, only
@@ -123,7 +126,56 @@ should appear anywhere else in the codebase.
   `components/ui/RuleBox.tsx` (one box divided by hairlines — service
   cells, trust badges — reads as a set, not individual cards), and the
   product card (its own component, hairline border + full-bleed photo, no
-  shadow, no image zoom, border darkens on hover only).
+  shadow, no image zoom, border darkens on hover only), and the home
+  category card (`CategoryIconCards`: the owner's own category photograph,
+  from `department.photoSrc`, and nothing else — no icon, no tint, no product
+  count, no caption strip). Above `lg` the six sit in one flex row that
+  answers the pointer: every card is `flex: 1 1 0`, hovering the row shrinks
+  them all to `flex-grow: 0.78` and hovering one overrides it to `2.6`, so
+  the active card takes ~38% of the row and its name plus blurb fade up over
+  it while the other five stay plain photographs. `flex-grow` is an
+  animatable `<number>`, which is why this needs no state, no client
+  component and no JS at all; `:focus-within`/`:focus-visible` mirror the
+  hover so the keyboard gets the same behaviour. Below `lg` there is no
+  pointer to answer, so the overlay is pinned open and the CONTAINER
+  changes mode rather than the card changing design: `sm`–`lg` a two-up
+  grid, and under `sm` a two-part stage: a vertical index down the
+  **physical left** and the selected category's card on the right.
+  `.km-cat-stage` is `flex-direction: row-reverse` for exactly that reason —
+  on an RTL page a plain row puts the FIRST child on the right, and the
+  index has to be first in the DOM (read first, labels what follows) while
+  sitting physically left. At `sm` and up the stage is `display: contents`,
+  so it leaves layout entirely and the grid and desktop row are untouched.
+  The card still swipes: the right column is the same scroll-snap carousel,
+  now one card per column width instead of a full-bleed strip. The stage is
+  `align-items: stretch` with a 300px floor, so the emerald panel and the
+  picture beside it are always exactly the same height — whichever is taller
+  sets it. The copy sits ON the picture at every width, over the same scrim;
+  on a phone the TITLE is hidden (the index already names the selected
+  category, so showing it again says it twice) and the blurb is clamped to
+  three lines, which keeps it to ~28% of the picture instead of ~45%. The
+  rail's only client component is `CategoryRailChips` — the index, a
+  `bg-emerald` rounded panel of rows in bone, the current one lifted onto a
+  `bg-surface` pill with ink text, opacity receding gently with distance.
+  It reports which card is centred, scrolls to one when tapped, and
+  auto-advances every 3s. Autoplay parks for 5s after any
+  pointer/key/focus interaction, halts while the tab is hidden, and never
+  runs under `prefers-reduced-motion`. It reads geometry rather than
+  `scrollLeft`, whose sign and origin still differ between engines in RTL. (That is not the
+  scroll-triggered animation this section rules out — nothing is revealed by
+  scrolling; a control is reporting carousel position.) Everything else
+  about the card is identical at
+  every width: same absolute overlay over the photograph, same scrim, same
+  type. The aspect boxes (`4/5` phone, `4/3` tablet) exist to keep the copy
+  inside the scrim's dark end even at 320px, where the blurb wraps most
+  (the carousel slide is `86%` of the track, on the same `4/5` box).
+  It is the only card in the design whose text sits on a
+  photograph, so it borrows the hero's `rgb(8 20 15)` scrim ink. All of it
+  lives in the `.km-cat-*` rules in `globals.css`. The blurbs are
+  `fa.home.categoryBlurb`, keyed by department key. The photographs live in
+  `public/images/categories/photo/` — see the README there; they are a
+  different asset set from the line-art icons in
+  `public/images/categories/`.
 - **Radius**: `2–10px` for cards/panels/inputs (`--radius-1`…`-7`), never
   pill except buttons (`--radius-pill`, in `Button`'s base class, not a
   variant — every button in this design is a pill).
